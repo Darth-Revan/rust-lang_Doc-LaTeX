@@ -1,0 +1,120 @@
+\documentclass[fontsize=10pt]{scrartcl}
+
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage[autostyle=true]{csquotes}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{url}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listingsutf8}
+\usepackage{fancyheadings}
+\usepackage[most]{tcolorbox}
+\definecolor{quote-blue}{rgb}{0.95,0.97,0.98}
+\newtcolorbox{myquote}{colback=quote-blue,grow to right by=-10mm,grow to left by=-10mm,
+    boxrule=0pt,boxsep=0pt,breakable}
+
+\definecolor{rustKeyword}{rgb}{0.54,0.35,0.66}
+\definecolor{rustComment}{rgb}{0.56,0.56,0.55}
+\definecolor{rustString}{rgb}{0.44,0.55,0}
+\definecolor{rustMacro}{rgb}{0.24,0.60,0.62}
+
+\begin{document}
+    
+    \lstset{
+        language=Bash,
+        basicstyle=\ttfamily\footnotesize,
+        backgroundcolor=\color{white!95!black},
+        tabsize=4,
+        extendedchars=false,
+    }
+    
+    \lstdefinelanguage{Rust}{
+    morekeywords={
+        fn,
+        use,
+    },
+    sensitive=true,
+    alsoletter={!},
+    alsodigit={!},
+    morecomment=[l]{//},
+    morecomment=[s]{///}{///},
+    morestring=[b]"
+    }
+    
+    \lstset{
+         language=Rust,
+         basicstyle=\ttfamily\footnotesize,
+         tabsize=4,
+         extendedchars=false,
+         keepspaces=true,
+         showstringspaces=false,
+         breaklines=true,
+         commentstyle=\color{rustComment},
+         keywordstyle=\color{rustKeyword},
+         stringstyle=\color{rustString},
+         emph=[1] {
+             println!,
+         },
+         emphstyle=[1]{\color{rustMacro}},
+     }
+    
+    \newcommand{\code}[1]{\lstinline[basicstyle=\ttfamily\color{red!60!black}]|#1|}
+    \newcommand{\blank}{\vspace{\baselineskip}}
+    \pagestyle{fancy}
+    \lhead{\leftmark}
+    \rhead{\rightmark}
+    \cfoot{\thepage}
+    \renewcommand{\headrulewidth}{2pt}
+    \renewcommand{\footrulewidth}{1pt}
+    
+    \include{src/title}
+    \pagebreak
+    
+    \tableofcontents
+    \pagebreak
+
+    \pagebreak
+    \section{Introduction}
+    \label{sec:intro}
+    \input{src/introdcution.tex}
+    
+    \pagebreak
+    \section{Getting Started}
+    \label{sec:gettingstarted}
+    \input{src/gettingstarted.tex}
+    
+    \pagebreak
+    \section{Tutorial: Guessing Game}
+    \label{sec:tutorial}
+    
+    \pagebreak
+    \section{Syntax and Semantics}
+    \label{sec:syntax}
+    
+    \pagebreak
+    \section{Effective Rust}
+    \label{sec:effective_rust}
+    
+    \pagebreak
+    \section{Nightly Rust}
+    \label{sec:nightly_rust}
+    
+    \pagebreak
+    \section{Glossary}
+    \label{sec:glossary}
+    
+    \pagebreak
+    \section{Syntax Index}
+    \label{sec:syntax_index}
+    
+    \pagebreak
+    \section{Bibliography}
+    \label{sec:bib}
+    
+\end{document}

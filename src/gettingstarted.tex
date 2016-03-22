@@ -1,0 +1,242 @@
+This first chapter of the book will get us going with Rust and its tooling. First, we’ll install Rust. Then, the classic 
+‘Hello World’ program. Finally, we’ll talk about Cargo, Rust’s build system and package manager.
+
+\subsection{Installing Rust}
+
+The first step to using Rust is to install it. Generally speaking, you’ll need an Internet connection to run the commands in 
+this section, as we’ll be downloading Rust from the internet.
+
+We’ll be showing off a number of commands using a terminal, and those lines all start with \code{\$}. We don't need to type in the 
+\code{\$}s, they are there to indicate the start of each command. We’ll see many tutorials and examples around the web that follow 
+this convention: \code{\$} for commands run as our regular user, and \code{\#} for commands we should be running as an administrator.
+
+\subsubsection*{Platform support}
+
+The Rust compiler runs on, and compiles to, a great number of platforms, though not all platforms are equally supported. 
+Rust's support levels are organized into three tiers, each with a different set of guarantees.
+
+Platforms are identified by their \enquote{target triple} which is the string to inform the compiler what kind of output should 
+be produced. The columns below indicate whether the corresponding component works on the specified platform.
+
+\paragraph*{Tier 1}
+
+Tier 1 platforms can be thought of as \enquote{guaranteed to build and work}. Specifically they will each satisfy the 
+following requirements:
+
+\begin{itemize}
+    \item{Automated testing is set up to run tests for the platform.}
+    \item{Landing changes to the \code{rust-lang/rust} repository's master branch is gated on tests passing.}
+    \item{Official release artifacts are provided for the platform.}
+    \item{Documentation for how to use and how to build the platform is available.}
+\end{itemize}
+
+\begin{table}[H]
+       \centering
+       \small
+       \begin{tabular}{|l|l|l|l|l|}
+           \hline
+           \textbf{Target} & \textbf{std} & \textbf{rustc} & \textbf{cargo} & \textbf{notes} \\
+           \hline
+           \code{x86\_64-pc-windows-msvc} & \checkmark & \checkmark & \checkmark & 64-bit MSVC (Windows 7+) \\
+           \code{i686-pc-windows-gnu} & \checkmark & \checkmark & \checkmark & 32-bit MinGW (Windows 7+) \\
+           \code{x86\_64-pc-windows-gnu} & \checkmark & \checkmark & \checkmark & 64-bit MinGW (Windows 7+) \\
+           \code{i686-apple-darwin} & \checkmark & \checkmark & \checkmark & 32-bit OSX (10.7+, Lion+) \\
+           \code{x86\_64-apple-darwin} & \checkmark & \checkmark & \checkmark & 64-bit OSX (10.7+, Lion+) \\
+           \code{i686-unkown-linux-gnu} & \checkmark & \checkmark & \checkmark & 32-bit Linux (2.6.18+) \\
+           \code{x86\_64-unkown-linux-gnu} & \checkmark & \checkmark & \checkmark & 64-bit Linux (2.6.18+) \\
+           \hline
+        \end{tabular}
+\end{table}
+
+\paragraph*{Tier 2}
+
+Tier 2 platforms can be thought of as \enquote{guaranteed to build}. Automated tests are not run so it's not guaranteed to produce a 
+working build, but platforms often work to quite a good degree and patches are always welcome! Specifically, these platforms are 
+required to have each of the following:
+
+\begin{itemize}
+    \item{Automated building is set up, but may not be running tests.}
+    \item{Landing changes to the \code{rust-lang/rust} repository's master branch is gated on platforms \textbf{building}. Note that this means 
+        for some platforms only the standard library is compiled, but for others the full bootstrap is run.}
+    \item{Official release artifacts are provided for the platform.}
+\end{itemize}
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|l|l|l|l|l|}
+        \hline
+        \textbf{Target} & \textbf{std} & \textbf{rustc} & \textbf{cargo} & \textbf{notes} \\
+        \hline
+        \code{i686-pc-windows-msvc} & \checkmark & \checkmark & \checkmark & 32-bit MSVC (Windows 7+) \\
+        \code{x86\_64-unkown-linzux-musl} & \checkmark & & & 64-bit Linux with MUSL \\
+        \code{arm-linux-androideabi} & \checkmark & & & ARM Android \\
+        \code{arm-unkown-linux-gnueabi} & \checkmark & \checkmark & & ARM Linux (2.6.18+) \\
+        \code{arm-unkown-linux-gnueabihf} & \checkmark & \checkmark & & ARM Linux (2.6.18+) \\
+        \code{aarch64-unkown-linux-gnu} & \checkmark & & & ARM64 Linux (2.6.18+) \\
+        \code{mips-unkown-linux-gnu} & \checkmark & & & MIPS Linux (2.6.18+) \\
+        \code{mipsel-unkown-linux-gnu} & \checkmark & & & MIPS (LE) Linux (2.6.18+) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\paragraph*{Tier 3}
+
+Tier 3 platforms are those which Rust has support for, but landing changes is not gated on the platform either building or 
+passing tests. Working builds for these platforms may be spotty as their reliability is often defined in terms of 
+community contributions. Additionally, release artifacts and installers are not provided, but there may be community 
+infrastructure producing these in unofficial locations.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabular}{|l|l|l|l|l|}
+        \hline
+        \textbf{Target} & \textbf{std} & \textbf{rustc} & \textbf{cargo} & \textbf{notes} \\
+        \hline
+        \code{i686-linux-android} & \checkmark & & & 32-bit x86 Android \\
+        \code{aarch64-linux-android} & \checkmark & & & ARM64 Android \\
+        \code{powerpc-unkown-linux-gnu} & \checkmark & & & PowerPC Linux (2.6.18+) \\
+        \code{i386-apple-ios} & \checkmark & & & 32-bit x86 iOS \\
+        \code{x86\_64-apple-ios} & \checkmark & & & 64-bit x86 iOS \\
+        \code{armv7-apple-ios} & \checkmark & & & ARM iOS \\
+        \code{armv7s-apple-ios} & \checkmark & & & ARM iOS \\
+        \code{aarch64-apple-ios} & \checkmark & & & ARM64 iOS \\
+        \code{i686-unkown-freebsd} & \checkmark & \checkmark & & 32-bit FreeBSD \\
+        \code{x86\_64-unkown-freebsd} & \checkmark & \checkmark & & 64-bit FreeBSD \\
+        \code{x86\_64-unkown-openbsd} & \checkmark & \checkmark & & 64-bit OpenBSD \\
+        \code{x86\_64-unkown-netbsd} & \checkmark & \checkmark & & 64-bit NetBSD \\
+        \code{x86\_64-unkown-bitrig} & \checkmark & \checkmark & & 64-bit Bitrig \\
+        \code{x86\_64-unkown-dragonfly} & \checkmark & \checkmark & & 64-bit DragonFlyBSD \\
+        \code{x86\_64-rumprun-netbsd} & \checkmark & & & 64-bit NetBDS Rump Kernel \\
+        \code{i686-pc-windows-msvc (XP)} & \checkmark & & & Windows XP support \\
+        \code{x86\_64-pc-windows-msvc (XP)} & \checkmark & & & Windows XP support \\
+        \hline
+    \end{tabular}
+\end{table}
+Note that this table can be expanded over time, this isn't the exhaustive set of tier 3 platforms that will ever be!
+
+\subsubsection*{Installing on Linux or Mac}
+
+If we're on Linux or a Mac, all we need to do is open a terminal and type this:
+\begin{lstlisting}[language=Bash]
+$ curl -sSf https://static.rust-lang.org/rustup.sh | sh
+\end{lstlisting}
+
+This will download a script, and stat the installation. If it all goes well, you'll see this appear:
+\begin{lstlisting}[language=Bash]
+Welcome to Rust.
+
+This script will download the Rust compiler and its package manager, 
+Cargo, and install them to /usr/local. You may install elsewhere by 
+running this script with the --prefix=<path> option.
+
+The installer will run under 'sudo' and may ask you for your password. 
+If you do not want the script to run 'sudo' then pass it the 
+--disable-sudo flag.
+
+You may uninstall later by running /usr/local/lib/rustlib/uninstall.sh,
+or by running this script again with the --uninstall flag.
+
+Continue? (y/N)
+\end{lstlisting}
+From here, press \code{y} for ‘yes’, and then follow the rest of the prompts.
+
+\subsubsection*{Installing on Windows}
+
+If you're on Windows, please download the appropriate \href{https://www.rust-lang.org/install.html}{installer}.
+
+\subsubsection*{Uninstalling}
+
+Uninstalling Rust is as easy as installing it. On Linux or Mac, run the uninstall script:
+
+\begin{lstlisting}[language=Bash]
+$ sudo /usr/local/lib/rustlib/uninstall.sh
+\end{lstlisting}
+
+If we used the Windows installer, we can re-run the \code{.msi} and it will give us an uninstall option.
+
+\subsubsection*{Troubleshooting}
+
+If we've got Rust installed, we can open up a shell, and type this:
+\begin{lstlisting}[language=Bash]
+$ rustc --version
+\end{lstlisting}
+
+You should see the version number, commit hash, and commit date.
+\blank
+If you do, Rust has been installed successfully! Congrats!
+\blank
+If you don't and you're on Windows, check that Rust is in your \%PATH\% system variable. If it isn't, run the installer again, 
+select \enquote{Change} on the \enquote{Change, repair, or remove installation} page and ensure \enquote{Add to PATH} is installed 
+on the local hard drive.
+
+If not, there are a number of places where we can get help. The easiest is the 
+\href{irc://irc.mozilla.org/\#rust}{\#rust IRC channel on irc.mozilla.org}, which we can access through
+\href{http://chat.mibbit.com/?server=irc.mozilla.org&channel=\%23rust}{Mibbit}. Click that link, and we'll be chatting with other 
+Rustaceans (a silly nickname we call ourselves) who can help us out. Other great resources include 
+\href{https://users.rust-lang.org/}{the user’s forum}, and \href{http://stackoverflow.com/questions/tagged/rust}{Stack Overflow}.
+
+This installer also installs a copy of the documentation locally, so we can read it offline. On UNIX systems, \code{/usr/local/share/doc/rust} 
+is the location. On Windows, it's in a \code{share/doc directory}, inside the directory to which Rust was installed.
+
+\subsection{Hello, World!}
+
+Now that you have Rust installed, we'll help you write your first Rust program. It's traditional when learning a new language to write 
+a little program to print the text \enquote{Hello, world!} to the screen, and in this section, we'll follow that tradition.
+
+\blank
+The nice thing about starting with such a simple program is that you can quickly verify that your compiler is installed, and that it's 
+working properly. Printing information to the screen is also a pretty common thing to do, so practicing it early on is good.
+
+\begin{myquote}
+    Note: This book assumes basic familiarity with the command line. Rust itself makes no specific demands about your editing, tooling, 
+    or where your code lives, so if you prefer an IDE to the command line, that's an option. You may want to check out SolidOak, which 
+    was built specifically with Rust in mind. There are a number of extensions in development by the community, and the Rust team ships 
+    plugins for various editors. Configuring your editor or IDE is out of the scope of this tutorial, so check the documentation for 
+    your specific setup.
+\end{myquote}
+
+\subsubsection*{Creating a Project File}
+
+First, make a file to put your Rust code in. Rust doesn't care where your code lives, but for this book, I suggest making a 
+\emph{projects} directory in your home directory, and keeping all your projects there. Open a terminal and enter the following 
+commands to make a directory for this particular project:
+\begin{lstlisting}[language=Bash]
+$ mkdir ~/projects
+$ cd ~/projects
+$ mkdir hello_world
+$ cd hello_world
+\end{lstlisting}
+
+\begin{myquote}
+Note: If you’re on Windows and not using PowerShell, the ~ may not work. Consult the documentation for your shell for more details.
+\end{myquote}
+
+\subsubsection*{Writing and Running a Rust Program}
+
+Next, make a new source file and call it \emph{main.rs}. Rust files always end in a \emph{.rs} extension. If you’re using more 
+than one word in your filename, use an underscore to separate them; for example, you'd use \emph{hello\_world.rs} rather than 
+\emph{helloworld.rs}.
+
+\blank
+Now open the main.rs file you just created, and type the following code:
+
+\begin{lstlisting}[language=Rust]
+fn main() {
+    println!("Hello, world!");
+}
+\end{lstlisting}
+
+Save the file, and go back to your terminal window. On Linux or OSX, enter the following commands:
+
+\begin{lstlisting}[language=Bash]
+$ rustc main.rs
+$ ./main
+Hello, world!
+\end{lstlisting}
+
+In Windows, replace \code{main} with \code{main.exe}. Regardless of your operating system, you should see the string 
+\code{Hello, world!} print to the terminal. If you did, then congratulations! You've officially written a Rust program. 
+That makes you a Rust programmer! Welcome.
+

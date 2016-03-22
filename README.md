@@ -42,6 +42,9 @@ In order to clean the working directory from temporary files created by `pdflate
 Rust and its components is primarily distributed unter the terms of the MIT License and the 
 Apache License 2.0. For the original license document see [https://github.com/rust-lang/rust].
 
+The Logo of the Rust programming language has been created by _Mozilla Corporation_ and is  
+shared under the terms of _Creative Commons CC BY 4.0_ [https://creativecommons.org/licenses/by/4.0/].
+
 **I am not in any form the original author of "The Rust Programming Language". I only redistribut
 it as a LaTeX-based PDF version for offline usage on PCs and/or E-Readers. All my respect and gratitude belongs 
-to the _Mozilla Foundation_ and _Mozilla Research_ for their fantastic work on the awesome language Rust.**
+to  _Mozilla Corporation_ and _Mozilla Research_ for their fantastic work on the awesome language Rust.**
