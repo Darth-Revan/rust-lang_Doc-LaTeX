@@ -1,0 +1,93 @@
+This is a reading list of material relevant to Rust. It includes prior research that has - at one time or another - 
+influenced the design of Rust, as well as publications about Rust.
+
+\subsection{Type system}
+
+\begin{itemize}
+  \item{\href{http://209.68.42.137/ucsd-pages/Courses/cse227.w03/handouts/cyclone-regions.pdf}
+          {Region based memory management in Cyclone}}
+  \item{\href{http://www.cs.umd.edu/projects/PL/cyclone/scp.pdf}{Safe manual memory management in Cyclone}}
+  \item{\href{http://www.ps.uni-sb.de/courses/typen-ws99/class.ps.gz}{Typeclasses: making ad-hoc polymorphism less ad hoc}}
+  \item{\href{https://www.cs.utah.edu/plt/publications/jfp12-draft-fcdf.pdf}{Macros that work together}}
+  \item{\href{http://scg.unibe.ch/archive/papers/Scha03aTraits.pdf}{Traits: composable units of behavior}}
+  \item{\href{http://www.cs.uwm.edu/faculty/boyland/papers/unique-preprint.ps}{Alias burying} - 
+          We tried something similar and abandoned it.}
+  \item{\href{http://www.cs.uu.nl/research/techreps/UU-CS-2002-048.html}{External uniqueness is unique enough}}
+  \item{\href{https://research.microsoft.com/pubs/170528/msr-tr-2012-79.pdf}
+          {Uniqueness and Reference Immutability for Safe Parallelism}}
+  \item{\href{http://www.cs.ucla.edu/\%7Epalsberg/tba/papers/tofte-talpin-iandc97.pdf}{Region Based Memory Management}}
+\end{itemize}
+
+
+\subsection{Concurrency}
+
+\begin{itemize}
+  \item{\href{https://research.microsoft.com/pubs/69431/osr2007\_rethinkingsoftwarestack.pdf}
+          {Singularity: rethinking the software stack}}
+  \item{\href{https://research.microsoft.com/pubs/67482/singsharp.pdf}
+          {Language support for fast and reliable message passing in singularity OS}}
+  \item{\href{http://supertech.csail.mit.edu/papers/steal.pdf}{Scheduling multithreaded computations by work stealing}}
+  \item{\href{http://www.eecis.udel.edu/\%7Ecavazos/cisc879-spring2008/papers/arora98thread.pdf}
+          {Thread scheduling for multiprogramming multiprocessors}}
+  \item{\href{http://www.aladdin.cs.cmu.edu/papers/pdfs/y2000/locality\_spaa00.pdf}{The data locality of work stealing}}
+  \item{\href{http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.170.1097&rep=rep1&type=pdf}
+          {Dynamic circular work stealing deque} - The Chase/Lev deque}
+  \item{\href{http://www.cs.rice.edu/\%7Eyguo/pubs/PID824943.pdf}
+          {Work-first and help-first scheduling policies for async-finish task parallelism} - More general than fully-strict 
+          work stealing}
+  \item{\href{http://www.coopsoft.com/ar/CalamityArticle.html}{A Java fork/join calamity} - critique of Java's fork/join 
+          library, particularly its application of work stealing to non-strict computation}
+  \item{\href{http://www.stanford.edu/\%7Eouster/cgi-bin/papers/coscheduling.pdf}{Scheduling techniques for concurrent systems}}
+  \item{\href{http://www.blagodurov.net/files/a8-blagodurov.pdf}{Contention aware scheduling}}
+  \item{\href{http://www.cse.ohio-state.edu/hpcs/WWW/HTML/publications/papers/TR-12-1.pdf}{Balanced work stealing for 
+          time-sharing multicores}}
+  \item{\href{http://dl.acm.org/citation.cfm?id=1953616&dl=ACM&coll=DL&CFID=524387192&CFTOKEN=44362705}{Three layer cake 
+          for shared-memory programming}}
+  \item{\href{http://www.cs.bgu.ac.il/\%7Ehendlerd/papers/p280-hendler.pdf}{Non-blocking steal-half work queues}}
+  \item{\href{http://www.mpi-sws.org/\%7Eturon/reagents.pdf}{Reagents: expressing and composing fine-grained concurrency}}
+  \item{\href{https://www.cs.rochester.edu/u/scott/papers/1991\_TOCS\_synch.pdf}{Algorithms for scalable synchronization of 
+          shared-memory multiprocessors}}
+  \item{\href{https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-579.pdf}{Epoch-based reclamation.}}
+\end{itemize}
+
+\subsection{Others}
+
+\begin{itemize}
+  \item{\href{https://www.usenix.org/legacy/events/hotos03/tech/full\_papers/candea/candea.pdf}{Crash-only software}}
+  \item{\href{http://people.cs.umass.edu/\%7Eemery/pubs/berger-pldi2001.pdf}{Composing High-Performance Memory Allocators}}
+  \item{\href{http://people.cs.umass.edu/\%7Eemery/pubs/berger-oopsla2002.pdf}{Reconsidering Custom Memory Allocation}}
+\end{itemize}
+
+\subsection{Papers about Rust}
+
+\begin{itemize}
+  \item{\href{http://www.cs.indiana.edu/\%7Eeholk/papers/hips2013.pdf}{GPU Programming in Rust: Implementing High Level 
+          Abstractions in a Systems Level Language}. Early GPU work by Eric Holk.}
+  \item{\href{https://www.usenix.org/conference/hotpar12/parallel-closures-new-twist-old-idea}{Parallel closures: a new 
+          twist on an old idea}}
+  \begin{itemize}
+    \item{not exactly about Rust, but by nmatsakis}
+  \end{itemize}
+  \item{\href{ftp://ftp.cs.washington.edu/tr/2015/03/UW-CSE-15-03-02.pdf}{Patina: A Formalization of the Rust Programming Language}.
+          Early formalization of a subset of the type system, by Eric Reed.}
+  \item{\href{http://arxiv.org/abs/1505.07383}{Experience Report: Developing the Servo Web Browser Engine using Rust}. 
+          By Lars Bergstrom.}
+  \item{\href{https://michaelsproul.github.io/rust\_radix\_paper/rust-radix-sproul.pdf}{Implementing a Generic Radix Trie 
+          in Rust}. Undergrad paper by Michael Sproul.}
+  \item{\href{http://scialex.github.io/reenix.pdf}{Reenix: Implementing a Unix-Like Operating System in Rust}. 
+          Undergrad paper by Alex Light.}
+  \item{\href{http://octarineparrot.com/assets/mrfloya-thesis-ba.pdf}{Evaluation of performance and productivity metrics of 
+          potential programming languages in the HPC environment}. Bachelor's thesis by Florian Wilkens. Compares C, Go and Rust.}
+  \item{\href{http://spw15.langsec.org/papers/couprie-nom.pdf}{Nom, a byte oriented, streaming, zero copy, parser combinators 
+          library in Rust}. By Geoffroy Couprie, research for VLC.}
+  \item{\href{http://compilers.cs.uni-saarland.de/papers/lkh15\_cgo.pdf}{Graph-Based Higher-Order Intermediate Representation}. 
+          An experimental IR implemented in Impala, a Rust-like language.}
+  \item{\href{http://compilers.cs.uni-saarland.de/papers/ppl14_web.pdf}{Code Refinement of Stencil Codes}. Another paper using 
+          Impala.}
+  \item{\href{http://publications.lib.chalmers.se/records/fulltext/219016/219016.pdf}{Parallelization in Rust with fork-join 
+          and friends}. Linus Farnstrand's master's thesis.}
+  \item{\href{http://munksgaard.me/papers/laumann-munksgaard-larsen.pdf}{Session Types for Rust.} 
+          Philip Munksgaard's master's thesis. Research for Servo.}
+  \item{\href{http://amitlevy.com/papers/tock-plos2015.pdf}{Ownership is Theft: Experiences Building an Embedded OS in Rust - 
+          Amit Levy, et. al.}}
+\end{itemize}

@@ -1,6 +1,6 @@
-\documentclass[fontsize=10pt]{scrartcl}
+\documentclass[fontsize=12pt]{scrartcl}
 
-\usepackage[english]{babel}
+\usepackage[USenglish]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
@@ -8,13 +8,16 @@
 \usepackage[autostyle=true]{csquotes}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage{caption}
 \usepackage{url}
 \usepackage{float}
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
+\hypersetup{colorlinks,urlcolor=blue,linkcolor=black,citecolor=black}
 \usepackage{listingsutf8}
-\usepackage{fancyheadings}
 \usepackage[most]{tcolorbox}
+\usepackage{lastpage}
+\usepackage{fancyvrb,newverbs}
+\usepackage[automark,headsepline,footsepline,markuppercase]{scrpage2}
+
 \definecolor{quote-blue}{rgb}{0.95,0.97,0.98}
 \newtcolorbox{myquote}{colback=quote-blue,grow to right by=-10mm,grow to left by=-10mm,
     boxrule=0pt,boxsep=0pt,breakable}
@@ -23,9 +26,12 @@
 \definecolor{rustComment}{rgb}{0.56,0.56,0.55}
 \definecolor{rustString}{rgb}{0.44,0.55,0}
 \definecolor{rustMacro}{rgb}{0.24,0.60,0.62}
+\definecolor{rustMut}{rgb}{0.26,0.44,0.68}
 
 \begin{document}
-    
+    \renewcommand{\familydefault}{\sfdefault}
+    \renewcommand*\rmdefault{ppl}
+    \renewcommand*\sfdefault{phv}
     \lstset{
         language=Bash,
         basicstyle=\ttfamily\footnotesize,
@@ -38,10 +44,13 @@
     morekeywords={
         fn,
         use,
+        let,
+        extern,
+        crate,
     },
     sensitive=true,
-    alsoletter={!},
-    alsodigit={!},
+    alsoletter={!&},
+    alsodigit={!&},
     morecomment=[l]{//},
     morecomment=[s]{///}{///},
     morestring=[b]"
@@ -49,6 +58,9 @@
     
     \lstset{
          language=Rust,
+         frame=lr,
+         framesep=5pt,
+         framerule=0pt,
          basicstyle=\ttfamily\footnotesize,
          tabsize=4,
          extendedchars=false,
@@ -62,16 +74,32 @@
              println!,
          },
          emphstyle=[1]{\color{rustMacro}},
+         emph=[2] {
+          mut,
+          &mut,
+         },
+         emphstyle=[2]{\color{rustMut}},
      }
+     
+    \definecolor{cverbbg}{gray}{0.93}
+
+    \renewenvironment{verbatim}
+    {\SaveVerbatim{cverb}}
+    {\endSaveVerbatim
+      \flushleft\fboxrule=0pt\small\fboxsep=0.5em
+      \colorbox{cverbbg}{\BUseVerbatim{cverb}}%
+      \endflushleft
+    }
     
-    \newcommand{\code}[1]{\lstinline[basicstyle=\ttfamily\color{red!60!black}]|#1|}
+    \newcommand{\code}[1]{\texttt{\textcolor{red!60!black}{#1}}}
     \newcommand{\blank}{\vspace{\baselineskip}}
-    \pagestyle{fancy}
-    \lhead{\leftmark}
-    \rhead{\rightmark}
-    \cfoot{\thepage}
-    \renewcommand{\headrulewidth}{2pt}
-    \renewcommand{\footrulewidth}{1pt}
+    \clearscrheadfoot
+    \cfoot[Page \pagemark\ of \pageref{LastPage}]{Page \pagemark\ of \pageref{LastPage}}
+    \ohead{\rightmark}
+    \automark[subsection]{section}
+    \pagestyle{scrheadings}
+    
+    \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
     
     \include{src/title}
     \pagebreak
@@ -92,6 +120,7 @@
     \pagebreak
     \section{Tutorial: Guessing Game}
     \label{sec:tutorial}
+    \input{src/tutorial.tex}
     
     \pagebreak
     \section{Syntax and Semantics}
@@ -108,6 +137,7 @@
     \pagebreak
     \section{Glossary}
     \label{sec:glossary}
+    \input{src/glossary.tex}
     
     \pagebreak
     \section{Syntax Index}
@@ -116,5 +146,6 @@
     \pagebreak
     \section{Bibliography}
     \label{sec:bib}
+    \input{src/bibliography.tex}
     
 \end{document}

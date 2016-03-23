@@ -11,4 +11,4 @@ ereader:
 	$(BUILDTEX) $(PROJECT_EREADER)
 
 clean:
-	rm -f *.log *.aux *.bcf *.out *.toc *.run.xml *.bbl *.blg .log ./src/*.aux
+	rm -f *.log *.aux *.bcf *.out *.toc *.run.xml *.bbl *.blg .log *.fdb_latexmk *.fls ./src/*.aux

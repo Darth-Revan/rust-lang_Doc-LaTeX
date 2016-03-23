@@ -1,0 +1,72 @@
+Not every Rustacean has a background in systems programming, nor in computer science, so we've added explanations of terms that might be 
+unfamiliar.
+
+\subsection*{Abstract Syntax Tree}
+\label{sec:gloss_syntaxtree}
+
+When a compiler is compiling your program, it does a number of different things. One of the things that it does is turn 
+the text of your program into an ‘abstract syntax tree’, or ‘AST’. This tree is a representation of the structure of your 
+program. For example, \code{2 + 3} can be turned into a tree:
+
+\begin{lstlisting}
+  +
+ / \
+2   3
+\end{lstlisting}
+
+And \code{2 + (3 * 4)} would look like this:
+
+\begin{lstlisting}
+  +
+ / \
+2   *
+   / \
+  3   4
+\end{lstlisting}
+
+\subsection*{Arity}
+\label{sec:gloss_arity}
+
+Arity refers to the number of arguments a function or operation takes.
+
+\begin{lstlisting}[language=Rust]
+let x = (2, 3);
+let y = (4, 6);
+let z = (8, 2, 6);
+\end{lstlisting}
+
+In the example above \code{x} and \code{y} have arity 2. \code{z} has arity 3.
+
+\subsection*{Bounds}
+\label{sec:gloss_bounds}
+
+% TODO make traits a hyperref to traits section
+Bounds are constraints on a type or trait. For example, if a bound is placed on the argument a function takes, 
+types passed to that function must abide by that constraint.
+
+\subsection*{DST (Dynamically Sized Type)}
+\label{sec:gloss_dst}
+
+A type without a statically known size or alignment. (\href{https://doc.rust-lang.org/nomicon/exotic-sizes.html#dynamically-sized-types-dsts}{more info})
+
+\subsection*{Expression}
+\label{sec:gloss_expression}
+
+In computer programming, an expression is a combination of values, constants, variables, operators and functions that 
+evaluate to a single value. For example, \code{2 + (3 * 4)} is an expression that returns the value 14. It is worth 
+noting that expressions can have side-effects. For example, a function included in an expression might perform actions 
+other than simply returning a value.
+
+\subsection*{Expression-Oriented Language}
+\label{sec:gloss_expressionorientedlang}
+
+In early programming languages, \nameref{sec:gloss_expression} and \nameref{sec:gloss_statements} were two separate syntactic categories: 
+expressions had a value and statements did things. However, later languages blurred this distinction, allowing expressions to do things 
+and statements to have a value. In an expression-oriented language, (nearly) every statement is an expression and therefore returns a value.
+ Consequently, these expression statements can themselves form part of larger expressions.
+
+\subsection*{Statement}
+\label{sec:gloss_statements}
+
+In computer programming, a statement is the smallest standalone element of a programming language that commands a computer to perform 
+an action.
