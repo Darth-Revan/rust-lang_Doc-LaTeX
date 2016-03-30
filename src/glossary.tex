@@ -8,32 +8,32 @@ When a compiler is compiling your program, it does a number of different things.
 the text of your program into an ‘abstract syntax tree’, or ‘AST’. This tree is a representation of the structure of your 
 program. For example, \code{2 + 3} can be turned into a tree:
 
-\begin{lstlisting}
+\begin{verbatim}
   +
  / \
 2   3
-\end{lstlisting}
+\end{verbatim}
 
 And \code{2 + (3 * 4)} would look like this:
 
-\begin{lstlisting}
+\begin{verbatim}
   +
  / \
 2   *
    / \
   3   4
-\end{lstlisting}
+\end{verbatim}
 
 \subsection*{Arity}
 \label{sec:gloss_arity}
 
 Arity refers to the number of arguments a function or operation takes.
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 let x = (2, 3);
 let y = (4, 6);
 let z = (8, 2, 6);
-\end{lstlisting}
+\end{rustc}
 
 In the example above \code{x} and \code{y} have arity 2. \code{z} has arity 3.
 

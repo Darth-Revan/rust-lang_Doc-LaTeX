@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{minted}
 \usepackage{amssymb}
 \usepackage[autostyle=true]{csquotes}
 \usepackage{graphicx}
@@ -12,94 +13,57 @@
 \usepackage{float}
 \usepackage{hyperref}
 \hypersetup{colorlinks,urlcolor=blue,linkcolor=black,citecolor=black}
-\usepackage{listingsutf8}
 \usepackage[most]{tcolorbox}
 \usepackage{lastpage}
-\usepackage{fancyvrb,newverbs}
+\usepackage{fancyvrb,newverbs,mdframed}
 \usepackage[automark,headsepline,footsepline,markuppercase]{scrpage2}
 
+\definecolor{cverbbg}{gray}{0.95}
 \definecolor{quote-blue}{rgb}{0.95,0.97,0.98}
 \newtcolorbox{myquote}{colback=quote-blue,grow to right by=-10mm,grow to left by=-10mm,
     boxrule=0pt,boxsep=0pt,breakable}
-
-\definecolor{rustKeyword}{rgb}{0.54,0.35,0.66}
-\definecolor{rustComment}{rgb}{0.56,0.56,0.55}
-\definecolor{rustString}{rgb}{0.44,0.55,0}
-\definecolor{rustMacro}{rgb}{0.24,0.60,0.62}
-\definecolor{rustMut}{rgb}{0.26,0.44,0.68}
+    
+\makeatletter
+\def\@xobeysp{\mbox{}\space}
+\def\verbatim@font{\footnotesize\ttfamily\raggedright}
+\makeatother
 
 \begin{document}
     \renewcommand{\familydefault}{\sfdefault}
     \renewcommand*\rmdefault{ppl}
     \renewcommand*\sfdefault{phv}
-    \lstset{
-        language=Bash,
-        basicstyle=\ttfamily\footnotesize,
-        backgroundcolor=\color{white!95!black},
-        tabsize=4,
-        extendedchars=false,
-    }
     
-    \lstdefinelanguage{Rust}{
-    morekeywords={
-        fn,
-        use,
-        let,
-        extern,
-        crate,
-    },
-    sensitive=true,
-    alsoletter={!&},
-    alsodigit={!&},
-    morecomment=[l]{//},
-    morecomment=[s]{///}{///},
-    morestring=[b]"
-    }
-    
-    \lstset{
-         language=Rust,
-         frame=lr,
-         framesep=5pt,
-         framerule=0pt,
-         basicstyle=\ttfamily\footnotesize,
-         tabsize=4,
-         extendedchars=false,
-         keepspaces=true,
-         showstringspaces=false,
-         breaklines=true,
-         commentstyle=\color{rustComment},
-         keywordstyle=\color{rustKeyword},
-         stringstyle=\color{rustString},
-         emph=[1] {
-             println!,
-         },
-         emphstyle=[1]{\color{rustMacro}},
-         emph=[2] {
-          mut,
-          &mut,
-         },
-         emphstyle=[2]{\color{rustMut}},
-     }
-     
-    \definecolor{cverbbg}{gray}{0.93}
-
     \renewenvironment{verbatim}
-    {\SaveVerbatim{cverb}}
-    {\endSaveVerbatim
-      \flushleft\fboxrule=0pt\small\fboxsep=0.5em
-      \colorbox{cverbbg}{\BUseVerbatim{cverb}}%
-      \endflushleft
+    {\VerbatimEnvironment
+     \begin{mdframed}[backgroundcolor=cverbbg,topline=false,bottomline=false,rightline=false,leftline=false]
+     \begin{Verbatim}[fontsize=\footnotesize]}
+    {\end{Verbatim}
+     \end{mdframed}}
+    
+    \usemintedstyle{manni}
+    \setminted[rust]{
+      breaklines,
+      fontsize=\footnotesize,
+      tabsize=4,
+      bgcolor=cverbbg
     }
+    
+    \newenvironment{rustc}
+    {\VerbatimEnvironment
+     \vspace{0.5em}
+     \begin{minted}{rust}}
+    {\end{minted}
+     \vspace{0.5em}}
     
     \newcommand{\code}[1]{\texttt{\textcolor{red!60!black}{#1}}}
     \newcommand{\blank}{\vspace{\baselineskip}}
+    \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
+    
     \clearscrheadfoot
     \cfoot[Page \pagemark\ of \pageref{LastPage}]{Page \pagemark\ of \pageref{LastPage}}
     \ohead{\rightmark}
     \automark[subsection]{section}
     \pagestyle{scrheadings}
-    
-    \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
     
     \include{src/title}
     \pagebreak
@@ -125,6 +89,7 @@
     \pagebreak
     \section{Syntax and Semantics}
     \label{sec:syntax}
+    \input{src/syntax.tex}
     
     \pagebreak
     \section{Effective Rust}

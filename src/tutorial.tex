@@ -39,11 +39,11 @@ Cargo gets this information from your environment. If it’s not correct, go ahe
 
 Finally, Cargo generated a ‘Hello, world!’ for us. Check out \code{src/main.rs}:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 fn main() {
     println!("Hello, world!");
 }
-\end{lstlisting}
+\end{rustc}
 
 Let’s try compiling what Cargo gave us:
 
@@ -74,7 +74,7 @@ need to quickly test each iteration before moving on to the next one.
 Let’s get to it! The first thing we need to do for our guessing game is allow our player to input a guess. Put this in your 
 \code{src/main.rs}:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 use std::io;
 
 fn main() {
@@ -89,13 +89,13 @@ fn main() {
 
     println!("You guessed: {}", guess);
 }
-\end{lstlisting}
+\end{rustc}
 
 There’s a lot here! Let’s go over it, bit by bit.
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 use std::io;
-\end{lstlisting}
+\end{rustc}
 
 We’ll need to take user input, and then print the result as output. As such, we need the \code{io} library from the standard 
 library. Rust only imports a few things by default into every program, the \href{https://doc.rust-lang.org/std/prelude/}{‘prelude’}.
@@ -103,35 +103,35 @@ If it’s not in the prelude, you’ll have to \code{use} it directly. There is 
 \href{https://doc.rust-lang.org/std/io/prelude/}{io prelude}, which serves a similar function: you import it, and it imports a 
 number of useful, \code{io}-related things.
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 fn main() {
-\end{lstlisting}
+\end{rustc}
 
 % TODO make tuple a hyperref to tuple
 As you’ve seen before, the \code{main()} function is the entry point into your program. The \code{fn} syntax declares a new 
 function, the \code{()}s indicate that there are no arguments, and \code{\{} starts the body of the function. Because we 
 didn’t include a return type, it’s assumed to be \code{()}, an empty tuple.
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
     println!("Guess the number!");
 
     println!("Please input your guess.");
-\end{lstlisting}
+\end{rustc}
 
 % TODO make macro and string to hyperrefs
 We previously learned that \code{println!()} is a macro that prints a string to the screen.
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
     let mut guess = String::new();
-\end{lstlisting}
+\end{rustc}
 
 % TODO make let statement a hyperref
 Now we’re getting interesting! There’s a lot going on in this little line. The first thing to notice is that this is a 
 let statement, which is used to create ‘variable bindings’. They take this form:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 let foo = bar;
-\end{lstlisting}
+\end{rustc}
 
 This will create a new binding named \code{foo}, and bind it to the value \code{bar}. In many languages, this is called a 
 ‘variable’, but Rust’s variable bindings have a few tricks up their sleeves.
@@ -143,10 +143,10 @@ For example, they’re immutable by default. That’s why our example uses \code
 immutable. \code{let} doesn’t take a name on the left hand side of the assignment, it actually accepts a ‘pattern’. We’ll 
 use patterns later. It’s easy enough to use for now:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 let foo = 5; // immutable.
 let mut bar = 5; // mutable
-\end{lstlisting}
+\end{rustc}
 
 % TODO make comments a hyperref
 Oh, and \code{//} will start a comment, until the end of the line. Rust ignores everything in comments.
@@ -176,17 +176,17 @@ many types, as it’s a common name for making a new value of some kind.
 
 Let’s move forward:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
     io::stdin().read_line(&mut guess)
         .expect("Failed to read line");
 
-\end{lstlisting}
+\end{rustc}
 
 That’s a lot more! Let’s go bit-by-bit. The first line has two parts. Here’s the first:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 io::stdin()
-\end{lstlisting}
+\end{rustc}
 
 Remember how we \code{use}d \code{std::io} on the first line of the program? We’re now calling an associated 
 function on it. If we didn’t \code{use std::io}, we could have written this line as \code{std::io::stdin()}.
@@ -200,9 +200,9 @@ This particular function returns a handle to the standard input for your termina
 
 The next part will use this handle to get input from the user:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 .read_line(&mut guess)
-\end{lstlisting}
+\end{rustc}
 
 % TODO make methods a hyperref
 Here, we call the \href{https://doc.rust-lang.org/std/io/struct.Stdin.html\#method.read\_line}{read\_line()} method on our handle.
@@ -229,16 +229,16 @@ and place that into a string. So it takes that string as an argument, and in ord
 But we’re not quite done with this line of code, though. While it’s a single line of text, it’s only the first part of the 
 single logical line of code:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
         .expect("Failed to read line");
-\end{lstlisting}
+\end{rustc}
 
 When you call a method with the \code{.foo()} syntax, you may introduce a newline and other whitespace. This helps you 
 split up long lines. We \emph{could} have done:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
     io::stdin().read_line(&mut guess).expect("failed to read line");
-\end{lstlisting}
+\end{rustc}
 
 But that gets hard to read. So we’ve split it up, three lines for three method calls. We already talked about \code{read\_line()},
 but what about \code{expect()}? Well, we already mentioned that \code{read\_line()} puts what the user types into the 
@@ -278,20 +278,20 @@ little methods. If we can recover from the error somehow, we’d do something el
 
 There’s only one line of this first example left:
 
-\begin{lstlisting}[language=Bash]
+\begin{verbatim}
     println!("You guessed: {}", guess);
 } 
-\end{lstlisting}
+\end{verbatim}
 
 This prints out the string we saved our input in. The \code{\{\}}s are a placeholder, and so we pass it \code{guess} as an 
 argument. If we had multiple \code{\{\}}s, we would pass multiple arguments:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 let x = 5;
 let y = 10;
 
 println!("x and y: {} and {}", x, y);
-\end{lstlisting}
+\end{rustc}
 
 Easy.
 
@@ -415,7 +415,7 @@ projects which are assembled out of a number of sub-packages.
 
 Let’s get on to actually \emph{using} \code{rand}. Here’s our next step:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 extern crate rand;
 
 use std::io;
@@ -437,7 +437,7 @@ fn main() {
 
     println!("You guessed: {}", guess);
 }
-\end{lstlisting}
+\end{rustc}
 
 The first thing we’ve done is change the first line. It now says \code{extern crate rand}. Because we declared \code{rand} in 
 our \code{[dependencies]}, we can use \code{extern crate} to let Rust know we’ll be making use of it. This also does the 
@@ -455,11 +455,11 @@ to work, it needs the trait to be in scope. For more about the details, read the
 
 There are two other lines we added, in the middle:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
     let secret_number = rand::thread_rng().gen_range(1, 101);
 
     println!("The secret number is: {}", secret_number);
-\end{lstlisting}
+\end{rustc}
 
 % TODO make thread a hyperref
 We use the \code{rand::thread\_rng()} function to get a copy of the random number generator, which is local to the particular 
@@ -498,6 +498,447 @@ Great! Next up: comparing our guess to the secret number.
 
 \subsection{Comparting guesses}
 
+Now that we’ve got user input, let’s compare our guess to the secret number. Here’s our next step, though it doesn’t quite 
+compile yet:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!("The secret number is: {}", secret_number);
+
+    println!("Please input your guess.");
+
+    let mut guess = String::new();
+
+    io::stdin().read_line(&mut guess)
+        .expect("failed to read line");
+
+    println!("You guessed: {}", guess);
+
+    match guess.cmp(&secret_number) {
+        Ordering::Less    => println!("Too small!"),
+        Ordering::Greater => println!("Too big!"),
+        Ordering::Equal   => println!("You win!"),
+    }
+}
+\end{rustc}
+
+A few new bits here. The first is another \code{use}. We bring a type called \code{std::cmp::Ordering} into scope. Then, five 
+new lines at the bottom that use it:
+
+\begin{rustc}
+match guess.cmp(&secret_number) {
+    Ordering::Less    => println!("Too small!"),
+    Ordering::Greater => println!("Too big!"),
+    Ordering::Equal   => println!("You win!"),
+}
+\end{rustc}
+
+% TODO make match a hyperref
+% TODO make enum a hyperref
+The \code{cmp()} method can be called on anything that can be compared, and it takes a reference to the thing you want to compare 
+it to. It returns the \code{Ordering} type we \code{use}d earlier. We use a match statement to determine exactly what kind of 
+\code{Ordering} it is. \code{Ordering} is an enum, short for ‘enumeration’, which looks like this:
+
+\begin{rustc}
+enum Foo {
+  Bar,
+  Baz,
+}
+\end{rustc}
+
+With this definition, anything of type \code{Foo} can be either a \code{Foo::Bar} or a \code{Foo::Baz}. We use the \code{::} 
+to indicate the namespace for a particular \code{enum} variant.
+
+\blank
+
+The \href{https://doc.rust-lang.org/std/cmp/enum.Ordering.html}{Ordering} \code{enum} has three possible variants: \code{Less},
+\code{Equal}, and \code{Greater}. The \code{match} statement takes a value of a type, and lets you create an ‘arm’ for each 
+possible value. Since we have three types of \code{Ordering}, we have three arms:
+
+\begin{rustc}
+match guess.cmp(&secret_number) {
+    Ordering::Less    => println!("Too small!"),
+    Ordering::Greater => println!("Too big!"),
+    Ordering::Equal   => println!("You win!"),
+}
+\end{rustc}
+
+If it’s \code{Less}, we print \code{Too small!}, if it’s \code{Greater}, \code{Too big!}, and if \code{Equal}, \code{You win!}. 
+\code{match} is really useful, and is used often in Rust.
+
+\blank
+
+I did mention that this won’t quite compile yet, though. Let’s try it:
+
+\begin{verbatim}
+$ cargo build
+   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+src/main.rs:28:21: 28:35 error: mismatched types:
+ expected `&collections::string::String`,
+    found `&_`
+(expected struct `collections::string::String`,
+    found integral variable) [E0308]
+src/main.rs:28     match guess.cmp(&secret_number) {
+                                   ^~~~~~~~~~~~~~
+error: aborting due to previous error
+Could not compile `guessing_game`.
+\end{verbatim}
+
+Whew! This is a big error. The core of it is that we have ‘mismatched types’. Rust has a strong, static type system. However, it 
+also has type inference. When we wrote \code{let guess = String::new()}, Rust was able to infer that \code{guess} should be a 
+\code{String}, and so it doesn’t make us write out the type. And with our \code{secret\_number}, there are a number of types 
+which can have a value between one and a hundred: \code{i32}, a thirty-two-bit number, or \code{u32}, an unsigned thirty-two-bit
+number, or \code{i64}, a sixty-four-bit number or others. So far, that hasn’t mattered, and so Rust defaults to an \code{i32}.
+However, here, Rust doesn’t know how to compare the \code{guess} and the \code{secret\_number}. They need to be the same type.
+Ultimately, we want to convert the \code{String} we read as input into a real number type, for comparison. We can do that with 
+three more lines. Here’s our new program:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!("The secret number is: {}", secret_number);
+
+    println!("Please input your guess.");
+
+    let mut guess = String::new();
+
+    io::stdin().read_line(&mut guess)
+        .expect("failed to read line");
+
+    let guess: u32 = guess.trim().parse()
+        .expect("Please type a number!");
+
+    println!("You guessed: {}", guess);
+
+    match guess.cmp(&secret_number) {
+        Ordering::Less    => println!("Too small!"),
+        Ordering::Greater => println!("Too big!"),
+        Ordering::Equal   => println!("You win!"),
+    }
+}
+\end{rustc}
+
+The new three lines:
+
+\begin{rustc}
+    let guess: u32 = guess.trim().parse()
+        .expect("Please type a number!");
+\end{rustc}
+
+Wait a minute, I thought we already had a \code{guess}? We do, but Rust allows us to ‘shadow’ the previous \code{guess} with a new
+one. This is often used in this exact situation, where \code{guess} starts as a \code{String}, but we want to convert it to an 
+\code{u32}. Shadowing lets us re-use the \code{guess} name, rather than forcing us to come up with two unique names like 
+\code{guess\_str} and \code{guess}, or something else.
+
+\blank
+
+We bind \code{guess} to an expression that looks like something we wrote earlier:
+
+\begin{rustc}
+guess.trim().parse()
+\end{rustc}
+
+% TODO make built-in number types a hyperref
+Here, \code{guess} refers to the old \code{guess}, the one that was a \code{String} with our input in it. The \code{trim()} method 
+on \code{String}s will eliminate any white space at the beginning and end of our string. This is important, as we had to press the
+‘return’ key to satisfy \code{read\_line()}. This means that if we type \code{5} and hit return, \code{guess} looks like this: 
+\code{5\\n}. The \code{\\n} represents ‘newline’, the enter key. \code{trim()} gets rid of this, leaving our string with only the 
+\code{5}. The \href{https://doc.rust-lang.org/std/primitive.str.html#method.parse}{parse() method on strings} parses a string into
+some kind of number. Since it can parse a variety of numbers, we need to give Rust a hint as to the exact type of number we want.
+Hence, \code{let guess: u32}. The colon (\code{:}) after \code{guess} tells Rust we’re going to annotate its type. \code{u32} is 
+an unsigned, thirty-two bit integer. Rust has a number of built-in number types, but we’ve chosen \code{u32}. It’s a good default
+choice for a small positive number.
+
+\blank
+
+Just like \code{read\_line()}, our call to \code{parse()} could cause an error. What if our string contained \code{A\%}? 
+There’d be no way to convert that to a number. As such, we’ll do the same thing we did with \code{read\_line()}: use the 
+\code{expect()} method to crash if there’s an error.
+
+\blank
+
+Let’s try our program out!
+
+\begin{verbatim}
+$ cargo run
+   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+     Running `target/guessing_game`
+Guess the number!
+The secret number is: 58
+Please input your guess.
+  76
+You guessed: 76
+Too big!
+\end{verbatim}
+
+Nice! You can see I even added spaces before my guess, and it still figured out that I guessed 76. Run the program a few times, 
+and verify that guessing the number works, as well as guessing a number too small.
+
+\blank
+
+Now we’ve got most of the game working, but we can only make one guess. Let’s change that by adding loops!
+
 \subsection{Looping}
 
+The \code{loop} keyword gives us an infinite loop. Let’s add that in:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!("The secret number is: {}", secret_number);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin().read_line(&mut guess)
+            .expect("failed to read line");
+
+        let guess: u32 = guess.trim().parse()
+            .expect("Please type a number!");
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less    => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal   => println!("You win!"),
+        }
+    }
+}
+\end{rustc}
+
+And try it out. But wait, didn’t we just add an infinite loop? Yup. Remember our discussion about \code{parse()}? If we give a
+non-number answer, we’ll \code{panic!} and quit. Observe:
+
+\begin{verbatim}
+$ cargo run
+   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+     Running `target/guessing_game`
+Guess the number!
+The secret number is: 59
+Please input your guess.
+45
+You guessed: 45
+Too small!
+Please input your guess.
+60
+You guessed: 60
+Too big!
+Please input your guess.
+59
+You guessed: 59
+You win!
+Please input your guess.
+quit
+thread '<main>' panicked at 'Please type a number!'
+\end{verbatim}
+
+Ha! \code{quit} actually quits. As does any other non-number input. Well, this is suboptimal to say the least. First, 
+let’s actually quit when you win the game:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!("The secret number is: {}", secret_number);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin().read_line(&mut guess)
+            .expect("failed to read line");
+
+        let guess: u32 = guess.trim().parse()
+            .expect("Please type a number!");
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less    => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal   => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
+}
+\end{rustc}
+
+By adding the \code{break} line after the \code{You win!}, we’ll exit the loop when we win. Exiting the loop also means exiting 
+the program, since it’s the last thing in \code{main()}. We have only one more tweak to make: when someone inputs a non-number, 
+we don’t want to quit, we want to ignore it. We can do that like this:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    println!("The secret number is: {}", secret_number);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin().read_line(&mut guess)
+            .expect("failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less    => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal   => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
+}
+\end{rustc}
+
+These are the lines that changed:
+
+\begin{rustc}
+let guess: u32 = match guess.trim().parse() {
+    Ok(num) => num,
+    Err(_) => continue,
+};
+\end{rustc}
+
+This is how you generally move from ‘crash on error’ to ‘actually handle the returned by \code{parse()} is an \code{enum} like
+\code{Ordering}, but in this case, each variant has some data associated with it: \code{Ok} is a success, and \code{Err} is a
+failure. Each contains more information: the successfully parsed integer, or an error type. In this case, we \code{match} on 
+\code{Ok(num)}, which sets the inner value of the \code{Ok} to the name \code{num}, and then we return it on the right-hand side. 
+In the \code{Err} case, we don’t care what kind of error it is, so we use \code{\_} instead of a name. This ignores the error, and
+\code{continue} causes us to go to the next iteration of the \code{loop}.
+
+\blank
+
+Now we should be good! Let’s try:
+
+\begin{verbatim}
+$ cargo run
+   Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)
+     Running `target/guessing_game`
+Guess the number!
+The secret number is: 61
+Please input your guess.
+10
+You guessed: 10
+Too small!
+Please input your guess.
+99
+You guessed: 99
+Too big!
+Please input your guess.
+foo
+Please input your guess.
+61
+You guessed: 61
+You win!
+\end{verbatim}
+
+Awesome! With one tiny last tweak, we have finished the guessing game. Can you think of what it is? That’s right, we don’t want 
+to print out the secret number. It was good for testing, but it kind of ruins the game. Here’s our final source:
+
+\begin{rustc}
+extern crate rand;
+
+use std::io;
+use std::cmp::Ordering;
+use rand::Rng;
+
+fn main() {
+    println!("Guess the number!");
+
+    let secret_number = rand::thread_rng().gen_range(1, 101);
+
+    loop {
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin().read_line(&mut guess)
+            .expect("failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {}", guess);
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less    => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal   => {
+                println!("You win!");
+                break;
+            }
+        }
+    }
+}
+\end{rustc}
+
 \subsection{Complete}
+
+At this point, you have successfully built the Guessing Game! Congratulations!
+
+\blank
+
+This first project showed you a lot: \code{let}, \code{match}, methods, associated functions, using external crates, and more. 
+Our next project will show off even more.

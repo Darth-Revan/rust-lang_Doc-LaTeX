@@ -1,14 +1,20 @@
-PROJECT_STD=standard.tex
-PROJECT_EREADER=ereader.tex
-BUILDTEX=pdflatex
+PROJECT_STD=standard
+OUTFILE_STD=$(PROJECT_STD).pdf
+PROJECT_EREADER=ereader
+BUILDTEX=latexmk -pdf -synctex=1 -shell-escape
 
 standard:
-	$(BUILDTEX) $(PROJECT_STD)
 	$(BUILDTEX) $(PROJECT_STD)
 
 ereader:
 	$(BUILDTEX) $(PROJECT_EREADER)
-	$(BUILDTEX) $(PROJECT_EREADER)
+
+view:
+	if [ -f $(OUTFILE_STD) ] ; \
+	then \
+		xdg-open $(OUTFILE_STD) ; \
+	fi;
 
 clean:
-	rm -f *.log *.aux *.bcf *.out *.toc *.run.xml *.bbl *.blg .log *.fdb_latexmk *.fls ./src/*.aux
+	rm -f *.log *.aux *.bcf *.out *.toc *.run.xml *.bbl *.blg .log *.fdb_latexmk *synctex.gz *.fls ./src/*.aux
+	rm -rf ./_minted-standard/

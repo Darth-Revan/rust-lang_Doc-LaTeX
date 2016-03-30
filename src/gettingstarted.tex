@@ -244,11 +244,11 @@ than one word in your filename, use an underscore to separate them; for example,
 
 Now open the main.rs file you just created, and type the following code:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 fn main() {
     println!("Hello, world!");
 }
-\end{lstlisting}
+\end{rustc}
 
 Save the file, and go back to your terminal window. On Linux or OSX, enter the following commands:
 
@@ -266,11 +266,11 @@ That makes you a Rust programmer! Welcome.
 
 Now, let’s go over what just happened in your \enquote{Hello, world!} program in detail. Here's the first piece of the puzzle:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 fn main() {
     
 }
-\end{lstlisting}
+\end{rustc}
 
 These lines define a \emph{function} in Rust. The \code{main} function is special: it's the beginning of every Rust program. The 
 first line says, \enquote{I’m declaring a function named \code{main} that takes no arguments and returns nothing.} If there were 
@@ -287,9 +287,9 @@ in between.
 
 Inside the \code{main()} function:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 println!("Hello, world!");
-\end{lstlisting}
+\end{rustc}
 
 This line does all of the work in this little program: it prints text to the screen. There are a number of details that are important 
 here. The first is that it’s indented with four spaces, not tabs.
@@ -590,11 +590,11 @@ repository.
 
 Here’s what should be in \code{src/main.rs}:
 
-\begin{lstlisting}[language=Rust]
+\begin{rustc}
 fn main() {
     println!("Hello, world!");
 }
-\end{lstlisting}
+\end{rustc}
 
 Cargo has generated a \enquote{Hello World!} for you, and you’re ready to start coding!
 
