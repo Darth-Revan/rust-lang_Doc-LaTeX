@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{xspace}
 \usepackage{minted}
 \usepackage{amssymb}
 \usepackage[autostyle=true]{csquotes}
@@ -12,9 +13,8 @@
 \usepackage{url}
 \usepackage{float}
 \usepackage{hyperref}
-\hypersetup{colorlinks,urlcolor=blue,linkcolor=black,citecolor=black}
+\hypersetup{colorlinks,urlcolor=blue,linkcolor=blue,citecolor=black}
 \usepackage[most]{tcolorbox}
-\usepackage{lastpage}
 \usepackage{fancyvrb,newverbs,mdframed}
 \usepackage[automark,headsepline,footsepline,markuppercase]{scrpage2}
 
@@ -59,8 +59,25 @@
     \newcommand{\blank}{\vspace{\baselineskip}}
     \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
     
+    % A few macros for emphasized variable names and keywords
+    \newcommand{\x}{\code{x}}
+    \newcommand{\y}{\code{y}}
+    \newcommand{\z}{\code{z}}
+    \newcommand{\struct}{\code{struct}}
+    \newcommand{\mut}{\code{mut}}
+    \newcommand{\varchar}{\code{char}}
+    \newcommand{\println}{\code{println!}}
+    \newcommand{\panic}{\code{panic!}}
+    \newcommand{\keylet}{\code{let}}
+    \newcommand{\enum}{\code{enum}}
+    \newcommand{\String}{\code{String}}
+    \newcommand{\match}{\code{match}}
+    \newcommand{\keyref}{\code{ref}}
+    \newcommand{\itt}{\code{i32}}
+    \newcommand{\keyif}{\code{if}}
+    
     \clearscrheadfoot
-    \cfoot[Page \pagemark\ of \pageref{LastPage}]{Page \pagemark\ of \pageref{LastPage}}
+    \cfoot[Page \pagemark]{Page \pagemark}
     \ohead{\rightmark}
     \automark[subsection]{section}
     \pagestyle{scrheadings}
