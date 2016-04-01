@@ -1,0 +1,164 @@
+Mutability, the ability to change something, works a bit differently in Rust than in other languages. The first aspect of 
+mutability is its non-default status:
+
+\begin{rustc}
+let x = 5;
+x = 6; // error!
+\end{rustc}
+
+We can introduce mutability with the \mut\ keyword:
+
+\begin{rustc}
+let mut x = 5;
+
+x = 6; // no problem!
+\end{rustc}
+
+This is a mutable \nameref{sec:syntax_variableBindings}. When a binding is mutable, it means you're allowed to change what the 
+binding points to. So in the above example, it's not so much that the value at \x\ is changing, but that the binding changed
+from one \itt\ to another.
+
+\blank
+
+If you want to change what the binding points to, you'll need a mutable reference (see \nameref{sec:syntax_referencesBorrowing}):
+
+\begin{rustc}
+let mut x = 5;
+let y = &mut x;
+\end{rustc}
+
+\y\ is an immutable binding to a mutable reference, which means that you can't bind \y\ to something else (
+\code{y = \&mut z}), but you can mutate the thing that's bound to \y\ (\code{*y = 5}). A subtle distinction.
+
+\blank
+
+Of course, if you need both:
+
+\begin{rustc}
+let mut x = 5;
+let mut y = &mut x;
+\end{rustc}
+
+Now \y\ can be bound to another value, and the value it's referencing can be changed.
+
+\blank
+
+% TODO make pattern a hyperref
+It's important to note that \mut\ is part of a pattern, so you can do things like this:
+
+\begin{rustc}
+let (mut x, y) = (5, 6);
+
+fn foo(mut x: i32) {
+\end{rustc}
+
+\subsubsection*{Interior vs. Exterior Mutability}
+
+However, when we say something is 'immutable' in Rust, that doesn't mean that it's not able to be changed: we mean something has 
+'exterior mutability'. Consider, for example, \href{https://doc.rust-lang.org/std/sync/struct.Arc.html}{Arc<T>}:
+
+\begin{rustc}
+use std::sync::Arc;
+
+let x = Arc::new(5);
+let y = x.clone();
+\end{rustc}
+
+When we call \code{clone()}, the \code{Arc<T>} needs to update the reference count. Yet we've not used any muts here, \x\ is 
+an immutable binding, and we didn't take \code{\&mut 5} or anything. So what gives?
+
+\blank
+
+To understand this, we have to go back to the core of Rust's guiding philosophy, memory safety, and the mechanism by which Rust 
+guarantees it, the ownership system (see \nameref{sec:syntax_ownership}), and more specifically, borrowing (see 
+\nameref{sec:syntax_referencesBorrowing}):
+
+\begin{myquote}
+You may have one or the other of these two kinds of borrows, but not both at the same time:
+\begin{itemize}
+  \item{one or more references (\code{\&T}) to a resource,}
+  \item{exactly one mutable reference (\code{\&mut T}).}
+\end{itemize}
+\end{myquote}
+
+So, that's the real definition of 'immutability': is this safe to have two pointers to? In \code{Arc<T>}'s case, yes: the mutation 
+is entirely contained inside the structure itself. It's not user facing. For this reason, it hands out \code{\&T} with \code{clone()}. 
+If it handed out \code{\&mut T}s, though, that would be a problem.
+
+\blank
+
+Other types, like the ones in the \href{https://doc.rust-lang.org/std/cell/}{std::cell} module, have the opposite: interior 
+mutability. For example:
+
+\begin{rustc}
+use std::cell::RefCell;
+
+let x = RefCell::new(42);
+
+let y = x.borrow_mut();
+\end{rustc}
+
+RefCell hands out \code{\&mut} references to what's inside of it with the \code{borrow\_mut()} method. Isn't that dangerous? What if 
+we do:
+
+\begin{rustc}
+use std::cell::RefCell;
+
+let x = RefCell::new(42);
+
+let y = x.borrow_mut();
+let z = x.borrow_mut();
+\end{rustc}
+
+This will in fact panic, at runtime. This is what \code{RefCell} does: it enforces Rust's borrowing rules at runtime, and 
+\panic s if they're violated. This allows us to get around another aspect of Rust's mutability rules. Let's talk about it 
+first.
+
+\myparagraph{Field-level mutability}
+
+% TODO make struct a hyperref
+Mutability is a property of either a borrow (\code{\&mut}) or a binding (\code{let mut}). This means that, for example, you cannot 
+have a struct with some fields mutable and some immutable:
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    mut y: i32, // nope
+}
+\end{rustc}
+
+The mutability of a struct is in its binding:
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let mut a = Point { x: 5, y: 6 };
+
+a.x = 10;
+
+let b = Point { x: 5, y: 6};
+
+b.x = 10; // error: cannot assign to immutable field `b.x`
+\end{rustc}
+
+However, by using \href{https://doc.rust-lang.org/std/cell/struct.Cell.html}{Cell<T>}, you can emulate field-level mutability:
+
+\begin{rustc}
+use std::cell::Cell;
+
+struct Point {
+    x: i32,
+    y: Cell<i32>,
+}
+
+let point = Point { x: 5, y: Cell::new(6) };
+
+point.y.set(7);
+
+println!("y: {:?}", point.y);
+\end{rustc}
+
+This will print \code{y: Cell { value: 7 }}. We've successfully updated \y.

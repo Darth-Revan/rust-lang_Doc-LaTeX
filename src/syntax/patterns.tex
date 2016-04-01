@@ -1,0 +1,340 @@
+Patterns are quite common in Rust. We use them in \nameref{sec:syntax_variableBindings}, match statements (see \nameref{sec:syntax_match}),
+and other places, too. Let's go on a whirlwind tour of all of the things patterns can do!
+
+\blank
+
+A quick refresher: you can match against literals directly, and \code{\_} acts as an 'any' case:
+
+\begin{rustc}
+let x = 1;
+
+match x {
+    1 => println!("one"),
+    2 => println!("two"),
+    3 => println!("three"),
+    _ => println!("anything"),
+}
+\end{rustc}
+
+This prints \code{one}.
+
+There's one pitfall with patterns: like anything that introduces a new binding, they introduce shadowing. For example:
+
+\begin{rustc}
+let x = 1;
+let c = 'c';
+
+match c {
+    x => println!("x: {} c: {}", x, c),
+}
+
+println!("x: {}", x)
+\end{rustc}
+
+This prints:
+
+\begin{verbatim}
+x: c c: c
+x: 1
+\end{verbatim}
+
+In other words, \code{x =>} matches the pattern and introduces a new binding named \x. This new binding is in scope for the match arm 
+and takes on the value of \code{c}. Notice that the value of \x\ outside the scope of the match has no bearing on the value of \x\ 
+within it. Because we already have a binding named \x\, this new \x\ shadows it.
+
+\subsubsection*{Multiple patterns}
+
+You can match multiple patterns with \code{|}:
+
+\begin{rustc}
+let x = 1;
+
+match x {
+    1 | 2 => println!("one or two"),
+    3 => println!("three"),
+    _ => println!("anything"),
+}
+\end{rustc}
+
+This prints \code{one or two}.
+
+\subsection*{Destructuring}
+
+If you have a compound data type, like a \struct\ (see \nameref{sec:syntax_structs}), you can destructure it inside of a pattern:
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let origin = Point { x: 0, y: 0 };
+
+match origin {
+    Point { x, y } => println!("({},{})", x, y),
+}
+\end{rustc}
+
+We can use \code{:} to give a value a different name.
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let origin = Point { x: 0, y: 0 };
+
+match origin {
+    Point { x: x1, y: y1 } => println!("({},{})", x1, y1),
+}
+\end{rustc}
+
+If we only care about some of the values, we don't have to give them all names:
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let origin = Point { x: 0, y: 0 };
+
+match origin {
+    Point { x, .. } => println!("x is {}", x),
+}
+\end{rustc}
+
+This prints \code{x is 0}.
+
+You can do this kind of match on any member, not only the first:
+
+\begin{rustc}
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+let origin = Point { x: 0, y: 0 };
+
+match origin {
+    Point { y, .. } => println!("y is {}", y),
+}
+\end{rustc}
+
+This prints \code{y is 0}.
+
+\blank
+
+% TODO make tuples and enums hyperrefs
+This 'destructuring' behavior works on any compound data type, like tuples or enums.
+
+\subsubsection*{Ignoring bindings}
+
+You can use \code{\_} in a pattern to disregard the type and value. For example, here's a \match\ against a \code{Result<T, E>}:
+
+\begin{rustc}
+match some_value {
+    Ok(value) => println!("got a value: {}", value),
+    Err(_) => println!("an error occurred"),
+}
+\end{rustc}
+
+In the first arm, we bind the value inside the \code{Ok} variant to value. But in the \code{Err} arm, we use \code{\_} to disregard 
+the specific error, and print a general error message.
+
+\blank
+
+\code{\_} is valid in any pattern that creates a binding. This can be useful to ignore parts of a larger structure:
+
+\begin{rustc}
+fn coordinate() -> (i32, i32, i32) {
+    // generate and return some sort of triple tuple
+}
+
+let (x, _, z) = coordinate();
+\end{rustc}
+
+Here, we bind the first and last element of the tuple to \x\ and \z, but ignore the middle element.
+
+\blank
+
+Similarly, you can use \code{..} in a pattern to disregard multiple values.
+
+\begin{rustc}
+enum OptionalTuple {
+    Value(i32, i32, i32),
+    Missing,
+}
+
+let x = OptionalTuple::Value(5, -2, 3);
+
+match x {
+    OptionalTuple::Value(..) => println!("Got a tuple!"),
+    OptionalTuple::Missing => println!("No such luck."),
+}
+\end{rustc}
+
+This prints \code{Got a tuple!}.
+
+\subsubsection*{ref and ref mut}
+
+If you want to get a reference (see \nameref{sec:syntax_referencesBorrowing}), use the \keyref\ keyword:
+
+\begin{rustc}
+let x = 5;
+
+match x {
+    ref r => println!("Got a reference to {}", r),
+}
+\end{rustc}
+
+This prints \code{Got a reference to 5}.
+
+\blank
+
+Here, the \code{r} inside the \match\ has the type \code{\&i32}. In other words, the \keyref\ keyword creates a reference, for 
+use in the pattern. If you need a mutable reference, \keyref\code{ mut} will work in the same way:
+
+\begin{rustc}
+let mut x = 5;
+
+match x {
+    ref mut mr => println!("Got a mutable reference to {}", mr),
+}
+\end{rustc}
+
+\subsubsection*{Ranges}
+
+You can match a range of values with \code{...}:
+
+\begin{rustc}
+let x = 1;
+
+match x {
+    1 ... 5 => println!("one through five"),
+    _ => println!("anything"),
+}
+\end{rustc}
+
+This prints \code{one through five}.
+
+\blank
+
+Ranges are mostly used with integers and \varchar s:
+
+\begin{rustc}
+let x = 'ä';
+
+match x {
+    'a' ... 'j' => println!("early letter"),
+    'k' ... 'z' => println!("late letter"),
+    _ => println!("something else"),
+}
+\end{rustc}
+
+This prints \code{something else}.
+
+\subsubsection*{Bindings}
+
+You can bind values to names with \code{@}:
+
+\begin{rustc}
+let x = 1;
+
+match x {
+    e @ 1 ... 5 => println!("got a range element {}", e),
+    _ => println!("anything"),
+}
+\end{rustc}
+
+This prints \code{got a range element 1}. This is useful when you want to do a complicated match of part of a data structure:
+
+\begin{rustc}
+#[derive(Debug)]
+struct Person {
+    name: Option<String>,
+}
+
+let name = "Steve".to_string();
+let mut x: Option<Person> = Some(Person { name: Some(name) });
+match x {
+    Some(Person { name: ref a @ Some(_), .. }) => println!("{:?}", a),
+    _ => {}
+}
+\end{rustc}
+
+This prints \code{Some("Steve")}: we've bound the inner \code{name} to \code{a}.
+
+\blank
+
+If you use \code{@} with \code{|}, you need to make sure the name is bound in each part of the pattern:
+
+\begin{rustc}
+let x = 5;
+
+match x {
+    e @ 1 ... 5 | e @ 8 ... 10 => println!("got a range element {}", e),
+    _ => println!("anything"),
+}
+\end{rustc}
+
+\subsubsection*{Guards}
+
+You can introduce 'match guards' with \keyif:
+
+\begin{rustc}
+enum OptionalInt {
+    Value(i32),
+    Missing,
+}
+
+let x = OptionalInt::Value(5);
+
+match x {
+    OptionalInt::Value(i) if i > 5 => println!("Got an int bigger than five!"),
+    OptionalInt::Value(..) => println!("Got an int!"),
+    OptionalInt::Missing => println!("No such luck."),
+}
+\end{rustc}
+
+This prints \code{Got an int!}.
+
+\blank
+
+If you're using \keyif\ with multiple patterns, the \keyif\ applies to both sides:
+
+\begin{rustc}
+let x = 4;
+let y = false;
+
+match x {
+    4 | 5 if y => println!("yes"),
+    _ => println!("no"),
+}
+\end{rustc}
+
+This prints \code{no}, because the \keyif\ applies to the whole of \code{4 | 5}, and not to only the \code{5}. In other words, 
+the precedence of \keyif\ behaves like this:
+
+\begin{verbatim}
+(4 | 5) if y => ...
+\end{verbatim}
+
+not this:
+
+\begin{verbatim}
+4 | (5 if y) => ...
+\end{verbatim}
+
+\subsubsection*{Mix and Match}
+
+Whew! That's a lot of different ways to match things, and they can all be mixed and matched, depending on what you're doing:
+
+\begin{rustc}
+match x {
+    Foo { x: Some(ref name), y: None } => ...
+}
+\end{rustc}
+
+Patterns are very powerful. Make good use of them.

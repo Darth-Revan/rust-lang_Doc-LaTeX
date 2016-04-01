@@ -1,0 +1,241 @@
+Functions are great, but if you want to call a bunch of them on some data, it can be awkward. Consider this code:
+
+\begin{rustc}
+baz(bar(foo));
+\end{rustc}
+
+We would read this left-to-right, and so we see 'baz bar foo'. But this isn't the order that the functions would get called in, that's 
+inside-out: 'foo bar baz'. Wouldn't it be nice if we could do this instead?
+
+\begin{rustc}
+foo.bar().baz();
+\end{rustc}
+
+Luckily, as you may have guessed with the leading question, you can! Rust provides the ability to use this 'method call syntax' via the 
+\code{impl} keyword.
+
+\subsubsection*{Method calls}
+
+Here's how it works:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+
+fn main() {
+    let c = Circle { x: 0.0, y: 0.0, radius: 2.0 };
+    println!("{}", c.area());
+}
+\end{rustc}
+
+This will print \code{12.566371}.
+
+We've made a \struct\ that represents a circle. We then write an \code{impl} block, and inside it, define a method, \code{area}.
+
+\blank
+
+Methods take a special first parameter, of which there are three variants: \code{self}, \code{\&self}, and \code{\&mut self}. You can think 
+of this first parameter as being the \code{foo} in \code{foo.bar()}. The three variants correspond to the three kinds of things \code{foo} 
+could be: \code{self} if it's a value on the stack, \code{\&self} if it's a reference, and \code{\&mut self} if it's a mutable reference. 
+Because we took the \code{\&self} parameter to \code{area}, we can use it like any other parameter. Because we know it's a \code{Circle}, 
+we can access the \code{radius} like we would with any other \struct.
+
+\blank
+
+We should default to using \code{\&self}, as you should prefer borrowing over taking ownership, as well as taking immutable references over 
+mutable ones. Here's an example of all three variants:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn reference(&self) {
+       println!("taking self by reference!");
+    }
+
+    fn mutable_reference(&mut self) {
+       println!("taking self by mutable reference!");
+    }
+
+    fn takes_ownership(self) {
+       println!("taking ownership of self!");
+    }
+}
+\end{rustc}
+
+You can use as many \code{impl} blocks as you'd like. The previous example could have also been written like this:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn reference(&self) {
+       println!("taking self by reference!");
+    }
+}
+
+impl Circle {
+    fn mutable_reference(&mut self) {
+       println!("taking self by mutable reference!");
+    }
+}
+
+impl Circle {
+    fn takes_ownership(self) {
+       println!("taking ownership of self!");
+    }
+}
+\end{rustc}
+
+\subsubsection*{Chaining method calls}
+
+So, now we know how to call a method, such as \code{foo.bar()}. But what about our original example, \code{foo.bar().baz()}? This is called 
+'method chaining'. Let's look at an example:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+
+    fn grow(&self, increment: f64) -> Circle {
+        Circle { x: self.x, y: self.y, radius: self.radius + increment }
+    }
+}
+
+fn main() {
+    let c = Circle { x: 0.0, y: 0.0, radius: 2.0 };
+    println!("{}", c.area());
+
+    let d = c.grow(2.0).area();
+    println!("{}", d);
+}
+\end{rustc}
+
+Check the return type:
+
+\begin{rustc}
+fn grow(&self, increment: f64) -> Circle {
+\end{rustc}
+
+We say we're returning a \code{Circle}. With this method, we can grow a new \code{Circle} to any arbitrary size.
+
+\subsubsection*{Associated functions}
+
+You can also define associated functions that do not take a \code{self} parameter. Here's a pattern that's very common in Rust code:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn new(x: f64, y: f64, radius: f64) -> Circle {
+        Circle {
+            x: x,
+            y: y,
+            radius: radius,
+        }
+    }
+}
+
+fn main() {
+    let c = Circle::new(0.0, 0.0, 2.0);
+}
+\end{rustc}
+
+This 'associated function' builds a new \code{Circle} for us. Note that associated functions are called with the \code{Struct::function()} 
+syntax, rather than the \code{ref.method()} syntax. Some other languages call associated functions 'static methods'.
+
+\subsubsection*{Builder Pattern}
+
+Let's say that we want our users to be able to create \code{Circles}, but we will allow them to only set the properties they care about. 
+Otherwise, the \x\ and \y\ attributes will be \code{0.0}, and the \code{radius} will be \code{1.0}. Rust doesn't have method overloading, 
+named arguments, or variable arguments. We employ the builder pattern instead. It looks like this:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+
+struct CircleBuilder {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl CircleBuilder {
+    fn new() -> CircleBuilder {
+        CircleBuilder { x: 0.0, y: 0.0, radius: 1.0, }
+    }
+
+    fn x(&mut self, coordinate: f64) -> &mut CircleBuilder {
+        self.x = coordinate;
+        self
+    }
+
+    fn y(&mut self, coordinate: f64) -> &mut CircleBuilder {
+        self.y = coordinate;
+        self
+    }
+
+    fn radius(&mut self, radius: f64) -> &mut CircleBuilder {
+        self.radius = radius;
+        self
+    }
+
+    fn finalize(&self) -> Circle {
+        Circle { x: self.x, y: self.y, radius: self.radius }
+    }
+}
+
+fn main() {
+    let c = CircleBuilder::new()
+                .x(1.0)
+                .y(2.0)
+                .radius(2.0)
+                .finalize();
+
+    println!("area: {}", c.area());
+    println!("x: {}", c.x);
+    println!("y: {}", c.y);
+}
+\end{rustc}
+
+What we've done here is make another \struct, \code{CircleBuilder}. We've defined our builder methods on it. We've also defined our \code{area()}
+method on \code{Circle}. We also made one more method on \code{CircleBuilder}: \code{finalize()}. This method creates our final \code{Circle} 
+from the builder. Now, we've used the type system to enforce our concerns: we can use the methods on \code{CircleBuilder} to constrain making
+\code{Circles} in any way we choose.

@@ -1,16 +1,16 @@
-Let’s learn some Rust! For our first project, we’ll implement a classic beginner programming problem: the guessing game. 
-Here’s how it works: Our program will generate a random integer between one and a hundred. It will then prompt us to enter 
-a guess. Upon entering our guess, it will tell us if we’re too low or too high. Once we guess correctly, it will congratulate 
+Let's learn some Rust! For our first project, we'll implement a classic beginner programming problem: the guessing game. 
+Here's how it works: Our program will generate a random integer between one and a hundred. It will then prompt us to enter 
+a guess. Upon entering our guess, it will tell us if we're too low or too high. Once we guess correctly, it will congratulate 
 us. Sounds good?
 
 \blank
 
-Along the way, we’ll learn a little bit about Rust. The next chapter, ‘Syntax and Semantics’, will dive deeper into each part.
+Along the way, we'll learn a little bit about Rust. The next chapter, 'Syntax and Semantics', will dive deeper into each part.
 
 \subsection{Set up}
 
-Let’s set up a new project. Go to your projects directory. Remember how we had to create our directory structure and a 
-\code{Cargo.toml} for \code{hello\_world}? Cargo has a command that does that for us. Let’s give it a shot:
+Let's set up a new project. Go to your projects directory. Remember how we had to create our directory structure and a 
+\code{Cargo.toml} for \code{hello\_world}? Cargo has a command that does that for us. Let's give it a shot:
 
 \begin{verbatim}
 $ cd ~/projects
@@ -18,7 +18,7 @@ $ cargo new guessing_game --bin
 $ cd guessing_game
 \end{verbatim}
 
-We pass the name of our project to \code{cargo new}, and then the \code{--bin} flag, since we’re making a binary, rather than 
+We pass the name of our project to \code{cargo new}, and then the \code{--bin} flag, since we're making a binary, rather than 
 a library.
 
 \blank
@@ -33,11 +33,11 @@ version = "0.1.0"
 authors = ["Your Name <you@example.com>"]
 \end{verbatim}
 
-Cargo gets this information from your environment. If it’s not correct, go ahead and fix that.
+Cargo gets this information from your environment. If it's not correct, go ahead and fix that.
 
 \blank
 
-Finally, Cargo generated a ‘Hello, world!’ for us. Check out \code{src/main.rs}:
+Finally, Cargo generated a 'Hello, world!' for us. Check out \code{src/main.rs}:
 
 \begin{rustc}
 fn main() {
@@ -45,14 +45,14 @@ fn main() {
 }
 \end{rustc}
 
-Let’s try compiling what Cargo gave us:
+Let's try compiling what Cargo gave us:
 
 \begin{verbatim}
 $ cargo build
    Compiling guessing_game v0.1.0 (file:///home/you/projects/guessing_game)  
 \end{verbatim}
 
-Excellent! Open up your \code{src/main.rs} again. We’ll be writing all of our code in this file.
+Excellent! Open up your \code{src/main.rs} again. We'll be writing all of our code in this file.
 
 \blank
 
@@ -71,7 +71,7 @@ need to quickly test each iteration before moving on to the next one.
 
 \subsection{Processing a Guess}
 
-Let’s get to it! The first thing we need to do for our guessing game is allow our player to input a guess. Put this in your 
+Let's get to it! The first thing we need to do for our guessing game is allow our player to input a guess. Put this in your 
 \code{src/main.rs}:
 
 \begin{rustc}
@@ -91,15 +91,15 @@ fn main() {
 }
 \end{rustc}
 
-There’s a lot here! Let’s go over it, bit by bit.
+There's a lot here! Let's go over it, bit by bit.
 
 \begin{rustc}
 use std::io;
 \end{rustc}
 
-We’ll need to take user input, and then print the result as output. As such, we need the \code{io} library from the standard 
-library. Rust only imports a few things by default into every program, the \href{https://doc.rust-lang.org/std/prelude/}{‘prelude’}.
-If it’s not in the prelude, you’ll have to \code{use} it directly. There is also a second ‘prelude’, the 
+We'll need to take user input, and then print the result as output. As such, we need the \code{io} library from the standard 
+library. Rust only imports a few things by default into every program, the \href{https://doc.rust-lang.org/std/prelude/}{'prelude'}.
+If it's not in the prelude, you'll have to \code{use} it directly. There is also a second 'prelude', the 
 \href{https://doc.rust-lang.org/std/io/prelude/}{io prelude}, which serves a similar function: you import it, and it imports a 
 number of useful, \code{io}-related things.
 
@@ -108,9 +108,9 @@ fn main() {
 \end{rustc}
 
 % TODO make tuple a hyperref to tuple
-As you’ve seen before, the \code{main()} function is the entry point into your program. The \code{fn} syntax declares a new 
+As you've seen before, the \code{main()} function is the entry point into your program. The \code{fn} syntax declares a new 
 function, the \code{()}s indicate that there are no arguments, and \code{\{} starts the body of the function. Because we 
-didn’t include a return type, it’s assumed to be \code{()}, an empty tuple.
+didn't include a return type, it's assumed to be \code{()}, an empty tuple.
 
 \begin{rustc}
     println!("Guess the number!");
@@ -126,22 +126,22 @@ We previously learned that \code{println!()} is a macro that prints a string to 
 \end{rustc}
 
 % TODO make let statement a hyperref
-Now we’re getting interesting! There’s a lot going on in this little line. The first thing to notice is that this is a 
-let statement, which is used to create ‘variable bindings’. They take this form:
+Now we're getting interesting! There's a lot going on in this little line. The first thing to notice is that this is a 
+let statement, which is used to create 'variable bindings'. They take this form:
 
 \begin{rustc}
 let foo = bar;
 \end{rustc}
 
 This will create a new binding named \code{foo}, and bind it to the value \code{bar}. In many languages, this is called a 
-‘variable’, but Rust’s variable bindings have a few tricks up their sleeves.
+'variable', but Rust's variable bindings have a few tricks up their sleeves.
 
 \blank
 
 % TODO make immutable and pattern hyperrefs
-For example, they’re immutable by default. That’s why our example uses \code{mut}: it makes a binding mutable, rather than 
-immutable. \code{let} doesn’t take a name on the left hand side of the assignment, it actually accepts a ‘pattern’. We’ll 
-use patterns later. It’s easy enough to use for now:
+For example, they're immutable by default. That's why our example uses \code{mut}: it makes a binding mutable, rather than 
+immutable. \code{let} doesn't take a name on the left hand side of the assignment, it actually accepts a 'pattern'. We'll 
+use patterns later. It's easy enough to use for now:
 
 \begin{rustc}
 let foo = 5; // immutable.
@@ -154,7 +154,7 @@ Oh, and \code{//} will start a comment, until the end of the line. Rust ignores 
 \blank
 
 So now we know that \code{let mut guess} will introduce a mutable binding named \code{guess}, but we have to look at the 
-other side of the \code{=} for what it’s bound to: \code{String::new()}.
+other side of the \code{=} for what it's bound to: \code{String::new()}.
 
 \blank
 
@@ -163,18 +163,18 @@ other side of the \code{=} for what it’s bound to: \code{String::new()}.
 
 \blank
 
-The \code{::new()} syntax uses \code{::} because this is an ‘associated function’ of a particular type. That is to say, it’s
+The \code{::new()} syntax uses \code{::} because this is an 'associated function' of a particular type. That is to say, it's
 associated with \code{String} itself, rather than a particular instance of a \code{String}. Some languages call this a 
-‘static method’.
+'static method'.
 
 \blank
 
-This function is named \code{new()}, because it creates a new, empty \code{String}. You’ll find a \code{new()} function on 
-many types, as it’s a common name for making a new value of some kind.
+This function is named \code{new()}, because it creates a new, empty \code{String}. You'll find a \code{new()} function on 
+many types, as it's a common name for making a new value of some kind.
 
 \blank
 
-Let’s move forward:
+Let's move forward:
 
 \begin{rustc}
     io::stdin().read_line(&mut guess)
@@ -182,14 +182,14 @@ Let’s move forward:
 
 \end{rustc}
 
-That’s a lot more! Let’s go bit-by-bit. The first line has two parts. Here’s the first:
+That's a lot more! Let's go bit-by-bit. The first line has two parts. Here's the first:
 
 \begin{rustc}
 io::stdin()
 \end{rustc}
 
-Remember how we \code{use}d \code{std::io} on the first line of the program? We’re now calling an associated 
-function on it. If we didn’t \code{use std::io}, we could have written this line as \code{std::io::stdin()}.
+Remember how we \code{use}d \code{std::io} on the first line of the program? We're now calling an associated 
+function on it. If we didn't \code{use std::io}, we could have written this line as \code{std::io::stdin()}.
 
 \blank
 
@@ -207,15 +207,15 @@ The next part will use this handle to get input from the user:
 % TODO make methods a hyperref
 Here, we call the \href{https://doc.rust-lang.org/std/io/struct.Stdin.html\#method.read\_line}{read\_line()} method on our handle.
 Methods are like associated functions, but are only available on a particular instance of a type, rather than the type itself. 
-We’re also passing one argument to \code{read\_line(): \&mut guess}.
+We're also passing one argument to \code{read\_line(): \&mut guess}.
 
 \blank
 
 % TODO make references a hyperref
-Remember how we bound \code{guess} above? We said it was mutable. However, \code{read\_line} doesn’t take a \code{String} as 
-an argument: it takes a \code{\&mut String}. Rust has a feature called ‘references’, which allows you to have multiple references 
-to one piece of data, which can reduce copying. References are a complex feature, as one of Rust’s major selling points is how 
-safe and easy it is to use references. We don’t need to know a lot of those details to finish our program right now, though. 
+Remember how we bound \code{guess} above? We said it was mutable. However, \code{read\_line} doesn't take a \code{String} as 
+an argument: it takes a \code{\&mut String}. Rust has a feature called 'references', which allows you to have multiple references 
+to one piece of data, which can reduce copying. References are a complex feature, as one of Rust's major selling points is how 
+safe and easy it is to use references. We don't need to know a lot of those details to finish our program right now, though. 
 For now, all we need to know is that like \code{let} bindings, references are immutable by default. Hence, we need to write 
 \code{\&mut guess}, rather than \code{\&guess}.
 
@@ -226,7 +226,7 @@ and place that into a string. So it takes that string as an argument, and in ord
 
 \blank
 
-But we’re not quite done with this line of code, though. While it’s a single line of text, it’s only the first part of the 
+But we're not quite done with this line of code, though. While it's a single line of text, it's only the first part of the 
 single logical line of code:
 
 \begin{rustc}
@@ -240,7 +240,7 @@ split up long lines. We \emph{could} have done:
     io::stdin().read_line(&mut guess).expect("failed to read line");
 \end{rustc}
 
-But that gets hard to read. So we’ve split it up, three lines for three method calls. We already talked about \code{read\_line()},
+But that gets hard to read. So we've split it up, three lines for three method calls. We already talked about \code{read\_line()},
 but what about \code{expect()}? Well, we already mentioned that \code{read\_line()} puts what the user types into the 
 \code{\&mut String} we pass it. But it also returns a value: in this case, an 
 \href{https://doc.rust-lang.org/std/io/type.Result.html}{io::Result}. Rust has a number of types named \code{Result} in its 
@@ -252,13 +252,13 @@ for sub-libraries, like \code{io::Result}.
 % TODO make panic! a hyperref
 The purpose of these \code{Result} types is to encode error handling information. Values of the \code{Result} type, like any 
 type, have methods defined on them. In this case, \code{io::Result} has an 
-\href{https://doc.rust-lang.org/std/option/enum.Option.html\#method.expect}{expect()} method that takes a value it’s called on, 
-and if it isn’t a successful one, panic!s with a message you passed it. A \code{panic!} like this will cause our program to crash,
+\href{https://doc.rust-lang.org/std/option/enum.Option.html\#method.expect}{expect()} method that takes a value it's called on, 
+and if it isn't a successful one, panic!s with a message you passed it. A \code{panic!} like this will cause our program to crash,
 displaying the message.
 
 \blank
 
-If we leave off calling these two methods, our program will compile, but we’ll get a warning:
+If we leave off calling these two methods, our program will compile, but we'll get a warning:
 
 \begin{verbatim}
 $ cargo build
@@ -269,14 +269,14 @@ src/main.rs:10     io::stdin().read_line(&mut guess);
                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 \end{verbatim}
 
-Rust warns us that we haven’t used the \code{Result} value. This warning comes from a special annotation that 
-\code{io::Result} has. Rust is trying to tell you that you haven’t handled a possible error. The right way to suppress 
-the error is to actually write error handling. Luckily, if we want to crash if there’s a problem, we can use these two 
-little methods. If we can recover from the error somehow, we’d do something else, but we’ll save that for a future project.
+Rust warns us that we haven't used the \code{Result} value. This warning comes from a special annotation that 
+\code{io::Result} has. Rust is trying to tell you that you haven't handled a possible error. The right way to suppress 
+the error is to actually write error handling. Luckily, if we want to crash if there's a problem, we can use these two 
+little methods. If we can recover from the error somehow, we'd do something else, but we'll save that for a future project.
 
 \blank
 
-There’s only one line of this first example left:
+There's only one line of this first example left:
 
 \begin{verbatim}
     println!("You guessed: {}", guess);
@@ -297,7 +297,7 @@ Easy.
 
 \blank
 
-Anyway, that’s the tour. We can run what we have with \code{cargo run}:
+Anyway, that's the tour. We can run what we have with \code{cargo run}:
 
 \begin{verbatim}
 $ cargo run
@@ -314,9 +314,9 @@ All right! Our first part is done: we can get input from the keyboard, and then 
 \subsection{Generating a secret number}
 
 Next, we need to generate a secret number. Rust does not yet include random number functionality in its standard library. 
-The Rust team does, however, provide a \href{https://crates.io/crates/rand}{rand crate}. A ‘crate’ is a package of Rust 
-code. We’ve been building a ‘binary crate’, which is an executable. \code{rand} is a ‘library crate’, which contains code 
-that’s intended to be used with other programs.
+The Rust team does, however, provide a \href{https://crates.io/crates/rand}{rand crate}. A 'crate' is a package of Rust 
+code. We've been building a 'binary crate', which is an executable. \code{rand} is a 'library crate', which contains code 
+that's intended to be used with other programs.
 
 \blank
 
@@ -331,16 +331,16 @@ rand="0.3.0"
 
 The \code{[dependencies]} section of \code{Cargo.toml} is like the \code{[package]} section: everything that follows it is part 
 of it, until the next section starts. Cargo uses the dependencies section to know what dependencies on external crates you have, 
-and what versions you require. In this case, we’ve specified version \code{0.3.0}, which Cargo understands to be any release that’s
+and what versions you require. In this case, we've specified version \code{0.3.0}, which Cargo understands to be any release that's
 compatible with this specific version. Cargo understands \href{http://semver.org/}{Semantic Versioning}, which is a standard for
 writing version numbers. A bare number like above is actually shorthand for \code{\^0.3.0}, meaning \enquote{anything compatible 
 with 0.3.0}. If we wanted to use only \code{0.3.0} exactly, we could say \code{rand="=0.3.0"} (note the two equal signs). And if we
 wanted to use the latest version we could use \code{*}. We could also use a range of versions. 
-\href{http://doc.crates.io/crates-io.html}{Cargo’s documentation} contains more details.
+\href{http://doc.crates.io/crates-io.html}{Cargo's documentation} contains more details.
 
 \blank
 
-Now, without changing any of our code, let’s build our project:
+Now, without changing any of our code, let's build our project:
 
 \begin{verbatim}
 $ cargo build
@@ -363,21 +363,21 @@ open source Rust projects for others to use.
 
 \blank
 
-After updating the registry, Cargo checks our \code{[dependencies]} and downloads any we don’t have yet. In this case, while we 
-only said we wanted to depend on \code{rand}, we’ve also grabbed a copy of \code{libc}. This is because \code{rand} depends on 
+After updating the registry, Cargo checks our \code{[dependencies]} and downloads any we don't have yet. In this case, while we 
+only said we wanted to depend on \code{rand}, we've also grabbed a copy of \code{libc}. This is because \code{rand} depends on 
 \code{libc} to work. After downloading them, it compiles them, and then compiles our project.
 
 \blank
 
-If we run \code{cargo build} again, we’ll get different output:
+If we run \code{cargo build} again, we'll get different output:
 
 \begin{verbatim}
 $ cargo build
 \end{verbatim}
 
-That’s right, no output! Cargo knows that our project has been built, and that all of its dependencies are built, and so there’s 
+That's right, no output! Cargo knows that our project has been built, and that all of its dependencies are built, and so there's 
 no reason to do all that stuff. With nothing to do, it simply exits. If we open up \code{src/main.rs} again, make a trivial 
-change, and then save it again, we’ll only see one line:
+change, and then save it again, we'll only see one line:
 
 \begin{verbatim}
 $ cargo build
@@ -390,30 +390,30 @@ bugfixes is important, what if \code{0.3.9} contains a regression that breaks ou
 
 \blank
 
-The answer to this problem is the \code{Cargo.lock} file you’ll now find in your project directory. When you build your project 
+The answer to this problem is the \code{Cargo.lock} file you'll now find in your project directory. When you build your project 
 for the first time, Cargo figures out all of the versions that fit your criteria, and then writes them to the \code{Cargo.lock}
 file. When you build your project in the future, Cargo will see that the \code{Cargo.lock} file exists, and then use that specific
 version rather than do all the work of figuring out versions again. This lets you have a repeatable build automatically. In other
-words, we’ll stay at \code{0.3.8} until we explicitly upgrade, and so will anyone who we share our code with, thanks to the lock 
+words, we'll stay at \code{0.3.8} until we explicitly upgrade, and so will anyone who we share our code with, thanks to the lock 
 file.
 
 \blank
 
-What about when we do want to use \code{v0.3.9}? Cargo has another command, \code{update}, which says ‘ignore the lock, figure out
-all the latest versions that fit what we’ve specified. If that works, write those versions out to the lock file’. But, by default,
-Cargo will only look for versions larger than \code{0.3.0} and smaller than \code{0.4.0}. If we want to move to \code{0.4.x}, we’d
+What about when we do want to use \code{v0.3.9}? Cargo has another command, \code{update}, which says 'ignore the lock, figure out
+all the latest versions that fit what we've specified. If that works, write those versions out to the lock file'. But, by default,
+Cargo will only look for versions larger than \code{0.3.0} and smaller than \code{0.4.0}. If we want to move to \code{0.4.x}, we'd
 have to update the \code{Cargo.toml} directly. When we do, the next time we \code{cargo build}, Cargo will update the index and 
 re-evaluate our \code{rand} requirements.
 
 \blank
 
-There’s a lot more to say about \href{http://doc.crates.io/}{Cargo} and its \href{http://doc.crates.io/crates-io.html}{ecosystem},
-but for now, that’s all we need to know. Cargo makes it really easy to re-use libraries, and so Rustaceans tend to write smaller
+There's a lot more to say about \href{http://doc.crates.io/}{Cargo} and its \href{http://doc.crates.io/crates-io.html}{ecosystem},
+but for now, that's all we need to know. Cargo makes it really easy to re-use libraries, and so Rustaceans tend to write smaller
 projects which are assembled out of a number of sub-packages.
 
 \blank
 
-Let’s get on to actually \emph{using} \code{rand}. Here’s our next step:
+Let's get on to actually \emph{using} \code{rand}. Here's our next step:
 
 \begin{rustc}
 extern crate rand;
@@ -439,16 +439,16 @@ fn main() {
 }
 \end{rustc}
 
-The first thing we’ve done is change the first line. It now says \code{extern crate rand}. Because we declared \code{rand} in 
-our \code{[dependencies]}, we can use \code{extern crate} to let Rust know we’ll be making use of it. This also does the 
+The first thing we've done is change the first line. It now says \code{extern crate rand}. Because we declared \code{rand} in 
+our \code{[dependencies]}, we can use \code{extern crate} to let Rust know we'll be making use of it. This also does the 
 equivalent of a \code{use rand}; as well, so we can make use of anything in the \code{rand} crate by prefixing it with 
 \code{rand::}.
 
 \blank
 
 % TODO make traits a hyperref
-Next, we added another \code{use} line: \code{use rand::Rng}. We’re going to use a method in a moment, and it requires that 
-\code{Rng} be in scope to work. The basic idea is this: methods are defined on something called ‘traits’, and for the method 
+Next, we added another \code{use} line: \code{use rand::Rng}. We're going to use a method in a moment, and it requires that 
+\code{Rng} be in scope to work. The basic idea is this: methods are defined on something called 'traits', and for the method 
 to work, it needs the trait to be in scope. For more about the details, read the traits section.
 
 \blank
@@ -463,14 +463,14 @@ There are two other lines we added, in the middle:
 
 % TODO make thread a hyperref
 We use the \code{rand::thread\_rng()} function to get a copy of the random number generator, which is local to the particular 
-thread of execution we’re in. Because we \code{use rand::Rng}’d above, it has a \code{gen\_range()} method available. This 
-method takes two arguments, and generates a number between them. It’s inclusive on the lower bound, but exclusive on the upper 
+thread of execution we're in. Because we \code{use rand::Rng}'d above, it has a \code{gen\_range()} method available. This 
+method takes two arguments, and generates a number between them. It's inclusive on the lower bound, but exclusive on the upper 
 bound, so we need 1 and 101 to get a number ranging from one to a hundred.
 
 \blank
 
-The second line prints out the secret number. This is useful while we’re developing our program, so we can easily test it out. 
-But we’ll be deleting it for the final version. It’s not much of a game if it prints out the answer when you start it up!
+The second line prints out the secret number. This is useful while we're developing our program, so we can easily test it out. 
+But we'll be deleting it for the final version. It's not much of a game if it prints out the answer when you start it up!
 
 \blank
 
@@ -498,7 +498,7 @@ Great! Next up: comparing our guess to the secret number.
 
 \subsection{Comparting guesses}
 
-Now that we’ve got user input, let’s compare our guess to the secret number. Here’s our next step, though it doesn’t quite 
+Now that we've got user input, let's compare our guess to the secret number. Here's our next step, though it doesn't quite 
 compile yet:
 
 \begin{rustc}
@@ -547,7 +547,7 @@ match guess.cmp(&secret_number) {
 % TODO make enum a hyperref
 The \code{cmp()} method can be called on anything that can be compared, and it takes a reference to the thing you want to compare 
 it to. It returns the \code{Ordering} type we \code{use}d earlier. We use a match statement to determine exactly what kind of 
-\code{Ordering} it is. \code{Ordering} is an enum, short for ‘enumeration’, which looks like this:
+\code{Ordering} it is. \code{Ordering} is an enum, short for 'enumeration', which looks like this:
 
 \begin{rustc}
 enum Foo {
@@ -562,7 +562,7 @@ to indicate the namespace for a particular \code{enum} variant.
 \blank
 
 The \href{https://doc.rust-lang.org/std/cmp/enum.Ordering.html}{Ordering} \code{enum} has three possible variants: \code{Less},
-\code{Equal}, and \code{Greater}. The \code{match} statement takes a value of a type, and lets you create an ‘arm’ for each 
+\code{Equal}, and \code{Greater}. The \code{match} statement takes a value of a type, and lets you create an 'arm' for each 
 possible value. Since we have three types of \code{Ordering}, we have three arms:
 
 \begin{rustc}
@@ -573,12 +573,12 @@ match guess.cmp(&secret_number) {
 }
 \end{rustc}
 
-If it’s \code{Less}, we print \code{Too small!}, if it’s \code{Greater}, \code{Too big!}, and if \code{Equal}, \code{You win!}. 
+If it's \code{Less}, we print \code{Too small!}, if it's \code{Greater}, \code{Too big!}, and if \code{Equal}, \code{You win!}. 
 \code{match} is really useful, and is used often in Rust.
 
 \blank
 
-I did mention that this won’t quite compile yet, though. Let’s try it:
+I did mention that this won't quite compile yet, though. Let's try it:
 
 \begin{verbatim}
 $ cargo build
@@ -594,14 +594,14 @@ error: aborting due to previous error
 Could not compile `guessing_game`.
 \end{verbatim}
 
-Whew! This is a big error. The core of it is that we have ‘mismatched types’. Rust has a strong, static type system. However, it 
+Whew! This is a big error. The core of it is that we have 'mismatched types'. Rust has a strong, static type system. However, it 
 also has type inference. When we wrote \code{let guess = String::new()}, Rust was able to infer that \code{guess} should be a 
-\code{String}, and so it doesn’t make us write out the type. And with our \code{secret\_number}, there are a number of types 
+\code{String}, and so it doesn't make us write out the type. And with our \code{secret\_number}, there are a number of types 
 which can have a value between one and a hundred: \code{i32}, a thirty-two-bit number, or \code{u32}, an unsigned thirty-two-bit
-number, or \code{i64}, a sixty-four-bit number or others. So far, that hasn’t mattered, and so Rust defaults to an \code{i32}.
-However, here, Rust doesn’t know how to compare the \code{guess} and the \code{secret\_number}. They need to be the same type.
+number, or \code{i64}, a sixty-four-bit number or others. So far, that hasn't mattered, and so Rust defaults to an \code{i32}.
+However, here, Rust doesn't know how to compare the \code{guess} and the \code{secret\_number}. They need to be the same type.
 Ultimately, we want to convert the \code{String} we read as input into a real number type, for comparison. We can do that with 
-three more lines. Here’s our new program:
+three more lines. Here's our new program:
 
 \begin{rustc}
 extern crate rand;
@@ -644,7 +644,7 @@ The new three lines:
         .expect("Please type a number!");
 \end{rustc}
 
-Wait a minute, I thought we already had a \code{guess}? We do, but Rust allows us to ‘shadow’ the previous \code{guess} with a new
+Wait a minute, I thought we already had a \code{guess}? We do, but Rust allows us to 'shadow' the previous \code{guess} with a new
 one. This is often used in this exact situation, where \code{guess} starts as a \code{String}, but we want to convert it to an 
 \code{u32}. Shadowing lets us re-use the \code{guess} name, rather than forcing us to come up with two unique names like 
 \code{guess\_str} and \code{guess}, or something else.
@@ -660,23 +660,23 @@ guess.trim().parse()
 % TODO make built-in number types a hyperref
 Here, \code{guess} refers to the old \code{guess}, the one that was a \code{String} with our input in it. The \code{trim()} method 
 on \code{String}s will eliminate any white space at the beginning and end of our string. This is important, as we had to press the
-‘return’ key to satisfy \code{read\_line()}. This means that if we type \code{5} and hit return, \code{guess} looks like this: 
-\code{5\\n}. The \code{\\n} represents ‘newline’, the enter key. \code{trim()} gets rid of this, leaving our string with only the 
+'return' key to satisfy \code{read\_line()}. This means that if we type \code{5} and hit return, \code{guess} looks like this: 
+\code{5\\n}. The \code{\\n} represents 'newline', the enter key. \code{trim()} gets rid of this, leaving our string with only the 
 \code{5}. The \href{https://doc.rust-lang.org/std/primitive.str.html#method.parse}{parse() method on strings} parses a string into
 some kind of number. Since it can parse a variety of numbers, we need to give Rust a hint as to the exact type of number we want.
-Hence, \code{let guess: u32}. The colon (\code{:}) after \code{guess} tells Rust we’re going to annotate its type. \code{u32} is 
-an unsigned, thirty-two bit integer. Rust has a number of built-in number types, but we’ve chosen \code{u32}. It’s a good default
+Hence, \code{let guess: u32}. The colon (\code{:}) after \code{guess} tells Rust we're going to annotate its type. \code{u32} is 
+an unsigned, thirty-two bit integer. Rust has a number of built-in number types, but we've chosen \code{u32}. It's a good default
 choice for a small positive number.
 
 \blank
 
 Just like \code{read\_line()}, our call to \code{parse()} could cause an error. What if our string contained \code{A\%}? 
-There’d be no way to convert that to a number. As such, we’ll do the same thing we did with \code{read\_line()}: use the 
-\code{expect()} method to crash if there’s an error.
+There'd be no way to convert that to a number. As such, we'll do the same thing we did with \code{read\_line()}: use the 
+\code{expect()} method to crash if there's an error.
 
 \blank
 
-Let’s try our program out!
+Let's try our program out!
 
 \begin{verbatim}
 $ cargo run
@@ -695,11 +695,11 @@ and verify that guessing the number works, as well as guessing a number too smal
 
 \blank
 
-Now we’ve got most of the game working, but we can only make one guess. Let’s change that by adding loops!
+Now we've got most of the game working, but we can only make one guess. Let's change that by adding loops!
 
 \subsection{Looping}
 
-The \code{loop} keyword gives us an infinite loop. Let’s add that in:
+The \code{loop} keyword gives us an infinite loop. Let's add that in:
 
 \begin{rustc}
 extern crate rand;
@@ -737,8 +737,8 @@ fn main() {
 }
 \end{rustc}
 
-And try it out. But wait, didn’t we just add an infinite loop? Yup. Remember our discussion about \code{parse()}? If we give a
-non-number answer, we’ll \code{panic!} and quit. Observe:
+And try it out. But wait, didn't we just add an infinite loop? Yup. Remember our discussion about \code{parse()}? If we give a
+non-number answer, we'll \code{panic!} and quit. Observe:
 
 \begin{verbatim}
 $ cargo run
@@ -764,7 +764,7 @@ thread '<main>' panicked at 'Please type a number!'
 \end{verbatim}
 
 Ha! \code{quit} actually quits. As does any other non-number input. Well, this is suboptimal to say the least. First, 
-let’s actually quit when you win the game:
+let's actually quit when you win the game:
 
 \begin{rustc}
 extern crate rand;
@@ -805,9 +805,9 @@ fn main() {
 }
 \end{rustc}
 
-By adding the \code{break} line after the \code{You win!}, we’ll exit the loop when we win. Exiting the loop also means exiting 
-the program, since it’s the last thing in \code{main()}. We have only one more tweak to make: when someone inputs a non-number, 
-we don’t want to quit, we want to ignore it. We can do that like this:
+By adding the \code{break} line after the \code{You win!}, we'll exit the loop when we win. Exiting the loop also means exiting 
+the program, since it's the last thing in \code{main()}. We have only one more tweak to make: when someone inputs a non-number, 
+we don't want to quit, we want to ignore it. We can do that like this:
 
 \begin{rustc}
 extern crate rand;
@@ -859,16 +859,16 @@ let guess: u32 = match guess.trim().parse() {
 };
 \end{rustc}
 
-This is how you generally move from ‘crash on error’ to ‘actually handle the returned by \code{parse()} is an \code{enum} like
+This is how you generally move from 'crash on error' to 'actually handle the returned by \code{parse()} is an \code{enum} like
 \code{Ordering}, but in this case, each variant has some data associated with it: \code{Ok} is a success, and \code{Err} is a
 failure. Each contains more information: the successfully parsed integer, or an error type. In this case, we \code{match} on 
 \code{Ok(num)}, which sets the inner value of the \code{Ok} to the name \code{num}, and then we return it on the right-hand side. 
-In the \code{Err} case, we don’t care what kind of error it is, so we use \code{\_} instead of a name. This ignores the error, and
+In the \code{Err} case, we don't care what kind of error it is, so we use \code{\_} instead of a name. This ignores the error, and
 \code{continue} causes us to go to the next iteration of the \code{loop}.
 
 \blank
 
-Now we should be good! Let’s try:
+Now we should be good! Let's try:
 
 \begin{verbatim}
 $ cargo run
@@ -892,8 +892,8 @@ You guessed: 61
 You win!
 \end{verbatim}
 
-Awesome! With one tiny last tweak, we have finished the guessing game. Can you think of what it is? That’s right, we don’t want 
-to print out the secret number. It was good for testing, but it kind of ruins the game. Here’s our final source:
+Awesome! With one tiny last tweak, we have finished the guessing game. Can you think of what it is? That's right, we don't want 
+to print out the secret number. It was good for testing, but it kind of ruins the game. Here's our final source:
 
 \begin{rustc}
 extern crate rand;

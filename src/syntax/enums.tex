@@ -1,0 +1,80 @@
+An \enum\ in Rust is a type that represents data that is one of several possible variants. Each variant in the \enum\ can optionally 
+have data associated with it:
+
+\begin{rustc}
+enum Message {
+    Quit,
+    ChangeColor(i32, i32, i32),
+    Move { x: i32, y: i32 },
+    Write(String),
+}
+\end{rustc}
+
+The syntax for defining variants resembles the syntaxes used to define structs: you can have variants with no data (like unit-like 
+structs), variants with named data, and variants with unnamed data (like tuple structs). Unlike separate struct definitions, however, 
+an \enum\ is a single type. A value of the enum can match any of the variants. For this reason, an enum is sometimes called a 
+'sum type': the set of possible values of the enum is the sum of the sets of possible values for each variant.
+
+\blank
+
+We use the \code{::} syntax to use the name of each variant: they're scoped by the name of the \enum\ itself. This allows both of 
+these to work:
+
+\begin{rustc}
+let x: Message = Message::Move { x: 3, y: 4 };
+
+enum BoardGameTurn {
+    Move { squares: i32 },
+    Pass,
+}
+
+let y: BoardGameTurn = BoardGameTurn::Move { squares: 1 };
+\end{rustc}
+
+Both variants are named \code{Move}, but since they're scoped to the name of the \enum\, they can both be used without conflict.
+
+\blank
+
+A value of an \enum\ type contains information about which variant it is, in addition to any data associated with that variant. This 
+is sometimes referred to as a 'tagged union', since the data includes a 'tag' indicating what type it is. The compiler uses this 
+information to enforce that you're accessing the data in the enum safely. For instance, you can't simply try to destructure a value 
+as if it were one of the possible variants:
+
+\begin{rustc}
+fn process_color_change(msg: Message) {
+    let Message::ChangeColor(r, g, b) = msg; // compile-time error
+}
+\end{rustc}
+
+% TODO make traits and match hyperrefs
+Not supporting these operations may seem rather limiting, but it's a limitation which we can overcome. There are two ways: by 
+implementing equality ourselves, or by pattern matching variants with match expressions, which you'll learn in the next section. 
+We don't know enough about Rust to implement equality yet, but we'll find out in the traits section.
+
+\subsubsection*{Constructors as functions}
+
+An \enum\ constructor can also be used like a function. For example:
+
+\begin{rustc}
+let m = Message::Write("Hello, world".to_string());
+\end{rustc}
+
+is the same as
+
+\begin{rustc}
+fn foo(x: String) -> Message {
+    Message::Write(x)
+}
+
+let x = foo("Hello, world".to_string());
+\end{rustc}
+
+% TODO make closures and iterators hyperrefs
+This is not immediately useful to us, but when we get to closures, we'll talk about passing functions as arguments to other functions. 
+For example, with iterators, we can do this to convert a vector of \String s into a vector of \code{Message::Writes}:
+
+\begin{rustc}
+let v = vec!["Hello".to_string(), "World".to_string()];
+
+let v1: Vec<Message> = v.into_iter().map(Message::Write).collect();
+\end{rustc}

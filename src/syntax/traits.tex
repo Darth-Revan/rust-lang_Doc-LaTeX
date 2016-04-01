@@ -1,0 +1,491 @@
+A trait is a language feature that tells the Rust compiler about functionality a type must provide.
+
+\blank
+
+Recall the \code{impl} keyword, used to call a function with method syntax:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+\end{rustc}
+
+Traits are similar, except that we first define a trait with a method signature, then implement the trait for a type. In this example, we 
+implement the trait \code{HasArea} for \code{Circle}:
+
+\begin{rustc}
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+trait HasArea {
+    fn area(&self) -> f64;
+}
+
+impl HasArea for Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+\end{rustc}
+
+As you can see, the \code{trait} block looks very similar to the \code{impl} block, but we don't define a body, only a type signature. When 
+we \code{impl} a trait, we use \code{impl Trait for Item}, rather than only \code{impl Item}.
+
+\subsubsection*{Trait bounds on generic functions}
+
+Traits are useful because they allow a type to make certain promises about its behavior. Generic functions can exploit this to constrain, 
+or \nameref{sec:gloss_bounds}, the types they accept. Consider this function, which does not compile:
+
+\begin{rustc}
+fn print_area<T>(shape: T) {
+    println!("This shape has an area of {}", shape.area());
+}
+\end{rustc}
+
+Rust complains:
+
+\begin{verbatim}
+error: no method named `area` found for type `T` in the current scope
+\end{verbatim}
+
+Because \code{T} can be any type, we can't be sure that it implements the \code{area} method. But we can add a trait bound to our generic 
+\code{T}, ensuring that it does:
+
+\begin{rustc}
+fn print_area<T: HasArea>(shape: T) {
+    println!("This shape has an area of {}", shape.area());
+}
+\end{rustc}
+
+The syntax \code{<T: HasArea>} means \enquote{any type that implements the \code{HasArea} trait.} Because traits define function type signatures, 
+we can be sure that any type which implements \code{HasArea} will have an \code{.area()} method.
+
+\blank
+
+Here's an extended example of how this works:
+
+\begin{rustc}
+trait HasArea {
+    fn area(&self) -> f64;
+}
+
+struct Circle {
+    x: f64,
+    y: f64,
+    radius: f64,
+}
+
+impl HasArea for Circle {
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * (self.radius * self.radius)
+    }
+}
+
+struct Square {
+    x: f64,
+    y: f64,
+    side: f64,
+}
+
+impl HasArea for Square {
+    fn area(&self) -> f64 {
+        self.side * self.side
+    }
+}
+
+fn print_area<T: HasArea>(shape: T) {
+    println!("This shape has an area of {}", shape.area());
+}
+
+fn main() {
+    let c = Circle {
+        x: 0.0f64,
+        y: 0.0f64,
+        radius: 1.0f64,
+    };
+
+    let s = Square {
+        x: 0.0f64,
+        y: 0.0f64,
+        side: 1.0f64,
+    };
+
+    print_area(c);
+    print_area(s);
+}
+\end{rustc}
+
+This program outputs:
+
+\begin{verbatim}
+This shape has an area of 3.141593
+This shape has an area of 1
+\end{verbatim}
+
+As you can see, \code{print\_area} is now generic, but also ensures that we have passed in the correct types. If we pass in an incorrect type:
+
+\begin{rustc}
+print_area(5);
+\end{rustc}
+
+We get a compile-time error:
+
+\begin{verbatim}
+error: the trait `HasArea` is not implemented for the type `_` [E0277]
+\end{verbatim}
+
+\subsubsection*{Trait bounds on generic structs}
+
+Your generic structs can also benefit from trait bounds. All you need to do is append the bound when you declare type parameters. Here is a 
+new type \code{Rectangle<T>} and its operation \code{is\_square()}:
+
+\begin{rustc}
+struct Rectangle<T> {
+    x: T,
+    y: T,
+    width: T,
+    height: T,
+}
+
+impl<T: PartialEq> Rectangle<T> {
+    fn is_square(&self) -> bool {
+        self.width == self.height
+    }
+}
+
+fn main() {
+    let mut r = Rectangle {
+        x: 0,
+        y: 0,
+        width: 47,
+        height: 47,
+    };
+
+    assert!(r.is_square());
+
+    r.height = 42;
+    assert!(!r.is_square());
+}
+\end{rustc}
+
+\code{is\_square()} needs to check that the sides are equal, so the sides must be of a type that implements the 
+\href{https://doc.rust-lang.org/core/cmp/trait.PartialEq.html}{core::cmp::PartialEq} trait:
+
+\begin{rustc}
+impl<T: PartialEq> Rectangle<T> { ... }
+\end{rustc}
+
+Now, a rectangle can be defined in terms of any type that can be compared for equality.
+
+\blank
+
+% TODO make operators traits a hyperref
+Here we defined a new struct \code{Rectangle} that accepts numbers of any precision—really, objects of pretty much any type—as long as they 
+can be compared for equality. Could we do the same for our \code{HasArea} structs, \code{Square} and \code{Circle}? Yes, but they need
+multiplication, and to work with that we need to know more about operator traits.
+
+\subsubsection*{Rules for implementing traits}
+
+So far, we've only added trait implementations to structs, but you can implement a trait for any type. So technically, we \emph{could} 
+implement \code{HasArea} for \itt:
+
+\begin{rustc}
+trait HasArea {
+    fn area(&self) -> f64;
+}
+
+impl HasArea for i32 {
+    fn area(&self) -> f64 {
+        println!("this is silly");
+
+        *self as f64
+    }
+}
+
+5.area();
+\end{rustc}
+
+It is considered poor style to implement methods on such primitive types, even though it is possible.
+
+\blank
+
+This may seem like the Wild West, but there are two restrictions around implementing traits that prevent this from getting out of hand. 
+The first is that if the trait isn't defined in your scope, it doesn't apply. Here's an example: the standard library provides a 
+\href{https://doc.rust-lang.org/std/io/trait.Write.html}{Write} trait which adds extra functionality to \code{File}s, for doing file I/O. 
+By default, a \code{File} won't have its methods:
+
+\begin{rustc}
+let mut f = std::fs::File::open("foo.txt").expect("Couldn't open foo.txt");
+let buf = b"whatever"; // byte string literal. buf: &[u8; 8]
+let result = f.write(buf);
+\end{rustc}
+
+Here's the error:
+
+\begin{verbatim}
+error: type `std::fs::File` does not implement any method in scope named `write`
+let result = f.write(buf);
+               ^~~~~~~~~~
+\end{verbatim}
+
+We need to \code{use} the \code{Write} trait first:
+
+\begin{rustc}
+use std::io::Write;
+
+let mut f = std::fs::File::open("foo.txt").expect("Couldn't open foo.txt");
+let buf = b"whatever";
+let result = f.write(buf);
+\end{rustc}
+
+This will compile without error.
+
+\blank
+
+This means that even if someone does something bad like add methods to \itt, it won't affect you, unless you \code{use} that trait.
+
+\blank
+
+There's one more restriction on implementing traits: either the trait, or the type you're writing the \code{impl} for, must be defined 
+by you. So, we could implement the \code{HasArea} type for \itt, because \code{HasArea} is in our code. But if we tried to implement 
+\code{ToString}, a trait provided by Rust, for \itt, we could not, because neither the trait nor the type are in our code.
+
+\blank
+
+% TODO make trait objects a hyperref
+One last thing about traits: generic functions with a trait bound use 'monomorphization' (mono: one, morph: form), so they are 
+statically dispatched. What's that mean? Check out the chapter on trait objects for more details.
+
+\subsubsection*{Multiple trait bounds}
+
+You've seen that you can bound a generic type parameter with a trait:
+
+\begin{rustc}
+fn foo<T: Clone>(x: T) {
+    x.clone();
+}
+\end{rustc}
+
+If you need more than one bound, you can use \code{+}:
+
+\begin{rustc}
+use std::fmt::Debug;
+
+fn foo<T: Clone + Debug>(x: T) {
+    x.clone();
+    println!("{:?}", x);
+}
+\end{rustc}
+
+\code{T} now needs to be both \code{Clone} as well as \code{Debug}.
+
+\subsubsection*{Where clause}
+
+Writing functions with only a few generic types and a small number of trait bounds isn't too bad, but as the number increases, the 
+syntax gets increasingly awkward:
+
+\begin{rustc}
+use std::fmt::Debug;
+
+fn foo<T: Clone, K: Clone + Debug>(x: T, y: K) {
+    x.clone();
+    y.clone();
+    println!("{:?}", y);
+}
+\end{rustc}
+
+The name of the function is on the far left, and the parameter list is on the far right. The bounds are getting in the way.
+
+\blank
+
+Rust has a solution, and it's called a '\code{where} clause':
+
+\begin{rustc}
+use std::fmt::Debug;
+
+fn foo<T: Clone, K: Clone + Debug>(x: T, y: K) {
+    x.clone();
+    y.clone();
+    println!("{:?}", y);
+}
+
+fn bar<T, K>(x: T, y: K) where T: Clone, K: Clone + Debug {
+    x.clone();
+    y.clone();
+    println!("{:?}", y);
+}
+
+fn main() {
+    foo("Hello", "world");
+    bar("Hello", "world");
+}
+\end{rustc}
+
+\code{foo()} uses the syntax we showed earlier, and \code{bar()} uses a \code{where} clause. All you need to do is leave off the bounds 
+when defining your type parameters, and then add \code{where} after the parameter list. For longer lists, whitespace can be added:
+
+\begin{rustc}
+use std::fmt::Debug;
+
+fn bar<T, K>(x: T, y: K)
+    where T: Clone,
+          K: Clone + Debug {
+
+    x.clone();
+    y.clone();
+    println!("{:?}", y);
+}
+\end{rustc}
+
+This flexibility can add clarity in complex situations.
+
+\blank
+
+\code{where} is also more powerful than the simpler syntax. For example:
+
+\begin{rustc}
+trait ConvertTo<Output> {
+    fn convert(&self) -> Output;
+}
+
+impl ConvertTo<i64> for i32 {
+    fn convert(&self) -> i64 { *self as i64 }
+}
+
+// can be called with T == i32
+fn normal<T: ConvertTo<i64>>(x: &T) -> i64 {
+    x.convert()
+}
+
+// can be called with T == i64
+fn inverse<T>() -> T
+        // this is using ConvertTo as if it were "ConvertTo<i64>"
+        where i32: ConvertTo<T> {
+    42.convert()
+}
+\end{rustc}
+
+This shows off the additional feature of \code{where} clauses: they allow bounds on the left-hand side not only of type parameters \code{T}, 
+but also of types (\itt\ in this case). In this example, \itt\ must implement \code{ConvertTo<T>}. Rather than defining what \itt\ is (since 
+that's obvious), the \code{where} clause here constrains \code{T}.
+
+\subsubsection*{Default methods}
+
+A default method can be added to a trait definition if it is already known how a typical implementor will define a method. For example, 
+\code{is\_invalid()} is defined as the opposite of \code{is\_valid()}:
+
+\begin{rustc}
+trait Foo {
+    fn is_valid(&self) -> bool;
+
+    fn is_invalid(&self) -> bool { !self.is_valid() }
+}
+\end{rustc}
+
+Implementors of the \code{Foo} trait need to implement \code{is\_valid()} but not \code{is\_invalid()} due to the added default behavior. 
+This default behavior can still be overridden as in:
+
+\begin{rustc}
+struct UseDefault;
+
+impl Foo for UseDefault {
+    fn is_valid(&self) -> bool {
+        println!("Called UseDefault.is_valid.");
+        true
+    }
+}
+
+struct OverrideDefault;
+
+impl Foo for OverrideDefault {
+    fn is_valid(&self) -> bool {
+        println!("Called OverrideDefault.is_valid.");
+        true
+    }
+
+    fn is_invalid(&self) -> bool {
+        println!("Called OverrideDefault.is_invalid!");
+        true // overrides the expected value of is_invalid()
+    }
+}
+
+let default = UseDefault;
+assert!(!default.is_invalid()); // prints "Called UseDefault.is_valid."
+
+let over = OverrideDefault;
+assert!(over.is_invalid()); // prints "Called OverrideDefault.is_invalid!"
+\end{rustc}
+
+\subsubsection*{Inheritance}
+
+Sometimes, implementing a trait requires implementing another trait:
+
+\begin{rustc}
+trait Foo {
+    fn foo(&self);
+}
+
+trait FooBar : Foo {
+    fn foobar(&self);
+}
+\end{rustc}
+
+Implementors of \code{FooBar} must also implement \code{Foo}, like this:
+
+\begin{rustc}
+struct Baz;
+
+impl Foo for Baz {
+    fn foo(&self) { println!("foo"); }
+}
+
+impl FooBar for Baz {
+    fn foobar(&self) { println!("foobar"); }
+}
+\end{rustc}
+
+If we forget to implement \code{Foo}, Rust will tell us:
+
+\begin{verbatim}
+error: the trait `main::Foo` is not implemented for the type `main::Baz` [E0277]
+\end{verbatim}
+
+\subsubsection*{Deriving}
+
+% TODO make atttribute a hyperref
+Implementing traits like \code{Debug} and \code{Default} repeatedly can become quite tedious. For that reason, Rust provides an attribute 
+that allows you to let Rust automatically implement traits for you:
+
+\begin{rustc}
+#[derive(Debug)]
+struct Foo;
+
+fn main() {
+    println!("{:?}", Foo);
+}
+\end{rustc}
+
+However, deriving is limited to a certain set of traits:
+
+\begin{itemize}
+  \item{\href{https://doc.rust-lang.org/core/clone/trait.Clone.html}{Clone}}
+  \item{\href{https://doc.rust-lang.org/core/marker/trait.Copy.html}{Copy}}
+  \item{\href{https://doc.rust-lang.org/core/fmt/trait.Debug.html}{Debug}}
+  \item{\href{https://doc.rust-lang.org/core/default/trait.Default.html}{Default}}
+  \item{\href{https://doc.rust-lang.org/core/cmp/trait.Eq.html}{Eq}}
+  \item{\href{https://doc.rust-lang.org/core/hash/trait.Hash.html}{Hash}}
+  \item{\href{https://doc.rust-lang.org/core/cmp/trait.Ord.html}{Ord}}
+  \item{\href{https://doc.rust-lang.org/core/cmp/trait.PartialEq.html}{PartialEq}}
+  \item{\href{https://doc.rust-lang.org/core/cmp/trait.PartialOrd.html}{PartialOrd}}
+\end{itemize}

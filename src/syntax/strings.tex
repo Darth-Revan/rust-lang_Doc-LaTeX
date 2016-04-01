@@ -1,0 +1,194 @@
+Strings are an important concept for any programmer to master. Rust's string handling system is a bit different from other languages, due to 
+its systems focus. Any time you have a data structure of variable size, things can get tricky, and strings are a re-sizable data structure. 
+That being said, Rust's strings also work differently than in some other systems languages, such as C.
+
+\blank
+
+Let's dig into the details. A 'string' is a sequence of Unicode scalar values encoded as a stream of UTF-8 bytes. All strings are guaranteed 
+to be a valid encoding of UTF-8 sequences. Additionally, unlike some systems languages, strings are not null-terminated and can contain null 
+bytes.
+
+\blank
+
+Rust has two main types of strings: \code{\&str} and \String. Let's talk about \code{\&str} first. These are called 'string slices'. A string 
+slice has a fixed size, and cannot be mutated. It is a reference to a sequence of UTF-8 bytes.
+
+\begin{rustc}
+let greeting = "Hello there."; // greeting: &'static str
+\end{rustc}
+
+\code{"Hello there."} is a string literal and its type is \code{\&'static str}. A string literal is a string slice that is statically allocated,
+meaning that it's saved inside our compiled program, and exists for the entire duration it runs. The \code{greeting} binding is a reference to 
+this statically allocated string. Any function expecting a string slice will also accept a string literal.
+
+\blank
+
+String literals can span multiple lines. There are two forms. The first will include the newline and the leading spaces:
+
+\begin{rustc}
+let s = "foo
+    bar";
+
+assert_eq!("foo\n        bar", s);
+\end{rustc}
+
+The second, with a \code{\\}, trims the spaces and the newline:
+
+\begin{rustc}
+let s = "foo\
+    bar"; 
+
+assert_eq!("foobar", s);
+\end{rustc}
+
+Rust has more than only \code{\&str}s though. A \String, is a heap-allocated string. This string is growable, and is also guaranteed to be 
+UTF-8. \String s are commonly created by converting from a string slice using the \code{to\_string} method.
+
+\begin{rustc}
+let mut s = "Hello".to_string(); // mut s: String
+println!("{}", s);
+
+s.push_str(", world.");
+println!("{}", s);
+\end{rustc}
+
+\String s will coerce into \code{\&str} with an \&:
+
+\begin{rustc}
+fn takes_slice(slice: &str) {
+    println!("Got: {}", slice);
+}
+
+fn main() {
+    let s = "Hello".to_string();
+    takes_slice(&s);
+}
+\end{rustc}
+
+This coercion does not happen for functions that accept one of \code{\&str}'s traits instead of \code{\&str}. For example, 
+\href{https://doc.rust-lang.org/std/net/struct.TcpStream.html#method.connect}{TcpStream::connect} has a parameter of type \code{ToSocketAddrs}. 
+A \code{\&str} is okay but a \String\ must be explicitly converted using \code{\&*}.
+
+\begin{rustc}
+use std::net::TcpStream;
+
+TcpStream::connect("192.168.0.1:3000"); // &str parameter
+
+let addr_string = "192.168.0.1:3000".to_string();
+TcpStream::connect(&*addr_string); // convert addr_string to &str
+\end{rustc}
+
+Viewing a \String\ as a \code{\&str} is cheap, but converting the \code{\&str} to a \String\ involves allocating memory. No reason to do 
+that unless you have to!
+
+\subsubsection*{Indexing}
+
+Because strings are valid UTF-8, strings do not support indexing:
+
+\begin{rustc}
+let s = "hello";
+
+println!("The first letter of s is {}", s[0]); // ERROR!!!
+\end{rustc}
+
+Usually, access to a vector with \code{[]} is very fast. But, because each character in a UTF-8 encoded string can be multiple bytes, 
+you have to walk over the string to find the $n_{th}$ letter of a string. This is a significantly more expensive operation, and we don't 
+want to be misleading. Furthermore, 'letter' isn't something defined in Unicode, exactly. We can choose to look at a string as individual 
+bytes, or as codepoints:
+
+\begin{rustc}
+let hachiko = "忠犬ハチ公";
+
+for b in hachiko.as_bytes() {
+    print!("{}, ", b);
+}
+
+println!("");
+
+for c in hachiko.chars() {
+    print!("{}, ", c);
+}
+
+println!("");
+\end{rustc}
+
+\begin{rustc}
+let hachiko = "忠犬ハチ公";
+
+for b in hachiko.as_bytes() {
+    print!("{}, ", b);
+}
+
+println!("");
+
+for c in hachiko.chars() {
+    print!("{}, ", c);
+}
+
+println!("");
+\end{rustc}
+
+This prints:
+
+\begin{verbatim}
+229, 191, 160, 231, 138, 172, 227, 131, 143, 227, 131, 129, 229, 133, 172,
+忠, 犬, ハ, チ, 公,
+\end{verbatim}
+
+As you can see, there are more bytes than \varchar s.
+
+\blank
+
+You can get something similar to an index like this:
+
+\begin{rustc}
+let dog = hachiko.chars().nth(1); // kinda like hachiko[1]
+\end{rustc}
+
+This emphasizes that we have to walk from the beginning of the list of \varchar s.
+
+\subsubsection*{Slicing}
+
+You can get a slice of a string with slicing syntax:
+
+\begin{rustc}
+let dog = "hachiko";
+let hachi = &dog[0..5];
+\end{rustc}
+
+But note that these are \emph{byte offsets}, not \emph{character offsets}. So this will fail at runtime:
+
+\begin{rustc}
+let dog = "忠犬ハチ公";
+let hachi = &dog[0..2];
+\end{rustc}
+
+with this error:
+
+\begin{verbatim}
+thread '<main>' panicked at 'index 0 and/or 2 in `忠犬ハチ公` do not lie on
+character boundary'
+\end{verbatim}
+
+\subsubsection*{Concatenation}
+
+If you have a \String, you can concatenate a \code{\&str} to the end of it:
+
+\begin{rustc}
+let hello = "Hello ".to_string();
+let world = "world!";
+
+let hello_world = hello + world;
+\end{rustc}
+
+But if you have two \String s, you need an \code{\&}:
+
+\begin{rustc}
+let hello = "Hello ".to_string();
+let world = "world!".to_string();
+
+let hello_world = hello + &world;
+\end{rustc}
+
+% TODO make deref coercion a hyperref
+This is because \code{\&String} can automatically coerce to a \code{\&str}. This is a feature called 'Deref coercions'.

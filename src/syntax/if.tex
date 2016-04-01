@@ -1,0 +1,73 @@
+Rust's take on \keyif\ is not particularly complex, but it's much more like the \keyif\ you'll find in a dynamically typed language 
+than in a more traditional systems language. So let's talk about it, to make sure you grasp the nuances.
+
+\blank
+
+\keyif\ is a specific form of a more general concept, the 'branch'. The name comes from a branch in a tree: a decision point, where
+depending on a choice, multiple paths can be taken.
+
+\blank
+
+In the case of \keyif, there is one choice that leads down two paths:
+
+\begin{rustc}
+let x = 5;
+
+if x == 5 {
+    println!("x is five!");
+}
+\end{rustc}
+
+If we changed the value of \x\ to something else, this line would not print. More specifically, if the expression after the 
+\keyif\ evaluates to \code{true}, then the block is executed. If it's \code{false}, then it is not.
+
+\blank
+
+If you want something to happen in the \code{false} case, use an \code{else}:
+
+\begin{rustc}
+let x = 5;
+
+if x == 5 {
+    println!("x is five!");
+} else {
+    println!("x is not five :(");
+}
+\end{rustc}
+
+If there is more than one case, use an \code{else if}:
+
+\begin{rustc}
+let x = 5;
+
+if x == 5 {
+    println!("x is five!");
+} else if x == 6 {
+    println!("x is six!");
+} else {
+    println!("x is not five or six :(");
+}
+\end{rustc}
+
+This is all pretty standard. However, you can also do this:
+
+\begin{rustc}
+let x = 5;
+
+let y = if x == 5 {
+    10
+} else {
+    15
+}; // y: i32
+\end{rustc}
+
+Which we can (and probably should) write like this:
+
+\begin{rustc}
+let x = 5;
+
+let y = if x == 5 { 10 } else { 15 }; // y: i32
+\end{rustc}
+
+This works because \keyif\ is an expression. The value of the expression is the value of the last expression in whichever branch 
+was chosen. An \keyif\ without an \code{else} always results in \code{()} as the value.
