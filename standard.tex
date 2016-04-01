@@ -1,8 +1,12 @@
+% !TeX program = XeLaTeX
+% !TeX encoding = UTF-8
 \documentclass[fontsize=12pt]{scrartcl}
 
 \usepackage[USenglish]{babel}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\usepackage{xeCJK}
+\setCJKmainfont{IPAexMincho}
 \usepackage{lmodern}
 \usepackage{xspace}
 \usepackage{minted}
@@ -29,10 +33,11 @@
 \makeatother
 
 \begin{document}
-    \renewcommand{\familydefault}{\sfdefault}
-    \renewcommand*\rmdefault{ppl}
-    \renewcommand*\sfdefault{phv}
-    
+
+    \setromanfont{Liberation Serif}
+    \setsansfont{Liberation Sans}
+    \setmonofont{Source Code Pro}
+
     \renewenvironment{verbatim}
     {\VerbatimEnvironment
      \begin{mdframed}[backgroundcolor=cverbbg,topline=false,bottomline=false,rightline=false,leftline=false]
@@ -45,7 +50,9 @@
       breaklines,
       fontsize=\footnotesize,
       tabsize=4,
-      bgcolor=cverbbg
+      bgcolor=cverbbg,
+      encoding=utf-8,
+      outencoding=utf-8,
     }
     
     \newenvironment{rustc}
