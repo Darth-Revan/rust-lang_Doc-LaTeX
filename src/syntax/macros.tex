@@ -1,0 +1,734 @@
+By now you've learned about many of the tools Rust provides for abstracting and reusing code. These units of code reuse have a rich 
+semantic structure. For example, functions have a type signature, type parameters have trait bounds, and overloaded functions must 
+belong to a particular trait.
+
+\blank
+
+This structure means that Rust's core abstractions have powerful compile-time correctness checking. But this comes at the price of 
+flexibility. If you visually identify a pattern of repeated code, you may find it's difficult or cumbersome to express that pattern 
+as a generic function, a trait, or anything else within Rust's semantics.
+
+\blank
+
+Macros allow us to abstract at a syntactic level. A macro invocation is shorthand for an \enquote{expanded} syntactic form. This 
+expansion happens early in compilation, before any static checking. As a result, macros can capture many patterns of code reuse that 
+Rust's core abstractions cannot.
+
+\blank
+
+The drawback is that macro-based code can be harder to understand, because fewer of the built-in rules apply. Like an ordinary 
+function, a well-behaved macro can be used without understanding its implementation. However, it can be difficult to design a 
+well-behaved macro! Additionally, compiler errors in macro code are harder to interpret, because they describe problems in the 
+expanded code, not the source-level form that developers use.
+
+\blank
+
+These drawbacks make macros something of a \enquote{feature of last resort}. That's not to say that macros are bad; they are part of 
+Rust because sometimes they're needed for truly concise, well-abstracted code. Just keep this tradeoff in mind.
+
+\subsubsection*{Defining a macro}
+
+You may have seen the \code{vec!} macro, used to initialize a vector with any number of elements.
+
+\begin{rustc}
+let x: Vec<u32> = vec![1, 2, 3];
+\end{rustc}
+
+This can't be an ordinary function, because it takes any number of arguments. But we can imagine it as syntactic shorthand for
+
+\begin{rustc}
+let x: Vec<u32> = {
+    let mut temp_vec = Vec::new();
+    temp_vec.push(1);
+    temp_vec.push(2);
+    temp_vec.push(3);
+    temp_vec
+};
+\end{rustc}
+
+We can implement this shorthand, using a macro:\footnote{The actual definition of \code{vec!} in libcollections differs from the one 
+presented here, for reasons of efficiency and reusability.}
+
+\begin{rustc}
+macro_rules! vec {
+    ( $( $x:expr ),* ) => {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            temp_vec
+        }
+    };
+}
+\end{rustc}
+
+Whoa, that's a lot of new syntax! Let's break it down.
+
+\begin{rustc}
+macro_rules! vec { ... }
+\end{rustc}
+
+This says we're defining a macro named \code{vec}, much as \code{fn vec} would define a function named \code{vec}. In prose, we informally 
+write a macro's name with an exclamation point, e.g. \code{vec!}. The exclamation point is part of the invocation syntax and serves to 
+distinguish a macro from an ordinary function.
+
+\myparagraph{Matching}
+
+The macro is defined through a series of rules, which are pattern-matching cases. Above, we had
+
+\begin{rustc}
+( $( $x:expr ),* ) => { ... };
+\end{rustc}
+
+This is like a \code{match} expression arm, but the matching happens on Rust syntax trees, at compile time. The semicolon is optional
+on the last (here, only) case. The \enquote{pattern} on the left-hand side of \code{=>} is known as a 'matcher'. These have 
+\href{https://doc.rust-lang.org/reference.html#macros}{their own little grammar} within the language.
+
+\blank
+
+The matcher \code{\$x:expr} will match any Rust expression, binding that syntax tree to the 'metavariable' \code{\$x}. The identifier 
+\code{expr} is a 'fragment specifier'; the full possibilities are enumerated later in this chapter. Surrounding the matcher with 
+\code{\$(...),*} will match zero or more expressions, separated by commas.
+
+\blank
+
+Aside from the special matcher syntax, any Rust tokens that appear in a matcher must match exactly. For example,
+
+\begin{rustc}
+macro_rules! foo {
+    (x => $e:expr) => (println!("mode X: {}", $e));
+    (y => $e:expr) => (println!("mode Y: {}", $e));
+}
+
+fn main() {
+    foo!(y => 3);
+}
+\end{rustc}
+
+will print
+
+\begin{verbatim}
+mode Y: 3
+\end{verbatim}
+
+With
+
+\begin{rustc}
+foo!(z => 3);
+\end{rustc}
+
+we get the compiler error
+
+\begin{verbatim}
+error: no rules expected the token `z`
+\end{verbatim}
+
+\myparagraph{Expansion}
+
+The right-hand side of a macro rule is ordinary Rust syntax, for the most part. But we can splice in bits of syntax captured by the matcher. 
+From the original example:
+
+\begin{rustc}
+$(
+    temp_vec.push($x);
+)*
+\end{rustc}
+
+Each matched expression \code{\$x} will produce a single \code{push} statement in the macro expansion. The repetition in the expansion 
+proceeds in \enquote{lockstep} with repetition in the matcher (more on this in a moment).
+
+\blank
+
+Because \code{\$x} was already declared as matching an expression, we don't repeat \code{:expr} on the right-hand side. Also, we don't 
+include a separating comma as part of the repetition operator. Instead, we have a terminating semicolon within the repeated block.
+
+\blank
+
+Another detail: the \code{vec!} macro has \emph{two} pairs of braces on the right-hand side. They are often combined like so:
+
+\begin{rustc}
+macro_rules! foo {
+    () => {{
+        ...
+    }}
+}
+\end{rustc}
+
+The outer braces are part of the syntax of \code{macro\_rules!}. In fact, you can use \code{()} or \code{[]} instead. They simply delimit 
+the right-hand side as a whole.
+
+\blank
+
+The inner braces are part of the expanded syntax. Remember, the \code{vec!} macro is used in an expression context. To write an expression 
+with multiple statements, including \keylet-bindings, we use a block. If your macro expands to a single expression, you don't need this 
+extra layer of braces.
+
+\blank
+
+Note that we never \emph{declared} that the macro produces an expression. In fact, this is not determined until we use the macro as 
+an expression. With care, you can write a macro whose expansion works in several contexts. For example, shorthand for a data type could 
+be valid as either an expression or a pattern.
+
+\myparagraph{Repetition}
+
+The repetition operator follows two principal rules:
+
+\begin{enumerate}
+  \item{\code{\$(...)*} walks through one \enquote{layer} of repetitions, for all of the \code{\$names} it contains, in lockstep, and}
+  \item{each \code{\$name} must be under at least as many \code{\$(...)*}s as it was matched against. If it is under more, it'll be 
+      duplicated, as appropriate.}
+\end{enumerate}
+
+This baroque macro illustrates the duplication of variables from outer repetition levels.
+
+\begin{rustc}
+macro_rules! o_O {
+    (
+        $(
+            $x:expr; [ $( $y:expr ),* ]
+        );*
+    ) => {
+        &[ $($( $x + $y ),*),* ]
+    }
+}
+
+fn main() {
+    let a: &[i32]
+        = o_O!(10; [1, 2, 3];
+               20; [4, 5, 6]);
+
+    assert_eq!(a, [11, 12, 13, 24, 25, 26]);
+}
+\end{rustc}
+
+That's most of the matcher syntax. These examples use \code{\$(...)*}, which is a \enquote{zero or more} match. Alternatively you can write 
+\code{\$(...)+} for a \enquote{one or more} match. Both forms optionally include a separator, which can be any token except \code{+} or 
+\code{*}.
+
+\blank
+
+This system is based on \href{https://www.cs.indiana.edu/ftp/techreports/TR206.pdf}{Macro-by-Example} (PDF link).
+
+\subsubsection*{Hygiene}
+
+Some languages implement macros using simple text substitution, which leads to various problems. For example, this C program prints 
+\code{13} instead of the expected \code{25}.
+
+\begin{minted}{c}
+#define FIVE_TIMES(x) 5 * x
+
+int main() {
+    printf("%d\n", FIVE_TIMES(2 + 3));
+    return 0;
+}
+\end{minted}
+
+After expansion we have \code{5 * 2 + 3}, and multiplication has greater precedence than addition. If you've used C macros a lot, you 
+probably know the standard idioms for avoiding this problem, as well as five or six others. In Rust, we don't have to worry about it.
+
+\begin{rustc}
+macro_rules! five_times {
+    ($x:expr) => (5 * $x);
+}
+
+fn main() {
+    assert_eq!(25, five_times!(2 + 3));
+}
+\end{rustc}
+
+The metavariable \code{\$x} is parsed as a single expression node, and keeps its place in the syntax tree even after substitution.
+
+\blank
+
+Another common problem in macro systems is 'variable capture'. Here's a C macro, using 
+\href{https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html}{a GNU C extension} to emulate Rust's expression blocks.
+
+\begin{minted}{c}
+#define LOG(msg) ({ \
+    int state = get_log_state(); \
+    if (state > 0) { \
+        printf("log(%d): %s\n", state, msg); \
+    } \
+})
+\end{minted}
+
+Here's a simple use case that goes terribly wrong:
+
+\begin{minted}{c}
+const char *state = "reticulating splines";
+LOG(state)
+\end{minted}
+
+This expands to
+
+\begin{minted}{c}
+const char *state = "reticulating splines";
+{
+    int state = get_log_state();
+    if (state > 0) {
+        printf("log(%d): %s\n", state, state);
+    }
+}
+\end{minted}
+
+The second variable named \code{state} shadows the first one. This is a problem because the print statement should refer to both of them.
+
+\blank
+
+The equivalent Rust macro has the desired behavior.
+
+\begin{rustc}
+macro_rules! log {
+    ($msg:expr) => {{
+        let state: i32 = get_log_state();
+        if state > 0 {
+            println!("log({}): {}", state, $msg);
+        }
+    }};
+}
+
+fn main() {
+    let state: &str = "reticulating splines";
+    log!(state);
+}
+\end{rustc}
+
+This works because Rust has a \href{https://en.wikipedia.org/wiki/Hygienic_macro}{hygienic macro system}. Each macro expansion happens 
+in a distinct 'syntax context', and each variable is tagged with the syntax context where it was introduced. It's as though the variable 
+\code{state} inside \code{main} is painted a different \enquote{color} from the variable state inside the macro, and therefore they 
+don't conflict.
+
+\blank
+
+This also restricts the ability of macros to introduce new bindings at the invocation site. Code such as the following will not work:
+
+\begin{rustc}
+macro_rules! foo {
+    () => (let x = 3);
+}
+
+fn main() {
+    foo!();
+    println!("{}", x);
+}
+\end{rustc}
+
+Instead you need to pass the variable name into the invocation, so it's tagged with the right syntax context.
+
+\begin{rustc}
+macro_rules! foo {
+    ($v:ident) => (let $v = 3);
+}
+
+fn main() {
+    foo!(x);
+    println!("{}", x);
+}
+\end{rustc}
+
+This holds for \keylet\ bindings and loop labels, but not for \href{https://doc.rust-lang.org/reference.html#items}{items}. So the 
+following code does compile:
+
+\begin{rustc}
+macro_rules! foo {
+    () => (fn x() { });
+}
+
+fn main() {
+    foo!();
+    x();
+}
+\end{rustc}
+
+\subsubsection*{Recursive macros}
+
+A macro's expansion can include more macro invocations, including invocations of the very same macro being expanded. These recursive 
+macros are useful for processing tree-structured input, as illustrated by this (simplistic) HTML shorthand:
+
+\begin{rustc}
+macro_rules! write_html {
+    ($w:expr, ) => (());
+
+    ($w:expr, $e:tt) => (write!($w, "{}", $e));
+
+    ($w:expr, $tag:ident [ $($inner:tt)* ] $($rest:tt)*) => {{
+        write!($w, "<{}>", stringify!($tag));
+        write_html!($w, $($inner)*);
+        write!($w, "</{}>", stringify!($tag));
+        write_html!($w, $($rest)*);
+    }};
+}
+
+fn main() {
+    use std::fmt::Write;
+    let mut out = String::new();
+
+    write_html!(&mut out,
+        html[
+            head[title["Macros guide"]]
+            body[h1["Macros are the best!"]]
+        ]);
+
+    assert_eq!(out,
+        "<html><head><title>Macros guide</title></head>\
+         <body><h1>Macros are the best!</h1></body></html>");
+}
+\end{rustc}
+
+\subsubsection*{Debugging macro code}
+
+To see the results of expanding macros, run \code{rustc --pretty expanded}. The output represents a whole crate, so you can also 
+feed it back in to \code{rustc}, which will sometimes produce better error messages than the original compilation. Note that the 
+\code{--pretty expanded} output may have a different meaning if multiple variables of the same name (but different syntax contexts) 
+are in play in the same scope. In this case \code{--pretty expanded,hygiene} will tell you about the syntax contexts.
+
+\blank
+
+\code{rustc} provides two syntax extensions that help with macro debugging. For now, they are unstable and require feature gates.
+
+\begin{itemize}
+  \item{\code{log\_syntax!(...)} will print its arguments to standard output, at compile time, and \enquote{expand} to nothing.}
+  \item{\code{trace\_macros!(true)} will enable a compiler message every time a macro is expanded. Use \code{trace\_macros!(false)} 
+      later in expansion to turn it off.}
+\end{itemize}
+
+\subsubsection*{Syntactic requirements}
+
+Even when Rust code contains un-expanded macros, it can be parsed as a full syntax tree (see \nameref{sec:gloss_syntaxtree}). This 
+property can be very useful for editors and other tools that process code. It also has a few consequences for the design of Rust's macro 
+system.
+
+\blank
+
+One consequence is that Rust must determine, when it parses a macro invocation, whether the macro stands in for
+
+\begin{itemize}
+  \item{zero or more items,}
+  \item{zero or more methods,}
+  \item{an expression,}
+  \item{a statement, or}
+  \item{a pattern.}
+\end{itemize}
+
+A macro invocation within a block could stand for some items, or for an expression / statement. Rust uses a simple rule to resolve 
+this ambiguity. A macro invocation that stands for items must be either
+
+\begin{itemize}
+  \item{delimited by curly braces, e.g. \code{foo! \{ ... \}}, or}
+  \item{terminated by a semicolon, e.g. \code{foo!(...);}}
+\end{itemize}
+
+Another consequence of pre-expansion parsing is that the macro invocation must consist of valid Rust tokens. Furthermore, parentheses, 
+brackets, and braces must be balanced within a macro invocation. For example, \code{foo!([)} is forbidden. This allows Rust to know 
+where the macro invocation ends.
+
+\blank
+
+More formally, the macro invocation body must be a sequence of 'token trees'. A token tree is defined recursively as either
+
+\begin{itemize}
+  \item{a sequence of token trees surrounded by matching \code{()}, \code{[]}, or \code{\{\}}, or}
+  \item{any other single token.}
+\end{itemize}
+
+Within a matcher, each metavariable has a 'fragment specifier', identifying which syntactic form it matches.
+
+\begin{itemize}
+  \item{\code{ident}: an identifier. Examples: \x; \code{foo}.}
+  \item{\code{path}: a qualified name. Example: \code{T::SpecialA}.}
+  \item{\code{expr}: an expression. Examples: \code{2 + 2}; \code{if true \{ 1 \} else \{ 2 \}}; \code{f(42)}.}
+  \item{\code{ty}: a type. Examples: \itt; \code{Vec<(char, String)>}; \code{\&T}.}
+  \item{\code{pat}: a pattern. Examples: \code{Some(t)}; \code{(17, 'a')}; \code{\_}.}
+  \item{\code{stmt}: a single statement. Example: \code{let x = 3}.}
+  \item{\code{block}: a brace-delimited sequence of statements. Example: \code{\{ log(error, "hi"); return 12; \}}.}
+  \item{\code{item}: an \href{https://doc.rust-lang.org/reference.html\#items}{item}. Examples: \code{fn foo() \{ \}}; \code{struct Bar;}.}
+  \item{\code{meta}: a "meta item", as found in attributes. Example: \code{cfg(target\_os = "windows")}.}
+  \item{\code{tt}: a single token tree.}
+\end{itemize}
+
+There are additional rules regarding the next token after a metavariable:
+
+\begin{itemize}
+  \item{\code{expr} and \code{stmt} variables may only be followed by one of: \code{=> , ;}}
+  \item{\code{ty} and \code{path} variables may only be followed by one of: \code{=> , = | ; : > [ \{ as where}}
+  \item{\code{pat} variables may only be followed by one of: \code{=> , = | if in}}
+  \item{Other variables may be followed by any token.}
+\end{itemize}
+
+These rules provide some flexibility for Rust's syntax to evolve without breaking existing macros.
+
+\blank
+
+The macro system does not deal with parse ambiguity at all. For example, the grammar \code{\$(\$i:ident)* \$e:expr} will always fail to 
+parse, because the parser would be forced to choose between parsing \code{\$i} and parsing \code{\$e}. Changing the invocation syntax to 
+put a distinctive token in front can solve the problem. In this case, you can write \code{\$(I \$i:ident)* E \$e:expr}.
+
+\subsubsection*{Scoping and macro import/export}
+
+Macros are expanded at an early stage in compilation, before name resolution. One downside is that scoping works differently for 
+macros, compared to other constructs in the language.
+
+\blank
+
+Definition and expansion of macros both happen in a single depth-first, lexical-order traversal of a crate's source. So a macro 
+defined at module scope is visible to any subsequent code in the same module, which includes the body of any subsequent child \code{mod} items.
+
+\blank
+
+A macro defined within the body of a single \code{fn}, or anywhere else not at module scope, is visible only within that item.
+
+\blank
+
+If a module has the \code{macro\_use} attribute, its macros are also visible in its parent module after the child's \code{mod} item. If 
+the parent also has \code{macro\_use} then the macros will be visible in the grandparent after the parent's \code{mod} item, and so forth.
+
+\blank
+
+The \code{macro\_use} attribute can also appear on \code{extern crate}. In this context it controls which macros are loaded from the external 
+crate, e.g.
+
+\begin{rustc}
+#[macro_use(foo, bar)]
+extern crate baz;
+\end{rustc}
+
+If the attribute is given simply as \code{\#[macro\_use]}, all macros are loaded. If there is no \code{\#[macro\_use]} attribute then no 
+macros are loaded. Only macros defined with the \code{\#[macro\_export]} attribute may be loaded.
+
+\blank
+
+To load a crate's macros without linking it into the output, use \code{\#[no\_link]} as well.
+
+\blank
+
+An example:
+
+\begin{rustc}
+macro_rules! m1 { () => (()) }
+
+// visible here: m1
+
+mod foo {
+    // visible here: m1
+
+    #[macro_export]
+    macro_rules! m2 { () => (()) }
+
+    // visible here: m1, m2
+}
+
+// visible here: m1
+
+macro_rules! m3 { () => (()) }
+
+// visible here: m1, m3
+
+#[macro_use]
+mod bar {
+    // visible here: m1, m3
+
+    macro_rules! m4 { () => (()) }
+
+    // visible here: m1, m3, m4
+}
+
+// visible here: m1, m3, m4
+\end{rustc}
+
+When this library is loaded with \code{\#[macro\_use] extern crate}, only \code{m2} will be imported.
+
+\blank
+
+The Rust Reference has a \href{https://doc.rust-lang.org/reference.html\#macro-related-attributes}{listing of macro-related attributes}.
+
+\subsubsection*{The variable \code{\$crate}}
+
+A further difficulty occurs when a macro is used in multiple crates. Say that \code{mylib} defines
+
+\begin{rustc}
+pub fn increment(x: u32) -> u32 {
+    x + 1
+}
+
+#[macro_export]
+macro_rules! inc_a {
+    ($x:expr) => ( ::increment($x) )
+}
+
+#[macro_export]
+macro_rules! inc_b {
+    ($x:expr) => ( ::mylib::increment($x) )
+}
+\end{rustc}
+
+\code{inc\_a} only works within \code{mylib}, while \code{inc\_b} only works outside the library. Furthermore, \code{inc\_b} will break 
+if the user imports \code{mylib} under another name.
+
+\blank
+
+Rust does not (yet) have a hygiene system for crate references, but it does provide a simple workaround for this problem. Within a 
+macro imported from a crate named foo, the special macro variable \code{\$crate} will expand to \code{::foo}. By contrast, when a macro 
+is defined and then used in the same crate, \code{\$crate} will expand to nothing. This means we can write
+
+\begin{rustc}
+#[macro_export]
+macro_rules! inc {
+    ($x:expr) => ( $crate::increment($x) )
+}
+\end{rustc}
+
+to define a single macro that works both inside and outside our library. The function name will expand to either \code{::increment}
+or \code{::mylib::increment}.
+
+\blank
+
+To keep this system simple and correct, \code{\#[macro\_use] extern crate ...} may only appear at the root of your crate, not 
+inside \code{mod}.
+
+\subsubsection*{The deep end}
+
+The introductory chapter mentioned recursive macros, but it did not give the full story. Recursive macros are useful for another 
+reason: Each recursive invocation gives you another opportunity to pattern-match the macro's arguments.
+
+\blank
+
+As an extreme example, it is possible, though hardly advisable, to implement the 
+\href{https://esolangs.org/wiki/Bitwise_Cyclic_Tag}{Bitwise Cyclic Tag} automaton within Rust's macro system.
+
+\begin{rustc}
+macro_rules! bct {
+    // cmd 0:  d ... => ...
+    (0, $($ps:tt),* ; $_d:tt)
+        => (bct!($($ps),*, 0 ; ));
+    (0, $($ps:tt),* ; $_d:tt, $($ds:tt),*)
+        => (bct!($($ps),*, 0 ; $($ds),*));
+
+    // cmd 1p:  1 ... => 1 ... p
+    (1, $p:tt, $($ps:tt),* ; 1)
+        => (bct!($($ps),*, 1, $p ; 1, $p));
+    (1, $p:tt, $($ps:tt),* ; 1, $($ds:tt),*)
+        => (bct!($($ps),*, 1, $p ; 1, $($ds),*, $p));
+
+    // cmd 1p:  0 ... => 0 ...
+    (1, $p:tt, $($ps:tt),* ; $($ds:tt),*)
+        => (bct!($($ps),*, 1, $p ; $($ds),*));
+
+    // halt on empty data string
+    ( $($ps:tt),* ; )
+        => (());
+}
+\end{rustc}
+
+Exercise: use macros to reduce duplication in the above definition of the \code{bct!} macro.
+
+\subsubsection*{Common macros}
+
+Here are some common macros you'll see in Rust code.
+
+\myparagraph{panic!}
+
+This macro causes the current thread to panic. You can give it a message to panic with:
+
+\begin{rustc}
+panic!("oh no!");
+\end{rustc}
+
+\myparagraph{vec!}
+
+The \code{vec!} macro is used throughout the book, so you've probably seen it already. It creates \code{Vec<T>}s with ease:
+
+\begin{rustc}
+let v = vec![1, 2, 3, 4, 5];
+\end{rustc}
+
+It also lets you make vectors with repeating values. For example, a hundred zeroes:
+
+\begin{rustc}
+let v = vec![0; 100];
+\end{rustc}
+
+\myparagraph{assert! and assert\_eq!}
+
+These two macros are used in tests. \code{assert!} takes a boolean. \code{assert\_eq!} takes two values and checks them for equality. 
+\code{true} passes, \code{false} \panic s. Like this:
+
+\begin{rustc}
+// A-ok!
+
+assert!(true);
+assert_eq!(5, 3 + 2);
+
+// nope :(
+
+assert!(5 < 3);
+assert_eq!(5, 3);
+\end{rustc}
+
+\myparagraph{try!}
+
+\code{try!} is used for error handling. It takes something that can return a \code{Result<T, E>}, and gives \code{T} if it's a \code{Ok<T>},
+and returns with the \code{Err(E)} if it's that. Like this:
+
+\begin{rustc}
+use std::fs::File;
+
+fn foo() -> std::io::Result<()> {
+    let f = try!(File::create("foo.txt"));
+
+    Ok(())
+}
+\end{rustc}
+
+This is cleaner than doing this:
+
+\begin{rustc}
+use std::fs::File;
+
+fn foo() -> std::io::Result<()> {
+    let f = File::create("foo.txt");
+
+    let f = match f {
+        Ok(t) => t,
+        Err(e) => return Err(e),
+    };
+
+    Ok(())
+}
+\end{rustc}
+
+\myparagraph{unreachable!}
+
+This macro is used when you think some code should never execute:
+
+\begin{rustc}
+if false {
+    unreachable!();
+}
+\end{rustc}
+
+Sometimes, the compiler may make you have a different branch that you know will never, ever run. In these cases, use this macro, so 
+that if you end up wrong, you'll get a \panic\ about it.
+
+\begin{rustc}
+let x: Option<i32> = None;
+
+match x {
+    Some(_) => unreachable!(),
+    None => println!("I know x is None!"),
+}
+\end{rustc}
+
+\myparagraph{unimplemented!}
+
+The \code{unimplemented!} macro can be used when you're trying to get your functions to typecheck, and don't want to worry about writing 
+out the body of the function. One example of this situation is implementing a trait with multiple required methods, where you want to tackle 
+one at a time. Define the others as \code{unimplemented!} until you're ready to write them.
+
+\subsubsection*{Procedural macros}
+
+% TODO make compiler plugins a hyperref
+If Rust's macro system can't do what you need, you may want to write a compiler plugin instead. Compared to \code{macro\_rules!} macros, 
+this is significantly more work, the interfaces are much less stable, and bugs can be much harder to track down. In exchange you get the 
+flexibility of running arbitrary Rust code within the compiler. Syntax extension plugins are sometimes called 'procedural macros' for 
+this reason.

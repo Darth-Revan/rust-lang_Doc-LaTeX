@@ -1,0 +1,111 @@
+The standard library provides a special trait, \href{https://doc.rust-lang.org/std/ops/trait.Deref.html}{Deref}. It's normally used to 
+overload \code{*}, the dereference operator:
+
+\begin{rustc}
+use std::ops::Deref;
+
+struct DerefExample<T> {
+    value: T,
+}
+
+impl<T> Deref for DerefExample<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.value
+    }
+}
+
+fn main() {
+    let x = DerefExample { value: 'a' };
+    assert_eq!('a', *x);
+}
+\end{rustc}
+
+This is useful for writing custom pointer types. However, there's a language feature related to \code{Deref}: 'deref coercions'. Here's the 
+rule: If you have a type \code{U}, and it implements \code{Deref<Target=T>}, values of \code{\&U} will automatically coerce to a \code{\&T}. 
+Here's an example:
+
+\begin{rustc}
+fn foo(s: &str) {
+    // borrow a string for a second
+}
+
+// String implements Deref<Target=str>
+let owned = "Hello".to_string();
+
+// therefore, this works:
+foo(&owned);
+\end{rustc}
+
+Using an ampersand in front of a value takes a reference to it. So \code{owned} is a \String, \code{\&owned} is an \code{\&String}, and since 
+\code{impl Deref<Target=str> for String}, \code{\&String} will deref to \code{\&str}, which \code{foo()} takes.
+
+\blank
+
+That's it. This rule is one of the only places in which Rust does an automatic conversion for you, but it adds a lot of flexibility. For 
+example, the \code{Rc<T>} type implements \code{Deref<Target=T>}, so this works:
+
+\begin{rustc}
+use std::rc::Rc;
+
+fn foo(s: &str) {
+    // borrow a string for a second
+}
+
+// String implements Deref<Target=str>
+let owned = "Hello".to_string();
+let counted = Rc::new(owned);
+
+// therefore, this works:
+foo(&counted);
+\end{rustc}
+
+All we've done is wrap our \String\ in an \code{Rc<T>}. But we can now pass the \code{Rc<String>} around anywhere we'd have a \String. The 
+signature of \code{foo} didn't change, but works just as well with either type. This example has two conversions: \code{Rc<String>} to 
+\String\ and then \String\ to \code{\&str}. Rust will do this as many times as possible until the types match.
+
+\blank
+
+Another very common implementation provided by the standard library is:
+
+\begin{rustc}
+fn foo(s: &[i32]) {
+    // borrow a slice for a second
+}
+
+// Vec<T> implements Deref<Target=[T]>
+let owned = vec![1, 2, 3];
+
+foo(&owned);
+\end{rustc}
+
+Vectors can \code{Deref} to a slice.
+
+\subsubsection*{Deref and method calls}
+
+\code{Deref} will also kick in when calling a method. Consider the following example.
+
+\begin{rustc}
+struct Foo;
+
+impl Foo {
+    fn foo(&self) { println!("Foo"); }
+}
+
+let f = &&Foo;
+
+f.foo();
+\end{rustc}
+
+Even though \code{f} is a \code{\&\&Foo} and \code{foo} takes \code{\&self}, this works. That's because these things are the same:
+
+\begin{rustc}
+f.foo();
+(&f).foo();
+(&&f).foo();
+(&&&&&&&&f).foo();
+\end{rustc}
+
+A value of type \code{\&\&\&\&\&\&\&\&\&\&\&\&\&\&\&\&Foo} can still have methods defined on \code{Foo} called, because the compiler 
+will insert as many \code{*} operations as necessary to get it right. And since it's inserting \code{*}s, that uses \code{Deref}.

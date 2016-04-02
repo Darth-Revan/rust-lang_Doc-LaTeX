@@ -1,0 +1,153 @@
+Associated types are a powerful part of Rust's type system. They're related to the idea of a 'type family', in other words, grouping 
+multiple types together. That description is a bit abstract, so let's dive right into an example. If you want to write a \code{Graph} 
+trait, you have two types to be generic over: the node type and the edge type. So you might write a trait, \code{Graph<N, E>}, that
+looks like this:
+
+\begin{rustc}
+trait Graph<N, E> {
+    fn has_edge(&self, &N, &N) -> bool;
+    fn edges(&self, &N) -> Vec<E>;
+    // etc
+}
+\end{rustc}
+
+While this sort of works, it ends up being awkward. For example, any function that wants to take a \code{Graph} as a parameter now also 
+needs to be generic over the \code{N}ode and \code{E}dge types too:
+
+\begin{rustc}
+fn distance<N, E, G: Graph<N, E>>(graph: &G, start: &N, end: &N) -> u32 { ... }
+\end{rustc}
+
+Our distance calculation works regardless of our \code{Edge} type, so the \code{E} stuff in this signature is a distraction.
+
+\blank
+
+What we really want to say is that a certain \code{E}dge and \code{N}ode type come together to form each kind of \code{Graph}. We can 
+do that with associated types:
+
+\begin{rustc}
+trait Graph {
+    type N;
+    type E;
+
+    fn has_edge(&self, &Self::N, &Self::N) -> bool;
+    fn edges(&self, &Self::N) -> Vec<Self::E>;
+    // etc
+}
+\end{rustc}
+
+Now, our clients can be abstract over a given \code{Graph}:
+
+\begin{rustc}
+fn distance<G: Graph>(graph: &G, start: &G::N, end: &G::N) -> u32 { ... }
+\end{rustc}
+
+No need to deal with the \code{E}dge type here!
+
+\blank
+
+Let's go over all this in more detail.
+
+\subsubsection*{Defining associated types}
+
+Let's build that \code{Graph} trait. Here's the definition:
+
+\begin{rustc}
+trait Graph {
+    type N;
+    type E;
+
+    fn has_edge(&self, &Self::N, &Self::N) -> bool;
+    fn edges(&self, &Self::N) -> Vec<Self::E>;
+}
+\end{rustc}
+
+Simple enough. Associated types use the \code{type} keyword, and go inside the body of the trait, with the functions.
+
+\blank
+
+These \code{type} declarations can have all the same thing as functions do. For example, if we wanted our \code{N} type to implement 
+\code{Display}, so we can print the nodes out, we could do this:
+
+\begin{rustc}
+use std::fmt;
+
+trait Graph {
+    type N: fmt::Display;
+    type E;
+
+    fn has_edge(&self, &Self::N, &Self::N) -> bool;
+    fn edges(&self, &Self::N) -> Vec<Self::E>;
+}
+\end{rustc}
+
+\subsubsection*{Implementing associated types}
+
+Just like any trait, traits that use associated types use the \code{impl} keyword to provide implementations. Here's a simple 
+implementation of Graph:
+
+\begin{rustc}
+struct Node;
+
+struct Edge;
+
+struct MyGraph;
+
+impl Graph for MyGraph {
+    type N = Node;
+    type E = Edge;
+
+    fn has_edge(&self, n1: &Node, n2: &Node) -> bool {
+        true
+    }
+
+    fn edges(&self, n: &Node) -> Vec<Edge> {
+        Vec::new()
+    }
+}
+\end{rustc}
+
+This silly implementation always returns \code{true} and an empty \code{Vec<Edge>}, but it gives you an idea of how to implement 
+this kind of thing. We first need three \struct s, one for the graph, one for the node, and one for the edge. If it made more sense 
+to use a different type, that would work as well, we're going to use \struct s for all three here.
+
+\blank
+
+Next is the \code{impl} line, which is an implementation like any other trait.
+
+\blank
+
+From here, we use \code{=} to define our associated types. The name the trait uses goes on the left of the \code{=}, and the concrete 
+type we're \code{impl}ementing this for goes on the right. Finally, we use the concrete types in our function declarations.
+
+\subsubsection*{Trait objects with associated types}
+
+There's one more bit of syntax we should talk about: trait objects. If you try to create a trait object from an associated type, like this:
+
+\begin{rustc}
+let graph = MyGraph;
+let obj = Box::new(graph) as Box<Graph>;
+\end{rustc}
+
+You'll get two errors:
+
+\begin{verbatim}
+error: the value of the associated type `E` (from the trait `main::Graph`) must
+be specified [E0191]
+let obj = Box::new(graph) as Box<Graph>;
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+24:44 error: the value of the associated type `N` (from the trait
+`main::Graph`) must be specified [E0191]
+let obj = Box::new(graph) as Box<Graph>;
+          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\end{verbatim}
+
+We can't create a trait object like this, because we don't know the associated types. Instead, we can write this:
+
+\begin{rustc}
+let graph = MyGraph;
+let obj = Box::new(graph) as Box<Graph<N=Node, E=Edge>>;
+\end{rustc}
+
+The \code{N=Node} syntax allows us to provide a concrete type, \code{Node}, for the \code{N} type parameter. Same with \code{E=Edge}. 
+If we didn't provide this constraint, we couldn't be sure which \code{impl} to match this trait object to.

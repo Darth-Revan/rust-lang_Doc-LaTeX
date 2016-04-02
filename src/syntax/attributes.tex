@@ -1,0 +1,61 @@
+Declarations can be annotated with 'attributes' in Rust. They look like this:
+
+\begin{rustc}
+#[test]
+\end{rustc}
+
+or like this:
+
+\begin{rustc}
+#![test]
+\end{rustc}
+
+The difference between the two is the \code{!}, which changes what the attribute applies to:
+
+\begin{rustc}
+#[foo]
+struct Foo;
+
+mod bar {
+    #![bar]
+}
+\end{rustc}
+
+The \code{\#[foo]} attribute applies to the next item, which is the \struct\ declaration. The \code{\#![bar]} attribute applies to the 
+item enclosing it, which is the \code{mod} declaration. Otherwise, they're the same. Both change the meaning of the item they're 
+attached to somehow.
+
+\blank
+
+For example, consider a function like this:
+
+\begin{rustc}
+#[test]
+fn check() {
+    assert_eq!(2, 1 + 1);
+}
+\end{rustc}
+
+% TODO make tests a hyperref
+It is marked with \code{\#[test]}. This means it's special: when you run tests, this function will execute. When you compile as usual, 
+it won't even be included. This function is now a test function.
+
+\blank
+
+Attributes may also have additional data:
+
+\begin{rustc}
+#[inline(always)]
+fn super_fast_fn() {
+\end{rustc}
+
+Or even keys and values:
+
+\begin{rustc}
+#[cfg(target_os = "macos")]
+mod macos_only {
+\end{rustc}
+
+Rust attributes are used for a number of different things. There is a full list of attributes 
+\href{https://doc.rust-lang.org/reference.html#attributes}{in the reference}. Currently, you are not allowed to create your own 
+attributes, the Rust compiler defines them.

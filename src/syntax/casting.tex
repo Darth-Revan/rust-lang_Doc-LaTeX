@@ -1,0 +1,200 @@
+Rust, with its focus on safety, provides two different ways of casting different types between each other. The first, \code{as}, is 
+for safe casts. In contrast, \code{transmute} allows for arbitrary casting, and is one of the most dangerous features of Rust!
+
+\subsubsection*{Coercion}
+
+Coercion between types is implicit and has no syntax of its own, but can be spelled out with \code{as}.
+
+\blank
+
+Coercion occurs in \keylet, \code{const}, and \code{static} statements; in function call arguments; in field values in struct 
+initialization; and in a function result.
+
+\blank
+
+The most common case of coercion is removing mutability from a reference:
+
+\begin{itemize}
+  \item{\code{\&mut T} to \code{\&T}}
+\end{itemize}
+
+% TODO make raw pointer a hyperref
+An analogous conversion is to remove mutability from a raw pointer:
+
+\begin{itemize}
+  \item{\code{*mut T} to \code{*const T}}
+\end{itemize}
+
+References can also be coerced to raw pointers:
+
+\begin{itemize}
+  \item{\code{\&T} to \code{*const T}}
+  \item{\code{\&mut T} to \code{*mut T}}
+\end{itemize}
+
+% TODO make Deref a hyperref
+Custom coercions may be defined using Deref.
+
+\blank
+
+Coercion is transitive.
+
+\subsubsection*{\code{as}}
+
+The \code{as} keyword does safe casting:
+
+\begin{rustc}
+let x: i32 = 5;
+
+let y = x as i64;
+\end{rustc}
+
+There are three major categories of safe cast: explicit coercions, casts between numeric types, and pointer casts.
+
+\blank
+
+Casting is not transitive: even if \code{e as U1 as U2} is a valid expression, \code{e as U2} is not necessarily so (in fact it will 
+only be valid if \code{U1} coerces to \code{U2}).
+
+\myparagraph{Explicit coercions}
+
+A cast \code{e as U} is valid if \code{e} has type \code{T} and \code{T} \emph{coerces} to \code{U}.
+
+\myparagraph{Numeric casts}
+
+A cast \code{e as U} is also valid in any of the following cases:
+
+\begin{itemize}
+  \item{\code{e} has type \code{T} and \code{T} and \code{U} are any numeric types; \emph{numeric-cast}}
+  \item{\code{e} is a C-like enum (with no data attached to the variants), and \code{U} is an integer type; \emph{enum-cast}}
+  \item{\code{e} has type \code{bool} or \varchar\ and \code{U} is an integer type; \emph{prim-int-cast}}
+  \item{\code{e} has type \code{u8} and \code{U} is \varchar; \emph{u8-char-cast}}
+\end{itemize}
+
+For example
+
+\begin{rustc}
+let one = true as u8;
+let at_sign = 64 as char;
+let two_hundred = -56i8 as u8;
+\end{rustc}
+
+The semantics of numeric casts are:
+
+\begin{itemize}
+  \item{Casting between two integers of the same size (e.g. i32 -> u32) is a no-op}
+  \item{Casting from a larger integer to a smaller integer (e.g. u32 -> u8) will truncate}
+  \item{Casting from a smaller integer to a larger integer (e.g. u8 -> u32) will}
+  \begin{itemize}
+    \item{zero-extend if the source is unsigned}
+    \item{sign-extend if the source is signed}
+  \end{itemize}
+  \item{Casting from a float to an integer will round the float towards zero}
+  \begin{itemize}
+    \item{\href{https://github.com/rust-lang/rust/issues/10184}{NOTE: currently this will cause Undefined Behavior if the rounded 
+        value cannot be represented by the target integer type.} This includes Inf and NaN. This is a bug and will be fixed.}
+  \end{itemize}
+  \item{Casting from an integer to float will produce the floating point representation of the integer, rounded if necessary 
+      (rounding strategy unspecified)}
+  \item{Casting from an f32 to an f64 is perfect and lossless}
+  \item{Casting from an f64 to an f32 will produce the closest possible value (rounding strategy unspecified)}
+  \begin{itemize}
+    \item{\href{https://github.com/rust-lang/rust/issues/15536}{NOTE: currently this will cause Undefined Behavior if the value 
+        is finite but larger or smaller than the largest or smallest finite value representable by f32.} This is a bug and will be fixed.}
+  \end{itemize}
+\end{itemize}
+
+\myparagraph{Pointer casts}
+
+% TODO make raw pointers a hyperref
+Perhaps surprisingly, it is safe to cast raw pointers to and from integers, and to cast between pointers to different types subject 
+to some constraints. It is only unsafe to dereference the pointer:
+
+\begin{rustc}
+let a = 300 as *const char; // a pointer to location 300
+let b = a as u32;
+\end{rustc}
+
+\code{e as U} is a valid pointer cast in any of the following cases:
+
+\begin{itemize}
+  \item{\code{e} has type \code{*T}, \code{U} has type \code{*U\_0}, and either \code{U\_0: Sized} or \code{unsize\_kind(T) == unsize\_kind(U\_0)}; 
+      \emph{a ptr-ptr-cast}}
+  \item{\code{e} has type \code{*T} and \code{U} is a numeric type, while \code{T: Sized}; \emph{ptr-addr-cast}}
+  \item{\code{e} is an integer and \code{U} is \code{*U\_0}, while \code{U\_0: Sized}; \emph{addr-ptr-cast}}
+  \item{\code{e} has type \code{\&[T; n]} and \code{U} is \code{*const T}; \emph{array-ptr-cast}}
+  \item{\code{e} is a function pointer type and \code{U} has type \code{*T}, while \code{T: Sized}; \emph{fptr-ptr-cast}}
+  \item{\code{e} is a function pointer type and \code{U} is an integer; \emph{fptr-addr-cast}}
+\end{itemize}
+
+\subsubsection*{\code{transmute}}
+
+\code{as} only allows safe casting, and will for example reject an attempt to cast four bytes into a \code{u32}:
+
+\begin{rustc}
+let a = [0u8, 0u8, 0u8, 0u8];
+
+let b = a as u32; // four eights makes 32
+\end{rustc}
+
+This errors with:
+
+\begin{verbatim}
+error: non-scalar cast: `[u8; 4]` as `u32`
+let b = a as u32; // four eights makes 32
+        ^~~~~~~~
+\end{verbatim}
+
+This is a 'non-scalar cast' because we have multiple values here: the four elements of the array. These kinds of casts are very 
+dangerous, because they make assumptions about the way that multiple underlying structures are implemented. For this, we need 
+something more dangerous.
+
+\blank
+
+% TODO make intrinsic a hyperref
+The \code{transmute} function is provided by a compiler intrinsic, and what it does is very simple, but very scary. It tells Rust 
+to treat a value of one type as though it were another type. It does this regardless of the typechecking system, and completely 
+trusts you.
+
+\blank
+
+In our previous example, we know that an array of four \code{u8}s represents a \code{u32} properly, and so we want to do the cast. 
+Using \code{transmute} instead of \code{as}, Rust lets us:
+
+\begin{rustc}
+use std::mem;
+
+unsafe {
+    let a = [0u8, 0u8, 0u8, 0u8];
+
+    let b = mem::transmute::<[u8; 4], u32>(a);
+}
+\end{rustc}
+
+We have to wrap the operation in an \code{unsafe} block for this to compile successfully. Technically, only the \code{mem::transmute} call 
+itself needs to be in the block, but it's nice in this case to enclose everything related, so you know where to look. In this case, the 
+details about \code{a} are also important, and so they're in the block. You'll see code in either style, sometimes the context is too far away, 
+and wrapping all of the code in \code{unsafe} isn't a great idea.
+
+\blank
+
+While \code{transmute} does very little checking, it will at least make sure that the types are the same size. This errors:
+
+\begin{rustc}
+use std::mem;
+
+unsafe {
+    let a = [0u8, 0u8, 0u8, 0u8];
+
+    let b = mem::transmute::<[u8; 4], u64>(a);
+}
+\end{rustc}
+
+with:
+
+\begin{verbatim}
+error: transmute called with differently sized types: [u8; 4] (32 bits) to u64
+(64 bits)
+\end{verbatim}
+
+Other than that, you're on your own!

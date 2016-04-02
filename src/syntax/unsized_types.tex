@@ -1,0 +1,51 @@
+Most types have a particular size, in bytes, that is knowable at compile time. For example, an \itt\ is thirty-two bits big, or four bytes. 
+However, there are some types which are useful to express, but do not have a defined size. These are called 'unsized' or 'dynamically sized' 
+types. One example is \code{[T]}. This type represents a certain number of \code{T} in sequence. But we don't know how many there are, so 
+the size is not known.
+
+\blank
+
+Rust understands a few of these types, but they have some restrictions. There are three:
+
+\begin{enumerate}
+  \item{We can only manipulate an instance of an unsized type via a pointer. An \code{\&[T]} works fine, but a \code{[T]} does not.}
+  \item{Variables and arguments cannot have dynamically sized types.}
+  \item{Only the last field in a \struct\ may have a dynamically sized type; the other fields must not. Enum variants must not have 
+      dynamically sized types as data.}
+\end{enumerate}
+
+So why bother? Well, because \code{[T]} can only be used behind a pointer, if we didn't have language support for unsized types, 
+it would be impossible to write this:
+
+\begin{rustc}
+impl Foo for str {
+\end{rustc}
+
+or
+
+\begin{rustc}
+impl<T> Foo for [T] {
+\end{rustc}
+
+Instead, you would have to write:
+
+\begin{rustc}
+impl Foo for &str {
+\end{rustc}
+
+Meaning, this implementation would only work for references (see \nameref{sec:syntax_referencesBorrowing}), and not other types of pointers. 
+With the \code{impl for str}, all pointers, including (at some point, there are some bugs to fix first) user-defined custom smart pointers, 
+can use this \code{impl}.
+
+\subsubsection*{?Sized}
+
+If you want to write a function that accepts a dynamically sized type, you can use the special bound, \code{?Sized}:
+
+\begin{rustc}
+struct Foo<T: ?Sized> {
+    f: T,
+}
+\end{rustc}
+
+This \code{?}, read as \enquote{T may be \code{Sized}}, means that this bound is special: it lets us match more kinds, not less. It's almost 
+like every \code{T} implicitly has \code{T: Sized}, and the \code{?} undoes this default.

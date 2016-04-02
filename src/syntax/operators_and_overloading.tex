@@ -1,0 +1,120 @@
+Rust allows for a limited form of operator overloading. There are certain operators that are able to be overloaded. To support a particular 
+operator between types, there's a specific trait that you can implement, which then overloads the operator.
+
+\blank
+
+For example, the \code{+} operator can be overloaded with the \code{Add} trait:
+
+\begin{rustc}
+use std::ops::Add;
+
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+impl Add for Point {
+    type Output = Point;
+
+    fn add(self, other: Point) -> Point {
+        Point { x: self.x + other.x, y: self.y + other.y }
+    }
+}
+
+fn main() {
+    let p1 = Point { x: 1, y: 0 };
+    let p2 = Point { x: 2, y: 3 };
+
+    let p3 = p1 + p2;
+
+    println!("{:?}", p3);
+}
+\end{rustc}
+
+In \code{main}, we can use \code{+} on our two \code{Point}s, since we've implemented \code{Add<Output=Point>} for \code{Point}.
+
+\blank
+
+There are a number of operators that can be overloaded this way, and all of their associated traits live in the 
+\href{https://doc.rust-lang.org/std/ops/}{std::ops} module. Check out its documentation for the full list.
+
+\blank
+
+Implementing these traits follows a pattern. Let's look at \href{https://doc.rust-lang.org/std/ops/trait.Add.html}{Add} in more detail:
+
+\begin{rustc}
+pub trait Add<RHS = Self> {
+    type Output;
+
+    fn add(self, rhs: RHS) -> Self::Output;
+}
+\end{rustc}
+
+There's three types in total involved here: the type you \code{impl Add} for, \code{RHS}, which defaults to \code{Self}, and \code{Output}. 
+For an expression \code{let z = x + y}, \x\ is the \code{Self} type, \y\ is the \code{RHS}, and \z\ is the \code{Self::Output} type.
+
+\begin{rustc}
+impl Add<i32> for Point {
+    type Output = f64;
+
+    fn add(self, rhs: i32) -> f64 {
+        // add an i32 to a Point and get an f64
+    }
+}
+\end{rustc}
+
+will let you do this:
+
+\begin{rustc}
+let p: Point = // ...
+let x: f64 = p + 2i32;
+\end{rustc}
+
+\subsubsection*{Using operator traits in generic structs}
+
+Now that we know how operator traits are defined, we can define our \code{HasArea} trait and \code{Square} struct from the 
+traits chapter (see \nameref{sec:syntax_traits}) more generically:
+
+\begin{rustc}
+use std::ops::Mul;
+
+trait HasArea<T> {
+    fn area(&self) -> T;
+}
+
+struct Square<T> {
+    x: T,
+    y: T,
+    side: T,
+}
+
+impl<T> HasArea<T> for Square<T>
+        where T: Mul<Output=T> + Copy {
+    fn area(&self) -> T {
+        self.side * self.side
+    }
+}
+
+fn main() {
+    let s = Square {
+        x: 0.0f64,
+        y: 0.0f64,
+        side: 12.0f64,
+    };
+
+    println!("Area of s: {}", s.area());
+}
+\end{rustc}
+
+For \code{HasArea} and \code{Square}, we declare a type parameter \code{T} and replace \code{f64} with it. The \code{impl} needs more 
+involved modifications:
+
+\begin{rustc}
+impl<T> HasArea<T> for Square<T>
+        where T: Mul<Output=T> + Copy { ... }
+\end{rustc}
+
+The \code{area} method requires that we can multiply the sides, so we declare that type \code{T} must implement \code{std::ops::Mul}. 
+Like \code{Add}, mentioned above, \code{Mul} itself takes an \code{Output} parameter: since we know that numbers don't change type when 
+multiplied, we also set it to \code{T}. \code{T} must also support copying, so Rust doesn't try to move \code{self.side} into the return value.
