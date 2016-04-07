@@ -1,0 +1,605 @@
+Documentation is an important part of any software project, and it's first-class in Rust. Let's talk about the tooling Rust gives 
+you to document your project.
+
+\subsubsection*{About \code{rustdoc}}
+
+The Rust distribution includes a tool, \code{rustdoc}, that generates documentation. \code{rustdoc} is also used by Cargo through 
+\code{cargo doc}.
+
+\blank
+
+Documentation can be generated in two ways: from source code, and from standalone Markdown files.
+
+\subsubsection*{Documenting source code}
+
+The primary way of documenting a Rust project is through annotating the source code. You can use documentation comments for this purpose:
+
+\begin{rustc}
+/// Constructs a new `Rc<T>`.
+///
+/// # Examples
+///
+/// ```
+/// use std::rc::Rc;
+///
+/// let five = Rc::new(5);
+/// ```
+pub fn new(value: T) -> Rc<T> {
+    // implementation goes here
+}
+\end{rustc}
+
+This code generates documentation that looks \href{https://doc.rust-lang.org/nightly/std/rc/struct.Rc.html#method.new}{like this}. 
+I've left the implementation out, with a regular comment in its place.
+
+\blank
+
+The first thing to notice about this annotation is that it uses \code{///} instead of \code{//}. The triple slash indicates a 
+documentation comment.
+
+\blank
+
+Documentation comments are written in Markdown.
+
+\blank
+
+Rust keeps track of these comments, and uses them when generating documentation. This is important when documenting things like enums:
+
+\begin{rustc}
+/// The `Option` type. See [the module level documentation](index.html) for more.
+enum Option<T> {
+    /// No value
+    None,
+    /// Some value `T`
+    Some(T),
+}
+\end{rustc}
+
+The above works, but this does not:
+
+\begin{rustc}
+/// The `Option` type. See [the module level documentation](index.html) for more.
+enum Option<T> {
+    None, /// No value
+    Some(T), /// Some value `T`
+}
+\end{rustc}
+
+You'll get an error:
+
+\begin{verbatim}
+hello.rs:4:1: 4:2 error: expected ident, found `}`
+hello.rs:4 }
+           ^
+\end{verbatim}
+
+This \href{https://github.com/rust-lang/rust/issues/22547}{unfortunate error} is correct; documentation comments apply to the thing 
+after them, and there's nothing after that last comment.
+
+\myparagraph{Writing documentation comments}
+
+Anyway, let's cover each part of this comment in detail:
+
+\begin{rustc}
+/// Constructs a new `Rc<T>`.
+\end{rustc}
+
+The first line of a documentation comment should be a short summary of its functionality. One sentence. Just the basics. High level.
+
+\begin{rustc}
+///
+/// Other details about constructing `Rc<T>`s, maybe describing complicated
+/// semantics, maybe additional options, all kinds of stuff.
+///
+\end{rustc}
+
+Our original example had just a summary line, but if we had more things to say, we could have added more explanation in 
+a new paragraph.
+
+\myparagraph{Special sections}
+
+Next, are special sections. These are indicated with a header, \code{\#}. There are four kinds of headers that are commonly used. 
+They aren't special syntax, just convention, for now.
+
+\begin{rustc}
+/// # Panics
+\end{rustc}
+
+Unrecoverable misuses of a function (i.e. programming errors) in Rust are usually indicated by panics, which kill the whole 
+current thread at the very least. If your function has a non-trivial contract like this, that is detected/enforced by panics, 
+documenting it is very important.
+
+\begin{rustc}
+/// # Failures
+\end{rustc}
+
+If your function or method returns a \code{Result<T, E>}, then describing the conditions under which it returns \code{Err(E)} is 
+a nice thing to do. This is slightly less important than \code{Panics}, because failure is encoded into the type system, but it's 
+still a good thing to do.
+
+\begin{rustc}
+/// # Safety
+\end{rustc}
+
+If your function is \code{unsafe}, you should explain which invariants the caller is responsible for upholding.
+
+\begin{rustc}
+/// # Examples
+///
+/// ```
+/// use std::rc::Rc;
+///
+/// let five = Rc::new(5);
+/// ```
+\end{rustc}
+
+Fourth, \code{Examples}. Include one or more examples of using your function or method, and your users will love you for it. 
+These examples go inside of code block annotations, which we'll talk about in a moment, and can have more than one section:
+
+\begin{rustc}
+/// # Examples
+///
+/// Simple `&str` patterns:
+///
+/// ```
+/// let v: Vec<&str> = "Mary had a little lamb".split(' ').collect();
+/// assert_eq!(v, vec!["Mary", "had", "a", "little", "lamb"]);
+/// ```
+///
+/// More complex patterns with a lambda:
+///
+/// ```
+/// let v: Vec<&str> = "abc1def2ghi".split(|c: char| c.is_numeric()).collect();
+/// assert_eq!(v, vec!["abc", "def", "ghi"]);
+/// ```
+\end{rustc}
+
+Let's discuss the details of these code blocks.
+
+\myparagraph{Code block annotations}
+
+To write some Rust code in a comment, use the triple graves:
+
+\begin{rustc}
+/// ```
+/// println!("Hello, world");
+/// ```
+\end{rustc}
+
+If you want something that's not Rust code, you can add an annotation:
+
+\begin{rustc}
+/// ```c
+/// printf("Hello, world\n");
+/// ```
+\end{rustc}
+
+This will highlight according to whatever language you're showing off. If you're only showing plain text, choose \code{text}.
+
+\blank
+
+It's important to choose the correct annotation here, because \code{rustdoc} uses it in an interesting way: It can be used to 
+actually test your examples in a library crate, so that they don't get out of date. If you have some C code but \code{rustdoc} 
+thinks it's Rust because you left off the annotation, \code{rustdoc} will complain when trying to generate the documentation.
+
+\subsubsection*{Documentation as tests}
+
+Let's discuss our sample example documentation:
+
+\begin{rustc}
+/// ```
+/// println!("Hello, world");
+/// ```
+\end{rustc}
+
+You'll notice that you don't need a \code{fn main()} or anything here. \code{rustdoc} will automatically add a \code{main()} 
+wrapper around your code, using heuristics to attempt to put it in the right place. For example:
+
+\begin{rustc}
+/// ```
+/// use std::rc::Rc;
+///
+/// let five = Rc::new(5);
+/// ```
+\end{rustc}
+
+This will end up testing:
+
+\begin{rustc}
+fn main() {
+    use std::rc::Rc;
+    let five = Rc::new(5);
+}
+\end{rustc}
+
+Here's the full algorithm rustdoc uses to preprocess examples:
+
+\begin{enumerate}
+  \item{Any leading \code{\#![foo]} attributes are left intact as crate attributes.}
+  \item{Some common \code{allow} attributes are inserted, including \code{unused\_variables}, \code{unused\_assignments}, \code{unused\_mut}, 
+      \code{unused\_attributes}, and \code{dead\_code}. Small examples often trigger these lints.}
+  \item{If the example does not contain \code{extern crate}, then \code{extern crate <mycrate>}; is inserted (note the lack of 
+      \code{\#[macro\_use]}).}
+  \item{Finally, if the example does not contain \code{fn main}, the remainder of the text is wrapped in \code{fn main() \{ your\_code \}}.}
+\end{enumerate}
+
+This generated \code{fn main} can be a problem! If you have \code{extern crate} or a \code{mod} statements in the example code that 
+are referred to by \code{use} statements, they will fail to resolve unless you include at least \code{fn main() \{\}} to inhibit step 4. 
+\code{\#[macro\_use] extern crate} also does not work except at the crate root, so when testing macros an explicit \code{main} is 
+always required. It doesn't have to clutter up your docs, though -- keep reading!
+
+\blank
+
+Sometimes this algorithm isn't enough, though. For example, all of these code samples with \code{///} we've been talking about? The raw text:
+
+\begin{rustc}
+/// Some documentation.
+# fn foo() {}
+\end{rustc}
+
+looks different than the output:
+
+\begin{rustc}
+/// Some documentation.
+\end{rustc}
+
+Yes, that's right: you can add lines that start with \code{\#}, and they will be hidden from the output, but will be used when 
+compiling your code. You can use this to your advantage. In this case, documentation comments need to apply to some kind of function, 
+so if I want to show you just a documentation comment, I need to add a little function definition below it. At the same time, it's 
+only there to satisfy the compiler, so hiding it makes the example more clear. You can use this technique to explain longer examples 
+in detail, while still preserving the testability of your documentation.
+
+\blank
+
+For example, imagine that we wanted to document this code:
+
+\begin{rustc}
+let x = 5;
+let y = 6;
+println!("{}", x + y);
+\end{rustc}
+
+We might want the documentation to end up looking like this:
+
+\begin{myquote}
+First, we set \x\ to five:
+
+\begin{rustc}
+let x = 5;
+\end{rustc}
+
+Next, we set \y\ to six:
+
+\begin{rustc}
+let y = 6;
+\end{rustc}
+
+Finally, we print the sum of \x\ and \y:
+
+\begin{rustc}
+println!("{}", x + y);
+\end{rustc}
+\end{myquote}
+
+To keep each code block testable, we want the whole program in each block, but we don't want the reader to see every line every time. 
+Here's what we put in our source code:
+
+\begin{verbatim}
+    First, we set `x` to five:
+
+    ```text
+    let x = 5;
+    # let y = 6;
+    # println!("{}", x + y);
+    ```
+
+    Next, we set `y` to six:
+
+    ```text
+    # let x = 5;
+    let y = 6;
+    # println!("{}", x + y);
+    ```
+
+    Finally, we print the sum of `x` and `y`:
+
+    ```text
+    # let x = 5;
+    # let y = 6;
+    println!("{}", x + y);
+    ```
+\end{verbatim}
+
+By repeating all parts of the example, you can ensure that your example still compiles, while only showing the parts that are relevant 
+to that part of your explanation.
+
+\subsubsection*{Documenting macros}
+
+Here’s an example of documenting a macro:
+
+\begin{rustc}
+/// Panic with a given message unless an expression evaluates to true.
+///
+/// # Examples
+///
+/// ```
+/// # #[macro_use] extern crate foo;
+/// # fn main() {
+/// panic_unless!(1 + 1 == 2, “Math is broken.”);
+/// # }
+/// ```
+///
+/// ```should_panic
+/// # #[macro_use] extern crate foo;
+/// # fn main() {
+/// panic_unless!(true == false, “I’m broken.”);
+/// # }
+/// ```
+#[macro_export]
+macro_rules! panic_unless {
+    ($condition:expr, $($rest:expr),+) => ({ if ! $condition { panic!($($rest),+); } });
+}
+\end{rustc}
+
+You’ll note three things: we need to add our own \code{extern crate} line, so that we can add the \code{\#[macro\_use]} attribute. 
+Second, we’ll need to add our own \code{main()} as well (for reasons discussed above). Finally, a judicious use of \code{\#} to 
+comment out those two things, so they don’t show up in the output.
+
+\blank
+
+Another case where the use of \code{\#} is handy is when you want to ignore error handling. Lets say you want the following,
+
+\begin{rustc}
+/// use std::io;
+/// let mut input = String::new();
+/// try!(io::stdin().read_line(&mut input));
+\end{rustc}
+
+The problem is that \code{try!} returns a \code{Result<T, E>} and test functions don't return anything so this will give a 
+mismatched types error.
+
+\begin{rustc}
+/// A doc test using try!
+///
+/// ```
+/// use std::io;
+/// # fn foo() -> io::Result<()> {
+/// let mut input = String::new();
+/// try!(io::stdin().read_line(&mut input));
+/// # Ok(())
+/// # }
+/// ```
+\end{rustc}
+
+You can get around this by wrapping the code in a function. This catches and swallows the \code{Result<T, E>} when running tests on 
+the docs. This pattern appears regularly in the standard library.
+
+\subsubsection*{Running documentation tests}
+
+To run the tests, either:
+
+\begin{verbatim}
+$ rustdoc --test path/to/my/crate/root.rs
+# or
+$ cargo test
+\end{verbatim}
+
+That's right, \code{cargo test} tests embedded documentation too. \textbf{However, \code{cargo test} will not test binary crates, 
+only library ones.} This is due to the way \code{rustdoc} works: it links against the library to be tested, but with a binary, 
+there’s nothing to link to.
+
+\blank
+
+There are a few more annotations that are useful to help \code{rustdoc} do the right thing when testing your code:
+
+\begin{rustc}
+/// ```ignore
+/// fn foo() {
+/// ```
+\end{rustc}
+
+The \code{ignore} directive tells Rust to ignore your code. This is almost never what you want, as it's the most generic. Instead, 
+consider annotating it with \code{text} if it's not code, or using \code{\#}s to get a working example that only shows the part 
+you care about.
+
+\begin{rustc}
+/// ```should_panic
+/// assert!(false);
+/// ```
+\end{rustc}
+
+\code{should\_panic} tells \code{rustdoc} that the code should compile correctly, but not actually pass as a test.
+
+\begin{rustc}
+/// ```no_run
+/// loop {
+///     println!("Hello, world");
+/// }
+/// ```
+\end{rustc}
+
+The \code{no\_run} attribute will compile your code, but not run it. This is important for examples such as \enquote{Here's how to 
+start up a network service,} which you would want to make sure compile, but might run in an infinite loop!
+
+\subsubsection*{Documenting modules}
+
+Rust has another kind of doc comment, \code{//!}. This comment doesn't document the next item, but the enclosing item. In other words:
+
+\begin{rustc}
+mod foo {
+    //! This is documentation for the `foo` module.
+    //!
+    //! # Examples
+
+    // ...
+}
+\end{rustc}
+
+This is where you'll see \code{//!} used most often: for module documentation. If you have a module in \code{foo.rs}, you'll often 
+open its code and see this:
+
+\begin{rustc}
+//! A module for using `foo`s.
+//!
+//! The `foo` module contains a lot of useful functionality blah blah blah
+\end{rustc}
+
+\subsubsection*{Documentation comment style}
+
+Check out \href{https://github.com/rust-lang/rfcs/blob/master/text/0505-api-comment-conventions.md}{RFC 505} for full conventions 
+around the style and format of documentation.
+
+\subsubsection*{Other documentation}
+
+All of this behavior works in non-Rust source files too. Because comments are written in Markdown, they're often \code{.md} files.
+
+\blank
+
+When you write documentation in Markdown files, you don't need to prefix the documentation with comments. For example:
+
+\begin{rustc}
+/// # Examples
+///
+/// ```
+/// use std::rc::Rc;
+///
+/// let five = Rc::new(5);
+/// ```
+\end{rustc}
+
+is:
+
+\begin{verbatim}
+# Examples
+
+```
+use std::rc::Rc;
+
+let five = Rc::new(5);
+```
+\end{verbatim}
+
+when it's in a Markdown file. There is one wrinkle though: Markdown files need to have a title like this:
+
+\begin{verbatim}
+% The title
+
+This is the example documentation.
+\end{verbatim}
+
+This \code{\%} line needs to be the very first line of the file.
+
+\subsubsection*{\code{doc} attributes}
+
+At a deeper level, documentation comments are syntactic sugar for documentation attributes:
+
+\begin{rustc}
+/// this
+
+#[doc="this"]
+\end{rustc}
+
+are the same, as are these:
+
+\begin{rustc}
+//! this
+
+#![doc="this"]
+\end{rustc}
+
+You won't often see this attribute used for writing documentation, but it can be useful when changing some options, or when writing a macro.
+
+\subsubsection*{Re-exports}
+
+\code{rustdoc} will show the documentation for a public re-export in both places:
+
+\begin{rustc}
+extern crate foo;
+
+pub use foo::bar;
+\end{rustc}
+
+This will create documentation for \code{bar} both inside the documentation for the crate \code{foo}, as well as the documentation 
+for your crate. It will use the same documentation in both places.
+
+\blank
+
+This behavior can be suppressed with \code{no\_inline}:
+
+\begin{rustc}
+extern crate foo;
+
+#[doc(no_inline)]
+pub use foo::bar;
+\end{rustc}
+
+\subsubsection*{Missing documentation}
+
+Sometimes you want to make sure that every single public thing in your project is documented, especially when you are working on 
+a library. Rust allows you to to generate warnings or errors, when an item is missing documentation. To generate warnings you use 
+\code{warn}:
+
+\begin{rustc}
+#![warn(missing_docs)]
+\end{rustc}
+
+And to generate errors you use deny:
+
+\begin{rustc}
+#![deny(missing_docs)]
+\end{rustc}
+
+There are cases where you want to disable these warnings/errors to explicitly leave something undocumented. This is done by using \code{allow}:
+
+\begin{rustc}
+#[allow(missing_docs)]
+struct Undocumented;
+\end{rustc}
+
+You might even want to hide items from the documentation completely:
+
+\begin{rustc}
+#[doc(hidden)]
+struct Hidden;
+\end{rustc}
+
+\subsubsection*{Controlling HTML}
+
+You can control a few aspects of the HTML that \code{rustdoc} generates through the \code{\#![doc]} version of the attribute:
+
+\begin{rustc}
+#![doc(html_logo_url = "https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png",
+       html_favicon_url = "https://www.rust-lang.org/favicon.ico",
+       html_root_url = "https://doc.rust-lang.org/")]
+\end{rustc}
+
+This sets a few different options, with a logo, favicon, and a root URL.
+
+\subsubsection*{Configuring documentation tests}
+
+You can also configure the way that \code{rustdoc} tests your documentation examples through the \code{\#![doc(test(..))]} attribute.
+
+\begin{rustc}
+#![doc(test(attr(allow(unused_variables), deny(warnings))))]
+\end{rustc}
+
+This allows unused variables within the examples, but will fail the test for any other lint warning thrown.
+
+\subsubsection*{Generation options}
+
+\code{rustdoc} also contains a few other options on the command line, for further customization:
+
+\begin{itemize}
+  \item{\code{--html-in-header FILE}: includes the contents of FILE at the end of the \code{<head>...</head>} section.}
+  \item{\code{--html-before-content FILE}: includes the contents of FILE directly after \code{<body>}, before the rendered 
+      content (including the search bar).}
+  \item{\code{--html-after-content FILE}: includes the contents of FILE after all the rendered content.}
+\end{itemize}
+
+\subsubsection*{Security note}
+
+The Markdown in documentation comments is placed without processing into the final webpage. Be careful with literal HTML:
+
+\begin{rustc}
+/// <script>alert(document.cookie)</script>
+\end{rustc}

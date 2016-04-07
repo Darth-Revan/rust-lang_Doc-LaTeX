@@ -1,0 +1,132 @@
+Rust's main draw is its powerful static guarantees about behavior. But safety checks are conservative by nature: there are some 
+programs that are actually safe, but the compiler is not able to verify this is true. To write these kinds of programs, we need to 
+tell the compiler to relax its restrictions a bit. For this, Rust has a keyword, \code{unsafe}. Code using \code{unsafe} has less 
+restrictions than normal code does.
+
+\blank
+
+Let's go over the syntax, and then we'll talk semantics. \code{unsafe} is used in four contexts. The first one is to mark a function 
+as unsafe:
+
+\begin{rustc}
+unsafe fn danger_will_robinson() {
+    // scary stuff
+}
+\end{rustc}
+
+% TODO make FFI a hyperref
+All functions called from FFI must be marked as \code{unsafe}, for example. The second use of \code{unsafe} is an unsafe block:
+
+\begin{rustc}
+unsafe {
+    // scary stuff
+}
+\end{rustc}
+
+The third is for unsafe traits:
+
+\begin{rustc}
+unsafe trait Scary { }
+\end{rustc}
+
+And the fourth is for \code{impl}ementing one of those traits:
+
+\begin{rustc}
+unsafe impl Scary for i32 {}
+\end{rustc}
+
+It's important to be able to explicitly delineate code that may have bugs that cause big problems. If a Rust program segfaults, you 
+can be sure the cause is related to something marked \code{unsafe}.
+
+\subsubsection*{What does 'safe' mean?}
+
+Safe, in the context of Rust, means 'doesn't do anything unsafe'. It's also important to know that there are certain behaviors that 
+are probably not desirable in your code, but are expressly \emph{not} unsafe:
+
+\begin{itemize}
+  \item{Deadlocks}
+  \item{Leaks of memory or other resources}
+  \item{Exiting without calling destructors}
+  \item{Integer overflow}
+\end{itemize}
+
+Rust cannot prevent all kinds of software problems. Buggy code can and will be written in Rust. These things aren't great, but they 
+don't qualify as \code{unsafe} specifically.
+
+\blank
+
+In addition, the following are all undefined behaviors in Rust, and must be avoided, even when writing \code{unsafe} code:
+
+\begin{itemize}
+  \item{Data races}
+  \item{Dereferencing a null/dangling raw pointer}
+  \item{Reads of \href{http://llvm.org/docs/LangRef.html\#undefined-values}{undef} (uninitialized) memory}
+  \item{Breaking the \href{http://llvm.org/docs/LangRef.html\#pointer-aliasing-rules}{pointer aliasing rules} with raw pointers.}
+  \item{\code{\&mut T} and \code{\&T} follow LLVM's scoped \href{http://llvm.org/docs/LangRef.html\#noalias}{noalias} model, except if 
+      the \code{\&T} contains an \code{UnsafeCell<U>}. Unsafe code must not violate these aliasing guarantees.}
+  \item{Mutating an immutable value/reference without \code{UnsafeCell<U>}}
+  \item{Invoking undefined behavior via compiler intrinsics:}
+  \begin{itemize}
+    \item{Indexing outside of the bounds of an object with \code{std::ptr::offset} (\code{offset} intrinsic), with the exception of one 
+        byte past the end which is permitted.}
+    \item{Using \code{std::ptr::copy\_nonoverlapping\_memory} (\code{memcpy32/memcpy64} intrinsics) on overlapping buffers}
+  \end{itemize}
+  \item{Invalid values in primitive types, even in private fields/locals:}
+  \begin{itemize}
+    \item{Null/dangling references or boxes}
+    \item{A value other than \code{false} (0) or \code{true} (1) in a \code{bool}}
+    \item{A discriminant in an \enum\ not included in its type definition}
+    \item{A value in a \varchar\ which is a surrogate or above \code{char::MAX}}
+    \item{Non-UTF-8 byte sequences in a \code{str}}
+  \end{itemize}
+  \item{Unwinding into Rust from foreign code or unwinding from Rust into foreign code.}
+\end{itemize}
+
+\subsubsection*{Unsafe Superpowers}
+
+In both unsafe functions and unsafe blocks, Rust will let you do three things that you normally can not do. Just three. Here they are:
+
+\begin{itemize}
+  \item{Access or update a static mutable variable (see \nameref{paragraph:static}.}
+  \item{Dereference a raw pointer.}
+  \item{Call unsafe functions. This is the most powerful ability.}
+\end{itemize}
+
+That's it. It's important that \code{unsafe} does not, for example, 'turn off the borrow checker'. Adding \code{unsafe} to some 
+random Rust code doesn't change its semantics, it won't start accepting anything. But it will let you write things that do break 
+some of the rules.
+
+\blank
+
+You will also encounter the \code{unsafe} keyword when writing bindings to foreign (non-Rust) interfaces. You're encouraged to write 
+a safe, native Rust interface around the methods provided by the library.
+
+\blank
+
+Let's go over the basic three abilities listed, in order.
+
+\myparagraph{Access or update a \code{static mut}}
+
+Rust has a feature called '\code{static mut}' which allows for mutable global state. Doing so can cause a data race, and as such 
+is inherently not safe. For more details, see the static section of the book (see \nameref{paragraph:static}).
+
+\myparagraph{Dereference a raw pointer}
+
+Raw pointers let you do arbitrary pointer arithmetic, and can cause a number of different memory safety and security issues. In 
+some senses, the ability to dereference an arbitrary pointer is one of the most dangerous things you can do. For more on raw pointers, 
+see their section of the book (\nameref{sec:syntax_rawPointers}).
+
+\myparagraph{Call unsafe functions}
+
+This last ability works with both aspects of \code{unsafe}: you can only call functions marked \code{unsafe} from inside an unsafe block.
+
+\blank
+
+% TODO make instrincts a hyperref
+This ability is powerful and varied. Rust exposes some compiler intrinsics as unsafe functions, and some unsafe functions bypass 
+safety checks, trading safety for speed.
+
+\blank
+
+I'll repeat again: even though you \emph{can do} arbitrary things in unsafe blocks and functions doesn't mean you should. The compiler 
+will act as though you're upholding its invariants, so be careful!

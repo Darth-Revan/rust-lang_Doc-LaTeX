@@ -1,0 +1,76 @@
+Rust has a special attribute, \code{\#[cfg]}, which allows you to compile code based on a flag passed to the compiler. It has two forms:
+
+\begin{rustc}
+#[cfg(foo)]
+
+#[cfg(bar = "baz")]
+\end{rustc}
+
+They also have some helpers:
+
+\begin{rustc}
+#[cfg(any(unix, windows))]
+
+#[cfg(all(unix, target_pointer_width = "32"))]
+
+#[cfg(not(foo))]
+\end{rustc}
+
+These can nest arbitrarily:
+
+\begin{rustc}
+#[cfg(any(not(unix), all(target_os="macos", target_arch = "powerpc")))]
+\end{rustc}
+
+As for how to enable or disable these switches, if you’re using Cargo, they get set in the 
+\href{http://doc.crates.io/manifest.html\#the-features-section}{[features] section} of your \code{Cargo.toml}:
+
+\begin{verbatim}
+[features]
+# no features by default
+default = []
+
+# The “secure-password” feature depends on the bcrypt package.
+secure-password = ["bcrypt"]
+\end{verbatim}
+
+When you do this, Cargo passes along a flag to \code{rustc}:
+
+\begin{verbatim}
+--cfg feature="${feature_name}"
+\end{verbatim}
+
+The sum of these \code{cfg} flags will determine which ones get activated, and therefore, which code gets compiled. Let’s take this code:
+
+\begin{rustc}
+#[cfg(feature = "foo")]
+mod foo {
+}
+\end{rustc}
+
+If we compile it with \code{cargo build --features "foo"}, it will send the \code{--cfg feature="foo"} flag to \code{rustc}, and the 
+output will have the \code{mod foo} in it. If we compile it with a regular \code{cargo build}, no extra flags get passed on, and so, 
+no \code{foo} module will exist.
+
+\subsubsection*{cfg\_attr}
+
+You can also set another attribute based on a \code{cfg} variable with \code{cfg\_attr}:
+
+\begin{rustc}
+#[cfg_attr(a, b)]
+\end{rustc}
+
+Will be the same as \code{\#[b]} if a is set by \code{cfg} attribute, and nothing otherwise.
+
+\subsubsection*{cfg!}
+
+% TODO make syntax extension a hyperref
+The \code{cfg!} syntax extension lets you use these kinds of flags elsewhere in your code, too:
+
+\begin{rustc}
+if cfg!(target_os = "macos") || cfg!(target_os = "ios") {
+    println!("Think Different!");
+}
+\end{rustc}
+
+These will be replaced by a \code{true} or \code{false} at compile-time, depending on the configuration settings.
