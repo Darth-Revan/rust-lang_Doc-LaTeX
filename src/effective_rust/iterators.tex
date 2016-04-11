@@ -110,7 +110,7 @@ some definitions:
 
 Let's talk about consumers first, since you've already seen an iterator, ranges.
 
-\subsubsection*{Consumers}
+\subsection*{Consumers}
 
 A \emph{consumer} operates on an iterator, returning some kind of value or values. The most common consumer is \code{collect()}. This 
 code doesn't quite compile, but it shows the intention:
@@ -172,10 +172,10 @@ next iteration. On the first iteration, the base is the value of the accumulator
 
 Okay, that's a bit confusing. Let's examine the values of all of these things in this iterator:
 
-\begin{tabular}[H]
-  \begin{table}{|l|l|l|l|}
+\begin{table}[H]
+  \begin{tabular}{|l|l|l|l|}
   \hline
-  \textbf{base} & \textbf{accumulator} & \textbf{element} & \textb{closure result} \\
+  \textbf{base} & \textbf{accumulator} & \textbf{element} & \textbf{closure result} \\
   \hline
   0 & 0 & 1 & 1 \\
   \hline
@@ -183,8 +183,8 @@ Okay, that's a bit confusing. Let's examine the values of all of these things in
   \hline
   0 & 3 & 3 & 6 \\
   \hline
-  \end{table}
-\end{tabular}
+  \end{tabular}
+\end{table}
 
 We called \code{fold()} with these arguments:
 
@@ -208,7 +208,7 @@ Any time you have a list of things, and you want a single result, \code{fold} is
 Consumers are important due to one additional property of iterators we haven't talked about yet: laziness. Let's talk some more 
 about iterators, and you'll see why consumers matter.
 
-\subsubsection*{Iterators}
+\subsection*{Iterators}
 
 As we've said before, an iterator is something that we can call the \code{.next()} method on repeatedly, and it gives us a sequence 
 of things. Because you need to call the method, this means that iterators can be \emph{lazy} and not generate all of the values upfront. 
@@ -245,7 +245,7 @@ These two basic iterators should serve you well. There are some more advanced it
 
 That's enough about iterators. Iterator adaptors are the last concept we need to talk about with regards to iterators. Let's get to it!
 
-\subsubsection*{Iterator adaptors}
+\subsection*{Iterator adaptors}
 
 \emph{Iterator adaptors} take an iterator and modify it somehow, producing a new iterator. The simplest one is called \code{map}:
 

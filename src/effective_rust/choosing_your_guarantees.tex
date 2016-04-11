@@ -1,0 +1,384 @@
+One important feature of Rust is that it lets us control the costs and guarantees of a program.
+
+\blank
+
+There are various \enquote{wrapper type} abstractions in the Rust standard library which embody a multitude of tradeoffs 
+between cost, ergonomics, and guarantees. Many let one choose between run time and compile time enforcement. This section 
+will explain a few selected abstractions in detail.
+
+\blank
+
+Before proceeding, it is highly recommended that one reads about ownership (see \nameref{sec:syntax_ownership}) and borrowing 
+(see \nameref{sec:syntax_referencesBorrowing}) in Rust.
+
+\subsection*{Basic pointer types}
+
+\subsubsection*{\code{Box<T>}}
+
+\href{https://doc.rust-lang.org/std/boxed/struct.Box.html}{Box<T>} is an \enquote{owned} pointer, or a \enquote{box}. While 
+it can hand out references to the contained data, it is the only owner of the data. In particular, consider the following:
+
+\begin{rustc}
+let x = Box::new(1);
+let y = x;
+// x no longer accessible here
+\end{rustc}
+
+Here, the box was moved into \y. As \x\ no longer owns it, the compiler will no longer allow the programmer to use \x\ 
+after this. A box can similarly be moved out of a function by returning it.
+
+\blank
+
+When a box (that hasn't been moved) goes out of scope, destructors are run. These destructors take care of deallocating 
+the inner data.
+
+\blank
+
+This is a zero-cost abstraction for dynamic allocation. If you want to allocate some memory on the heap and safely pass 
+around a pointer to that memory, this is ideal. Note that you will only be allowed to share references to this by the 
+regular borrowing rules, checked at compile time.
+
+\subsubsection*{\code{\&T} and \code{\&mut T}}
+
+These are immutable and mutable references respectively. They follow the \enquote{read-write lock} pattern, such that one 
+may either have only one mutable reference to some data, or any number of immutable ones, but not both. This guarantee is 
+enforced at compile time, and has no visible cost at runtime. In most cases these two pointer types suffice for sharing 
+cheap references between sections of code.
+
+\blank
+
+These pointers cannot be copied in such a way that they outlive the lifetime associated with them.
+
+\subsubsection*{\code{*const T} and \code{*mut T}}
+
+These are C-like raw pointers with no lifetime or ownership attached to them. They point to some location in memory 
+with no other restrictions. The only guarantee that these provide is that they cannot be dereferenced except in code 
+marked \code{unsafe}.
+
+\blank
+
+These are useful when building safe, low cost abstractions like \code{Vec<T>}, but should be avoided in safe code.
+
+\subsubsection*{\code{Rc<T>}}
+
+This is the first wrapper we will cover that has a runtime cost.
+
+\blank
+
+\href{https://doc.rust-lang.org/std/rc/struct.Rc.html}{Rc<T>} is a reference counted pointer. In other words, this lets 
+us have multiple \enquote{owning} pointers to the same data, and the data will be dropped (destructors will be run) when 
+all pointers are out of scope.
+
+\blank
+
+Internally, it contains a shared \enquote{reference count} (also called \enquote{refcount}), which is incremented each 
+time the \code{Rc} is cloned, and decremented each time one of the \code{Rc}s goes out of scope. The main responsibility 
+of \code{Rc<T>} is to ensure that destructors are called for shared data.
+
+\blank
+
+The internal data here is immutable, and if a cycle of references is created, the data will be leaked. If we want data 
+that doesn't leak when there are cycles, we need a garbage collector.
+
+\parag{Guarantees}
+
+The main guarantee provided here is that the data will not be destroyed until all references to it are out of scope.
+
+\blank
+
+This should be used when we wish to dynamically allocate and share some data (read-only) between various portions of your 
+program, where it is not certain which portion will finish using the pointer last. It's a viable alternative to \code{\&T} 
+when \code{\&T} is either impossible to statically check for correctness, or creates extremely unergonomic code where the 
+programmer does not wish to spend the development cost of working with.
+
+\blank
+
+This pointer is not thread safe, and Rust will not let it be sent or shared with other threads. This lets one avoid the 
+cost of atomics in situations where they are unnecessary.
+
+\blank
+
+There is a sister smart pointer to this one, \code{Weak<T>}. This is a non-owning, but also non-borrowed, smart pointer. It 
+is also similar to \code{\&T}, but it is not restricted in lifetime—a \code{Weak<T>} can be held on to forever. However, it 
+is possible that an attempt to access the inner data may fail and return \none, since this can outlive the owned \code{Rc}s. 
+This is useful for cyclic data structures and other things.
+
+\parag{Cost}
+
+As far as memory goes, \code{Rc<T>} is a single allocation, though it will allocate two extra words (i.e. two \code{usize} 
+values) as compared to a regular \code{Box<T>} (for \enquote{strong} and \enquote{weak} refcounts).
+
+\blank
+
+\code{Rc<T>} has the computational cost of incrementing/decrementing the refcount whenever it is cloned or goes out of 
+scope respectively. Note that a clone will not do a deep copy, rather it will simply increment the inner reference count 
+and return a copy of the \code{Rc<T>}.
+
+\subsection*{Cell types}
+
+\code{Cell}s provide interior mutability. In other words, they contain data which can be manipulated even if the type 
+cannot be obtained in a mutable form (for example, when it is behind an \code{\&}-ptr or \code{Rc<T>}).
+
+\blank
+
+\href{https://doc.rust-lang.org/std/cell/}{The documentation for the cell} module has a pretty good explanation for these.
+
+\blank
+
+These types are generally found in struct fields, but they may be found elsewhere too.
+
+\subsubsection*{\code{Cell<T>}}
+
+\href{https://doc.rust-lang.org/std/cell/struct.Cell.html}{Cell<T>} is a type that provides zero-cost interior mutability, 
+but only for \code{Copy} types. Since the compiler knows that all the data owned by the contained value is on the stack, 
+there's no worry of leaking any data behind references (or worse!) by simply replacing the data.
+
+\blank
+
+It is still possible to violate your own invariants using this wrapper, so be careful when using it. If a field is wrapped 
+in \code{Cell}, it's a nice indicator that the chunk of data is mutable and may not stay the same between the time you first 
+read it and when you intend to use it.
+
+\begin{rustc}
+use std::cell::Cell;
+
+let x = Cell::new(1);
+let y = &x;
+let z = &x;
+x.set(2);
+y.set(3);
+z.set(4);
+println!("{}", x.get());
+\end{rustc}
+
+Note that here we were able to mutate the same value from various immutable references.
+
+\blank
+
+This has the same runtime cost as the following:
+
+\begin{rustc}
+let mut x = 1;
+let y = &mut x;
+let z = &mut x;
+x = 2;
+*y = 3;
+*z = 4;
+println!("{}", x);
+\end{rustc}
+
+but it has the added benefit of actually compiling successfully.
+
+\parag{Guarantees}
+
+This relaxes the \enquote{no aliasing with mutability} restriction in places where it's unnecessary. However, this also 
+relaxes the guarantees that the restriction provides; so if your invariants depend on data stored within \code{Cell}, you 
+should be careful.
+
+\blank
+
+This is useful for mutating primitives and other \code{Copy} types when there is no easy way of doing it in line with the 
+static rules of \code{\&} and \code{\&mut}.
+
+\blank
+
+\code{Cell} does not let you obtain interior references to the data, which makes it safe to freely mutate.
+
+\parag{Cost}
+
+There is no runtime cost to using \code{Cell<T>,} however if you are using it to wrap larger (\code{Copy}) structs, 
+it might be worthwhile to instead wrap individual fields in \code{Cell<T>} since each write is otherwise a full copy of 
+the struct.
+
+\subsubsection*{RefCell<T>}
+
+\href{https://doc.rust-lang.org/std/cell/struct.RefCell.html}{RefCell<T>} also provides interior mutability, but isn't 
+restricted to \code{Copy} types.
+
+\blank
+
+Instead, it has a runtime cost. \code{RefCell<T>} enforces the read-write lock pattern at runtime (it's like a single-threaded 
+mutex), unlike \code{\&T}/\code{\&mut T} which do so at compile time. This is done by the \code{borrow()} and 
+\code{borrow\_mut()} functions, which modify an internal reference count and return smart pointers which can be dereferenced 
+immutably and mutably respectively. The refcount is restored when the smart pointers go out of scope. With this system, we 
+can dynamically ensure that there are never any other borrows active when a mutable borrow is active. If the programmer attempts 
+to make such a borrow, the thread will panic.
+
+\begin{rustc}
+use std::cell::RefCell;
+
+let x = RefCell::new(vec![1,2,3,4]);
+{
+    println!("{:?}", *x.borrow())
+}
+
+{
+    let mut my_ref = x.borrow_mut();
+    my_ref.push(1);
+}
+\end{rustc}
+
+Similar to \code{Cell}, this is mainly useful for situations where it's hard or impossible to satisfy the borrow checker. 
+Generally we know that such mutations won't happen in a nested form, but it's good to check.
+
+\blank
+
+For large, complicated programs, it becomes useful to put some things in \code{RefCell}s to make things simpler. For example, 
+a lot of the maps in \href{https://doc.rust-lang.org/rustc/middle/ty/struct.ctxt.html}{the ctxt struct} in the Rust compiler 
+internals are inside this wrapper. These are only modified once (during creation, which is not right after initialization) or 
+a couple of times in well-separated places. However, since this struct is pervasively used everywhere, juggling mutable and 
+immutable pointers would be hard (perhaps impossible) and probably form a soup of \code{\&}-ptrs which would be hard to extend. 
+On the other hand, the \code{RefCell} provides a cheap (not zero-cost) way of safely accessing these. In the future, if someone 
+adds some code that attempts to modify the cell when it's already borrowed, it will cause a (usually deterministic) panic which 
+can be traced back to the offending borrow.
+
+\blank
+
+Similarly, in Servo's DOM there is a lot of mutation, most of which is local to a DOM type, but some of which crisscrosses 
+the DOM and modifies various things. Using \code{RefCell} and \code{Cell} to guard all mutation lets us avoid worrying 
+about mutability everywhere, and it simultaneously highlights the places where mutation is \emph{actually} happening.
+
+\blank
+
+Note that \code{RefCell} should be avoided if a mostly simple solution is possible with \code{\&} pointers.
+
+\parag{Guarantees}
+
+\code{RefCell} relaxes the \emph{static} restrictions preventing aliased mutation, and replaces them with \emph{dynamic} 
+ones. As such the guarantees have not changed.
+
+\parag{Cost}
+
+\code{RefCell} does not allocate, but it contains an additional \enquote{borrow state} indicator (one word in size) 
+along with the data.
+
+\blank
+
+At runtime each borrow causes a modification/check of the refcount.
+
+\subsection*{Synchronous types}
+
+Many of the types above cannot be used in a threadsafe manner. Particularly, \code{Rc<T>} and \code{RefCell<T>}, which both 
+use non-atomic reference counts (atomic reference counts are those which can be incremented from multiple threads without 
+causing a data race), cannot be used this way. This makes them cheaper to use, but we need thread safe versions of these too. 
+They exist, in the form of \code{Arc<T>} and \code{Mutex<T>}/\code{RwLock<T>}.
+
+\blank
+
+Note that the non-threadsafe types \emph{cannot} be sent between threads, and this is checked at compile time.
+
+\blank
+
+There are many useful wrappers for concurrent programming in the \href{https://doc.rust-lang.org/std/sync/}{sync} module, 
+but only the major ones will be covered below.
+
+\subsubsection*{Arc<T>}
+
+\href{https://doc.rust-lang.org/std/sync/struct.Arc.html}{Arc<T>} is a version of \code{Rc<T>} that uses an atomic 
+reference count (hence, \enquote{Arc}). This can be sent freely between threads.
+
+\blank
+
+C++'s \code{shared\_ptr} is similar to \code{Arc}, however in the case of C++ the inner data is always mutable. For 
+semantics similar to that from C++, we should use \code{Arc<Mutex<T>>}, \code{Arc<RwLock<T>>}, or 
+\code{Arc<UnsafeCell<T>>}\footnote{\code{Arc<UnsafeCell<T>>} actually won't compile since \code{UnsafeCell<T>} isn't 
+\code{Send} or \code{Sync}, but we can wrap it in a type and implement \code{Send}/\code{Sync} for it manually to get 
+\code{Arc<Wrapper<T>>} where \code{Wrapper} is \code{struct Wrapper<T>(UnsafeCell<T>}).} (\code{UnsafeCell<T>} is a cell 
+type that can be used to hold any data and has no runtime cost, but accessing it requires \code{unsafe} blocks). The last 
+one should only be used if we are certain that the usage won't cause any memory unsafety. Remember that writing to a struct 
+is not an atomic operation, and many functions like \code{vec.push()} can reallocate internally and cause unsafe behavior, 
+so even monotonicity may not be enough to justify \code{UnsafeCell}.
+
+\parag{Guarantees}
+
+Like \code{Rc}, this provides the (thread safe) guarantee that the destructor for the internal data will be run when the 
+last \code{Arc} goes out of scope (barring any cycles).
+
+\parag{Cost}
+
+This has the added cost of using atomics for changing the refcount (which will happen whenever it is cloned or goes out 
+of scope). When sharing data from an \code{Arc} in a single thread, it is preferable to share \code{\&} pointers whenever 
+possible.
+
+\subsubsection*{\code{Mutex<T>} and \code{RwLock<T>}}
+
+\href{https://doc.rust-lang.org/std/sync/struct.Mutex.html}{Mutex<T>} and 
+\href{https://doc.rust-lang.org/std/sync/struct.RwLock.html}{RwLock<T>} provide mutual-exclusion via RAII guards (guards 
+are objects which maintain some state, like a lock, until their destructor is called). For both of these, the mutex is 
+opaque until we call \code{lock()} on it, at which point the thread will block until a lock can be acquired, and then a 
+guard will be returned. This guard can be used to access the inner data (mutably), and the lock will be released when the 
+guard goes out of scope.
+
+\begin{rustc}
+{
+    let guard = mutex.lock();
+    // guard dereferences mutably to the inner type
+    *guard += 1;
+} // lock released when destructor runs
+\end{rustc}
+
+\code{RwLock} has the added benefit of being efficient for multiple reads. It is always safe to have multiple readers to 
+shared data as long as there are no writers; and \code{RwLock} lets readers acquire a \enquote{read lock}. Such locks can 
+be acquired concurrently and are kept track of via a reference count. Writers must obtain a \enquote{write lock} which can 
+only be obtained when all readers have gone out of scope.
+
+\parag{Guarantees}
+
+Both of these provide safe shared mutability across threads, however they are prone to deadlocks. Some level of additional 
+protocol safety can be obtained via the type system.
+
+\parag{Costs}
+
+These use internal atomic-like types to maintain the locks, which are pretty costly (they can block all memory reads across 
+processors till they're done). Waiting on these locks can also be slow when there's a lot of concurrent access happening.
+
+\subsection*{Composition}
+
+A common gripe when reading Rust code is with types like \code{Rc<RefCell<Vec<T>>>} (or even more complicated compositions 
+of such types). It's not always clear what the composition does, or why the author chose one like this (and when one should 
+be using such a composition in one's own code)
+
+\blank
+
+Usually, it's a case of composing together the guarantees that you need, without paying for stuff that is unnecessary.
+
+\blank
+
+For example, \code{Rc<RefCell<T>>} is one such composition. \code{Rc<T>} itself can't be dereferenced mutably; because 
+\code{Rc<T>} provides sharing and shared mutability can lead to unsafe behavior, so we put \code{RefCell<T>} inside to 
+get dynamically verified shared mutability. Now we have shared mutable data, but it's shared in a way that there can only 
+be one mutator (and no readers) or multiple readers.
+
+\blank
+
+Now, we can take this a step further, and have \code{Rc<RefCell<Vec<T>>>} or \code{Rc<Vec<RefCell<T>>>}. These are both 
+shareable, mutable vectors, but they're not the same.
+
+\blank
+
+With the former, the \code{RefCell<T>} is wrapping the \code{Vec<T>}, so the \code{Vec<T>} in its entirety is mutable. 
+At the same time, there can only be one mutable borrow of the whole \code{Vec} at a given time. This means that your code 
+cannot simultaneously work on different elements of the vector from different \code{Rc} handles. However, we are able to 
+push and pop from the \code{Vec<T>} at will. This is similar to a \code{\&mut Vec<T>} with the borrow checking done at runtime.
+
+\blank
+
+With the latter, the borrowing is of individual elements, but the overall vector is immutable. Thus, we can independently 
+borrow separate elements, but we cannot push or pop from the vector. This is similar to a \code{\&mut [T]}\footnote{\code{\&[T]} 
+and \code{\&mut [T]} are slices; they consist of a pointer and a length and can refer to a portion of a vector or array. 
+\code{\&mut [T]} can have its elements mutated, however its length cannot be touched.}, but, again, the borrow checking is 
+at runtime.
+
+\blank
+
+In concurrent programs, we have a similar situation with \code{Arc<Mutex<T>>}, which provides shared mutability and ownership.
+
+\blank
+
+When reading code that uses these, go in step by step and look at the guarantees/costs provided.
+
+\blank
+
+When choosing a composed type, we must do the reverse; figure out which guarantees we want, and at which point of the 
+composition we need them. For example, if there is a choice between \code{Vec<RefCell<T>>} and \code{RefCell<Vec<T>>}, we 
+should figure out the tradeoffs as done above and pick one.

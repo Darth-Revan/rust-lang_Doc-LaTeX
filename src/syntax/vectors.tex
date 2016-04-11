@@ -18,7 +18,7 @@ There's an alternate form of \code{vec!} for repeating an initial value:
 let v = vec![0; 10]; // ten zeroes
 \end{rustc}
 
-\subsubsection*{Accessing elements}
+\subsection*{Accessing elements}
 
 To get the value at a particular index in the vector, we use \code{[]}s:
 
@@ -60,7 +60,7 @@ error: aborting due to previous error
 
 There's a lot of punctuation in that message, but the core of it makes sense: you cannot index with an \itt.
 
-\subsubsection*{Out-of-bounds Access}
+\subsection*{Out-of-bounds Access}
 
 If you try to access an index that doesn't exist:
 
@@ -88,7 +88,7 @@ match v.get(7) {
 }
 \end{rustc}
 
-\subsubsection*{Iterating}
+\subsection*{Iterating}
 
 Once you have a vector, you can iterate through its elements with \code{for}. There are three versions:
 

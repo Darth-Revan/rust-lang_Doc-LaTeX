@@ -23,7 +23,7 @@ Here are some things to remember about raw pointers that are different than othe
   \item{have no guarantees about aliasing or mutability other than mutation not being allowed directly through a \code{*const T}.}
 \end{itemize}
 
-\subsubsection*{Basics}
+\subsection*{Basics}
 
 Creating a raw pointer is perfectly safe:
 
@@ -66,13 +66,13 @@ println!("raw points at {}", points_at);
 
 For more operations on raw pointers, see \href{https://doc.rust-lang.org/std/primitive.pointer.html}{their API documentation}.
 
-\subsubsection*{FFI}
+\subsection*{FFI}
 
 % TODO make FFI a hyperref
 Raw pointers are useful for FFI: Rust's \code{*const T} and \code{*mut T} are similar to C's \code{const T*} and \code{T*}, respectively. 
 For more about this use, consult the FFI chapter.
 
-\subsubsection*{References and raw pointers}
+\subsection*{References and raw pointers}
 
 At runtime, a raw pointer \code{*} and a reference pointing to the same piece of data have an identical representation. In fact, an 
 \code{\&T} reference will implicitly coerce to an \code{*const T} raw pointer in safe code and similarly for the \mut\ variants (both 

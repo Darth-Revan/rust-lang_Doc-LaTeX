@@ -10,7 +10,7 @@ getting bogged down with details which are, for now, irrelevant. The examples we
 the level we're trying to learn at right now. Once you have the basics down, learning more about how allocators are implemented, virtual
 memory, and other advanced topics will reveal the leaks in this particular abstraction.
 
-\subsubsection*{Memory management}
+\subsection*{Memory management}
 
 These two terms are about memory management. The stack and the heap are abstractions that help you determine when to allocate and
 deallocate memory.
@@ -25,7 +25,7 @@ The stack is very fast, and is where memory is allocated in Rust by default. But
 is limited in size. The heap, on the other hand, is slower, and is explicitly allocated by your program. But it's effectively
 unlimited in size, and is globally accessible.
 
-\subsubsection*{The Stack}
+\subsection*{The Stack}
 
 Let's talk about this Rust program:
 
@@ -260,7 +260,7 @@ And then \code{bold()} ends, leaving only \code{main()}:
 And then we're done. Getting the hang of it? It's like piling up dishes: you add to the top, you take away from the top.
 
 
-\subsubsection*{The Heap}
+\subsection*{The Heap}
 
 Now, this works pretty well, but not everything can work like this. Sometimes, you need to pass some memory between different 
 functions, or keep it alive for longer than a single function's execution. For this, we can use the heap.
@@ -377,7 +377,7 @@ heap:
 
 And then the stack frame goes away, freeing all of our memory.
 
-\subsubsection*{Arguments and borrowing}
+\subsection*{Arguments and borrowing}
 
 We've got some basic examples with the stack and the heap going, but what about function arguments and borrowing? Here's a small 
 Rust program:
@@ -440,7 +440,7 @@ and \z, our local variable binding. \code{i} is a copy of the argument, \y. Sinc
 This is one reason why borrowing a variable doesn't deallocate any memory: the value of a reference is a pointer to a memory location. 
 If we got rid of the underlying memory, things wouldn't work very well.
 
-\subsubsection*{A complex example}
+\subsection*{A complex example}
 
 Okay, let's go through this complex program step-by-step:
 
@@ -758,13 +758,13 @@ And after that, \code{foo()} returns:
 
 And then, finally, \code{main()}, which cleans the rest up. When \code{i} is \code{Drop}ped, it will clean up the last of the heap too.
 
-\subsubsection*{What do other languages do?}
+\subsection*{What do other languages do?}
 
 Most languages with a garbage collector heap-allocate by default. This means that every value is boxed. There are a number of reasons 
 why this is done, but they're out of scope for this tutorial. There are some possible optimizations that don't make it true 100\% of 
 the time, too. Rather than relying on the stack and \code{Drop} to clean up memory, the garbage collector deals with the heap instead.
 
-\subsubsection*{Which to use?}
+\subsection*{Which to use?}
 
 So if the stack is faster and easier to manage, why do we need the heap? A big reason is that Stack-allocation alone means you only 
 have 'Last In First Out (LIFO)' semantics for reclaiming storage. Heap-allocation is strictly more general, allowing storage to be 

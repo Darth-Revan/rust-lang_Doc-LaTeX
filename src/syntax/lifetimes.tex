@@ -11,7 +11,7 @@ a few distinct concepts, each with its own chapter:
 
 These three chapters are related, and in order. You'll need all three to fully understand the ownership system.
 
-\subsubsection*{Meta}
+\subsection*{Meta}
 
 Before we get to the details, two important notes about the ownership system.
 
@@ -34,7 +34,7 @@ report that once they work with the rules of the ownership system for a period o
 
 With that in mind, let's learn about lifetimes.
 
-\subsubsection*{Lifetimes}
+\subsection*{Lifetimes}
 
 Lending out a reference to a resource that someone else owns can be complicated. For example, imagine this set of operations:
 
@@ -105,7 +105,7 @@ If you compare \code{\&mut i32} to \code{\&'a mut i32}, they're the same, it's t
 \code{\&} and the \code{mut i32}. We read \code{\&mut i32} as 'a mutable reference to an \itt' and \code{\&'a mut i32} as 
 'a mutable reference to an \itt\ with the lifetime \code{'a}'.
 
-\subsubsection*{In \code{struct}s}
+\subsection*{In \code{struct}s}
 
 % TODO make structs a hyperref
 You'll also need explicit lifetimes when working with structs that contain references:

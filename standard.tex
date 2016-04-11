@@ -1,6 +1,6 @@
 % !TeX program = XeLaTeX
 % !TeX encoding = UTF-8
-\documentclass[fontsize=11pt]{scrartcl}
+\documentclass[fontsize=11pt,oneside]{scrbook}
 
 \usepackage[USenglish]{babel}
 \usepackage{xunicode}
@@ -31,6 +31,12 @@
 \def\@xobeysp{\mbox{}\space}
 \def\verbatim@font{\footnotesize\ttfamily\raggedright}
 \makeatother
+
+\let\oldsection\section
+\renewcommand{\section}{\clearpage\oldsection}
+
+\newcommand{\parag}[1]{\paragraph*{#1}\mbox{}\\}
+\newcommand{\subparag}[1]{\subparagraph*{#1}\mbox{}\\}
 
 \begin{document}
 
@@ -68,6 +74,8 @@
     \newcommand{\blank}{\vspace{\baselineskip}}
     \newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\\}
     
+    \newcommand{\blankpage}{\pagebreak\null\newpage}
+    
     % A few macros for emphasized variable names and keywords
     \newcommand{\x}{\code{x}}
     \newcommand{\y}{\code{y}}
@@ -84,6 +92,9 @@
     \newcommand{\keyref}{\code{ref}}
     \newcommand{\itt}{\code{i32}}
     \newcommand{\keyif}{\code{if}}
+    \newcommand{\result}{\code{Result}}
+    \newcommand{\option}{\code{Option}}
+    \newcommand{\none}{\code{None}}
     
     \clearscrheadfoot
     \cfoot[Page \pagemark]{Page \pagemark}
@@ -97,46 +108,46 @@
     \tableofcontents
     \pagebreak
 
-    \pagebreak
-    \section{Introduction}
+    \blankpage
+    \chapter{Introduction}
     \label{sec:intro}
     \input{src/introdcution.tex}
     
-    \pagebreak
-    \section{Getting Started}
+    \blankpage
+    \chapter{Getting Started}
     \label{sec:gettingstarted}
     \input{src/gettingstarted.tex}
     
-    \pagebreak
-    \section{Tutorial: Guessing Game}
+    \blankpage
+    \chapter{Tutorial: Guessing Game}
     \label{sec:tutorial}
     \input{src/tutorial.tex}
     
-    \pagebreak
-    \section{Syntax and Semantics}
+    \blankpage
+    \chapter{Syntax and Semantics}
     \label{sec:syntax}
     \input{src/syntax.tex}
     
-    \pagebreak
-    \section{Effective Rust}
+    \blankpage
+    \chapter{Effective Rust}
     \label{sec:effective_rust}
     \input{src/effective_rust.tex}
     
-    \pagebreak
-    \section{Nightly Rust}
+    \blankpage
+    \chapter{Nightly Rust}
     \label{sec:nightly_rust}
     
-    \pagebreak
-    \section{Glossary}
+    \blankpage
+    \chapter{Glossary}
     \label{sec:glossary}
     \input{src/glossary.tex}
     
-    \pagebreak
-    \section{Syntax Index}
+    \blankpage
+    \chapter{Syntax Index}
     \label{sec:syntax_index}
     
-    \pagebreak
-    \section{Bibliography}
+    \blankpage
+    \chapter{Bibliography}
     \label{sec:bib}
     \input{src/bibliography.tex}
     

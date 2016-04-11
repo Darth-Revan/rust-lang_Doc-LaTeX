@@ -2,7 +2,7 @@ Sometimes it is useful to wrap up a function and \emph{free variables} for bette
 come from the enclosing scope and are 'closed over' when used in the function. From this, we get the name 'closures' and Rust provides a 
 really great implementation of them, as we'll see.
 
-\subsubsection*{Syntax}
+\subsection*{Syntax}
 
 Closures look like this:
 
@@ -53,7 +53,7 @@ let plus_one_v3 = |x: i32|          x + 1  ;
 
 Small differences, but they're similar.
 
-\subsubsection*{Closures and their environment}
+\subsection*{Closures and their environment}
 
 The environment for a closure can include bindings from its enclosing scope in addition to parameters and local bindings. It looks like this:
 
@@ -130,7 +130,7 @@ let takes_nums = || nums;
 \code{Vec<T>} has ownership over its contents, and therefore, when we refer to it in our closure, we have to take ownership of \code{nums}. 
 It's the same as if we'd passed \code{nums} to a function that took ownership of it.
 
-\subsubsection*{\code{move} closures}
+\subsection*{\code{move} closures}
 
 We can force our closure to take ownership of its environment with the \code{move} keyword:
 
@@ -187,7 +187,7 @@ closure from a function, for example.
 But before we talk about taking and returning closures, we should talk some more about the way that closures are implemented. As a systems 
 language, Rust gives you tons of control over what your code does, and closures are no different.
 
-\subsubsection*{Closure implementation}
+\subsection*{Closure implementation}
 
 Rust's implementation of closures is a bit different than other languages. They are effectively syntax sugar for traits. You'll want to 
 make sure to have read the traits section (see \nameref{sec:syntax_traits}) before this one, as well as the section on 
@@ -229,7 +229,7 @@ can take.
 The \code{|| \{\}} syntax for closures is sugar for these three traits. Rust will generate a \struct\ for the environment, \code{impl} 
 the appropriate trait, and then use it.
 
-\subsubsection*{Taking closures as arguments}
+\subsection*{Taking closures as arguments}
 
 Now that we know that closures are traits, we already know how to accept and return closures: the same as any other trait!
 
@@ -294,7 +294,7 @@ assert_eq!(3, answer);
 Now we take a trait object, a \code{\&Fn}. And we have to make a reference to our closure when we pass it to \code{call\_with\_one}, 
 so we use \code{\&||}.
 
-\subsubsection*{Function pointers and closures}
+\subsection*{Function pointers and closures}
 
 A function pointer is kind of like a closure that has no environment. As such, you can pass a function pointer to any function 
 expecting a closure argument, and it will work:
@@ -321,7 +321,7 @@ In this example, we don't strictly need the intermediate variable \code{f}, the 
 let answer = call_with_one(&add_one);
 \end{rustc}
 
-\subsubsection*{Returning closures}
+\subsection*{Returning closures}
 
 It's very common for functional-style code to return closures in various situations. If you try to return a closure, you may run 
 into an error. At first, it may seem strange, but we'll figure it out. Here's how you'd probably try to return a closure from a 

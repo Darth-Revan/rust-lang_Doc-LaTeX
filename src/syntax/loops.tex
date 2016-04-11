@@ -1,7 +1,7 @@
 Rust currently provides three approaches to performing some kind of iterative activity. They are: \code{loop}, \code{while} and 
 \code{for}. Each approach has its own set of uses.
 
-\subsubsection*{loop}
+\subsection*{loop}
 
 The infinite \code{loop} is the simplest form of loop available in Rust. Using the keyword \code{loop}, Rust provides a way to 
 loop indefinitely until some terminating statement is reached. Rust's infinite \code{loop}s look like this:
@@ -12,7 +12,7 @@ loop {
 }
 \end{rustc}
 
-\subsubsection*{while}
+\subsection*{while}
 
 Rust also has a \code{while} loop. It looks like this:
 
@@ -52,7 +52,7 @@ In general, the more information we can give to the compiler, the better it can 
 always prefer \code{loop} when you plan to loop infinitely.
 
 
-\subsubsection*{for}
+\subsection*{for}
 
 The \code{for} loop is used to loop a particular number of times. Rust's \code{for} loops work a bit differently than in other 
 systems languages, however. Rust's \code{for} loop doesn't look like this “C-style” \code{for} loop:
@@ -137,7 +137,7 @@ Outputs:
 3: Content of line four
 \end{verbatim}
 
-\subsubsection*{Ending iteration early}
+\subsection*{Ending iteration early}
 
 Let's take a look at that \code{while} loop we had earlier:
 
@@ -190,7 +190,7 @@ for x in 0..10 {
 }
 \end{rustc}
 
-\subsubsection*{Loop labels}
+\subsection*{Loop labels}
 
 You may also encounter situations where you have nested loops and need to specify which one your \code{break} or \code{continue} 
 statement is for. Like most other languages, by default a \code{break} or \code{continue} will apply to innermost loop. In a situation where you would like to a \code{break} or \code{continue} for one of the outer loops, you can use labels to specify which loop the 

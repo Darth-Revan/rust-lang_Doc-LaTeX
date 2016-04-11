@@ -11,7 +11,7 @@ a few distinct concepts, each with its own chapter:
 
 These three chapters are related, and in order. You'll need all three to fully understand the ownership system.
 
-\subsubsection*{Meta}
+\subsection*{Meta}
 
 Before we get to the details, two important notes about the ownership system.
 
@@ -34,7 +34,7 @@ report that once they work with the rules of the ownership system for a period o
 
 With that in mind, let's learn about ownership.
 
-\subsubsection*{Ownership}
+\subsection*{Ownership}
 
 \nameref{sec:syntax_variableBindings} have a property in Rust: they 'have ownership' of what they're bound to. This means that when 
 a binding goes out of scope, Rust will free the bound resources. For example:
@@ -62,7 +62,7 @@ heap at runtime. They behave like arrays, except their size may change by \code{
 Vectors have a generic type \code{Vec<T>}, so in this example \code{v} will have type \code{Vec<i32>}. We'll cover generics 
 in detail later in this chapter.
 
-\subsubsection*{Move semantics}
+\subsection*{Move semantics}
 
 There's some more subtlety here, though: Rust ensures that there is \emph{exactly one} binding to any given resource. For 
 example, if we have a vector, we can assign it to another binding:
@@ -192,7 +192,7 @@ println!("{}", a);
 % TODO make traits a hyperref
 We will discuss how to make your own types \code{Copy} in the traits section.
 
-\subsubsection*{More than ownership}
+\subsection*{More than ownership}
 
 Of course, if we had to hand ownership back with every function we wrote:
 

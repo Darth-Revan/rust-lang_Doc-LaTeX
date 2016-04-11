@@ -10,7 +10,7 @@ fn main() {
 Putting \code{fn main() \{} in each example is a bit tedious, so we'll leave that out in the future. If you're following along, 
 make sure to edit your \code{main()} function, rather than leaving it off. Otherwise, you'll get an error.
 
-\subsubsection*{Patterns}
+\subsection*{Patterns}
 
 % TODO make patern a hyperref
 In many languages, a variable binding would be called a \emph{variable}, but Rust's variable bindings have a few tricks up 
@@ -25,7 +25,7 @@ let (x, y) = (1, 2);
 After this expression is evaluated, \x\ will be one, and \y\ will be two. Patterns are really powerful, and have their 
 own section in the book. We don't need those features for now, so we'll keep this in the back of our minds as we go forward.
 
-\subsubsection*{Type annotations}
+\subsection*{Type annotations}
 
 Rust is a statically typed language, which means that we specify our types up front, and they're checked at compile time. So why 
 does our first example compile? Well, Rust has this thing called 'type inference'. If it can figure out what the type of something
@@ -60,7 +60,7 @@ fn main() {
 Note the similarities between this annotation and the syntax you use with \keylet. Including these kinds of comments is not
 idiomatic Rust, but we'll occasionally include them to help you understand what the types that Rust infers are.
 
-\subsubsection*{Mutability}
+\subsection*{Mutability}
 
 By default, bindings are \emph{immutable}. This code will not compile:
 
@@ -95,7 +95,7 @@ There are other good reasons to avoid mutable state when possible, but they're o
 often avoid explicit mutation, and so it is preferable in Rust. That said, sometimes, mutation is what you need, so it's not 
 verboten.
 
-\subsubsection*{Initializing bindings}
+\subsection*{Initializing bindings}
 
 Rust variable bindings have one more aspect that differs from other languages: bindings are required to be initialized with a 
 value before you're allowed to use them.
@@ -164,7 +164,7 @@ When you use the curly braces, Rust will attempt to display the value in a meani
 to specify the format in a more detailed manner, there are a \href{https://doc.rust-lang.org/std/fmt/}{wide number of options
 available}. For now, we'll stick to the default: integers aren't very complicated to print.
 
-\subsubsection*{Scope and shadowing}
+\subsection*{Scope and shadowing}
 
 Let's get back to bindings. Variable bindings have a scope - they are constrained to live in a block they were defined in. A block 
 is a collection of statements enclosed by \code{\{} and \code{\}}. Function definitions are also blocks! In the following example 

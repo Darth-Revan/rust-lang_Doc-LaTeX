@@ -12,7 +12,7 @@ Constants live for the entire lifetime of a program. More specifically, constant
 is because they're effectively inlined to each place that they're used. References to the same constant are not necessarily guaranteed 
 to refer to the same memory address for this reason.
 
-\subsubsection*{\code{static}}
+\subsection*{\code{static}}
 \label{paragraph:static}
 
 Rust provides a 'global variable' sort of facility in static items. They're similar to constants, but static items aren't inlined upon 
@@ -37,7 +37,7 @@ Statics live for the entire lifetime of a program, and therefore any reference s
 static NAME: &'static str = "Steve";
 \end{rustc}
 
-\subsubsection*{Mutability}
+\subsection*{Mutability}
 
 You can introduce mutability with the \mut\ keyword:
 
@@ -59,12 +59,12 @@ unsafe {
 
 Furthermore, any type stored in a \code{static} must be \code{Sync}, and may not have a \code{Drop} implementation (see \nameref{sec:syntax_drop}).
 
-\subsubsection*{Initializing}
+\subsection*{Initializing}
 
 Both \code{const} and \code{static} have requirements for giving them a value. They may only be given a value that's a constant 
 expression. In other words, you cannot use the result of a function call or anything similarly complex or at runtime.
 
-\subsubsection*{Which construct should I use?}
+\subsection*{Which construct should I use?}
 
 Almost always, if you can choose between the two, choose \code{const}. It's pretty rare that you actually want a memory location 
 associated with your constant, and using a const allows for optimizations like constant propagation not only in your crate but 

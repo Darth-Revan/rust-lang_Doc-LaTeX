@@ -110,7 +110,7 @@ help: consider removing this semicolon:
 This reveals two interesting things about Rust: it is an expression-based language, and semicolons are different from semicolons 
 in other 'curly brace and semicolon'-based languages. These two things are related.
 
-\subsubsection*{Expressions vs. Statements}
+\subsection*{Expressions vs. Statements}
 
 Rust is primarily an expression-based language. There are only two kinds of statements, and everything else is an expression.
 
@@ -170,7 +170,7 @@ fn add_one(x: i32) -> i32 {
 Our function claims to return an \itt, but with a semicolon, it would return \code{()} instead. Rust realizes this 
 probably isn't what we want, and suggests removing the semicolon in the error we saw before.
 
-\subsubsection*{Early returns}
+\subsection*{Early returns}
 
 But what about early returns? Rust does have a keyword for that, \code{return}:
 
@@ -194,7 +194,7 @@ fn foo(x: i32) -> i32 {
 The previous definition without \code{return} may look a bit strange if you haven't worked in an expression-based language 
 before, but it becomes intuitive over time.
 
-\subsubsection*{Diverging functions}
+\subsection*{Diverging functions}
 
 Rust has some special syntax for 'diverging functions', which are functions that do not return:
 
@@ -266,7 +266,7 @@ let x: i32 = diverges();
 let x: String = diverges();
 \end{rustc}
 
-\subsubsection*{Function pointers}
+\subsection*{Function pointers}
 
 We can also create variable bindings which point to functions:
 

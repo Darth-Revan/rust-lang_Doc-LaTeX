@@ -48,7 +48,7 @@ No need to deal with the \code{E}dge type here!
 
 Let's go over all this in more detail.
 
-\subsubsection*{Defining associated types}
+\subsection*{Defining associated types}
 
 Let's build that \code{Graph} trait. Here's the definition:
 
@@ -81,7 +81,7 @@ trait Graph {
 }
 \end{rustc}
 
-\subsubsection*{Implementing associated types}
+\subsection*{Implementing associated types}
 
 Just like any trait, traits that use associated types use the \code{impl} keyword to provide implementations. Here's a simple 
 implementation of Graph:
@@ -120,7 +120,7 @@ Next is the \code{impl} line, which is an implementation like any other trait.
 From here, we use \code{=} to define our associated types. The name the trait uses goes on the left of the \code{=}, and the concrete 
 type we're \code{impl}ementing this for goes on the right. Finally, we use the concrete types in our function declarations.
 
-\subsubsection*{Trait objects with associated types}
+\subsection*{Trait objects with associated types}
 
 There's one more bit of syntax we should talk about: trait objects. If you try to create a trait object from an associated type, like this:
 

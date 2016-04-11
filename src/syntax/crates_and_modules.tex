@@ -2,7 +2,7 @@ When a project starts getting large, it's considered good software engineering p
 pieces, and then fit them together. It is also important to have a well-defined interface, so that some of your functionality is 
 private, and some is public. To facilitate these kinds of things, Rust has a module system.
 
-\subsubsection*{Basic terminology: Crates and Modules}
+\subsection*{Basic terminology: Crates and Modules}
 
 Rust has two distinct terms that relate to the module system: 'crate' and 'module'. A crate is synonymous with a 'library' or 
 'package' in other languages. Hence “Cargo” as the name of Rust's package management tool: you ship your crates to others with 
@@ -65,7 +65,7 @@ $ tree .
 
 \code{src/lib.rs} is our crate root, corresponding to the \code{phrases} in our diagram above.
 
-\subsubsection*{Defining Modules}
+\subsection*{Defining Modules}
 
 To define each of our modules, we use the \code{mod} keyword. Let's make our \code{src/lib.rs} look like this:
 
@@ -111,7 +111,7 @@ build  deps  examples  libphrases-a7448e02a0468eaa.rlib  native
 \code{libphrases-hash.rlib} is the compiled crate. Before we see how to use this crate from another crate, let's break it up into 
 multiple files.
 
-\subsubsection*{Multiple file crates}
+\subsection*{Multiple file crates}
 
 If each crate were just one file, these files would get very large. It's often easier to split up crates into multiple files, 
 and Rust supports this in two ways.
@@ -235,7 +235,7 @@ fn goodbye() -> String {
 
 Now that we have some functionality in our crate, let's try to use it from another crate.
 
-\subsubsection*{Importing External Crates}
+\subsection*{Importing External Crates}
 
 We have a library crate. Let's make an executable crate that imports and uses our library.
 
@@ -290,7 +290,7 @@ phrases/src/main.rs:4:5: 4:76 note: expansion site
 
 By default, everything is private in Rust. Let's talk about this in some more depth.
 
-\subsubsection*{Exporting a Public Interface}
+\subsection*{Exporting a Public Interface}
 
 Rust allows you to precisely control which aspects of your interface are public, and so private is the default. To make things public, 
 you use the \code{pub} keyword. Let's focus on the english module first, so let's reduce our \code{src/main.rs} to only this:
@@ -361,7 +361,7 @@ Now that our functions are public, we can use them. Great! However, typing out \
 and repetitive. Rust has another keyword for importing names into the current scope, so that you can refer to them with shorter names. 
 Let's talk about \code{use}.
 
-\subsubsection*{Importing Modules with \code{use}}
+\subsection*{Importing Modules with \code{use}}
 
 Rust has a \code{use} keyword, which allows us to import names into our local scope. Let's change our \code{src/main.rs} to look like this:
 
@@ -433,7 +433,7 @@ We can use this shortcut:
 use phrases::english::{greetings, farewells};
 \end{rustc}
 
-\subsubsection*{Re-exporting with \code{pub use}}
+\subsection*{Re-exporting with \code{pub use}}
 
 You don't only use \code{use} to shorten identifiers. You can also use it inside of your crate to re-export a function inside another 
 module. This allows you to present an external interface that may not directly map to your internal code organization.
@@ -526,7 +526,7 @@ Hello in Japanese: こんにちは
 Goodbye in Japanese: さようなら
 \end{verbatim}
 
-\subsubsection*{Complex imports}
+\subsection*{Complex imports}
 
 Rust offers several advanced options that can add compactness and convenience to your \code{extern crate} and \code{use} statements. 
 Here is an example:

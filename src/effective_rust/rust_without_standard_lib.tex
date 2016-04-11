@@ -1,0 +1,39 @@
+Rust's standard library provides a lot of useful functionality, but assumes support for various features of its host 
+system: threads, networking, heap allocation, and others. There are systems that do not have these features, however, and 
+Rust can work with those too! To do so, we tell Rust that we don't want to use the standard library via an attribute: 
+\code{\#![no\_std]}.
+
+% TODO make no stdlib a hyperref
+\begin{myquote}
+Note: This feature is technically stable, but there are some caveats. For one, you can build a \code{\#![no\_std]} library 
+on stable, but not a binary. For details on binaries without the standard library, see the nightly chapter on 
+\code{\#![no\_std]}.
+\end{myquote}
+
+To use \code{\#![no\_std]}, add a it to your crate root:
+
+\begin{rustc}
+#![no_std]
+
+fn plus_one(x: i32) -> i32 {
+    x + 1
+}
+\end{rustc}
+
+Much of the functionality that's exposed in the standard library is also available via the 
+\href{https://doc.rust-lang.org/core/}{core crate}. When we're using the standard library, Rust automatically brings 
+\code{std} into scope, allowing you to use its features without an explicit import. By the same token, when using 
+\code{!\#[no\_std]}, Rust will bring \code{core} into scope for you, as well as 
+\href{https://doc.rust-lang.org/core/prelude/v1/}{its prelude}. This means that a lot of code will Just Work:
+
+\begin{rustc}
+#![no_std]
+
+fn may_fail(failure: bool) -> Result<(), &'static str> {
+    if failure {
+        Err("this didn't work!")
+    } else {
+        Ok(())
+    }
+}
+\end{rustc}

@@ -42,7 +42,7 @@ impl HasArea for Circle {
 As you can see, the \code{trait} block looks very similar to the \code{impl} block, but we don't define a body, only a type signature. When 
 we \code{impl} a trait, we use \code{impl Trait for Item}, rather than only \code{impl Item}.
 
-\subsubsection*{Trait bounds on generic functions}
+\subsection*{Trait bounds on generic functions}
 
 Traits are useful because they allow a type to make certain promises about its behavior. Generic functions can exploit this to constrain, 
 or \nameref{sec:gloss_bounds}, the types they accept. Consider this function, which does not compile:
@@ -145,7 +145,7 @@ We get a compile-time error:
 error: the trait `HasArea` is not implemented for the type `_` [E0277]
 \end{verbatim}
 
-\subsubsection*{Trait bounds on generic structs}
+\subsection*{Trait bounds on generic structs}
 
 Your generic structs can also benefit from trait bounds. All you need to do is append the bound when you declare type parameters. Here is a 
 new type \code{Rectangle<T>} and its operation \code{is\_square()}:
@@ -195,7 +195,7 @@ Here we defined a new struct \code{Rectangle} that accepts numbers of any precis
 can be compared for equality. Could we do the same for our \code{HasArea} structs, \code{Square} and \code{Circle}? Yes, but they need
 multiplication, and to work with that we need to know more about operator traits.
 
-\subsubsection*{Rules for implementing traits}
+\subsection*{Rules for implementing traits}
 
 So far, we've only added trait implementations to structs, but you can implement a trait for any type. So technically, we \emph{could} 
 implement \code{HasArea} for \itt:
@@ -267,7 +267,7 @@ by you. So, we could implement the \code{HasArea} type for \itt, because \code{H
 One last thing about traits: generic functions with a trait bound use 'monomorphization' (mono: one, morph: form), so they are 
 statically dispatched. What's that mean? Check out the chapter on trait objects for more details.
 
-\subsubsection*{Multiple trait bounds}
+\subsection*{Multiple trait bounds}
 
 You've seen that you can bound a generic type parameter with a trait:
 
@@ -290,7 +290,7 @@ fn foo<T: Clone + Debug>(x: T) {
 
 \code{T} now needs to be both \code{Clone} as well as \code{Debug}.
 
-\subsubsection*{Where clause}
+\subsection*{Where clause}
 
 Writing functions with only a few generic types and a small number of trait bounds isn't too bad, but as the number increases, the 
 syntax gets increasingly awkward:
@@ -380,7 +380,7 @@ This shows off the additional feature of \code{where} clauses: they allow bounds
 but also of types (\itt\ in this case). In this example, \itt\ must implement \code{ConvertTo<T>}. Rather than defining what \itt\ is (since 
 that's obvious), the \code{where} clause here constrains \code{T}.
 
-\subsubsection*{Default methods}
+\subsection*{Default methods}
 
 A default method can be added to a trait definition if it is already known how a typical implementor will define a method. For example, 
 \code{is\_invalid()} is defined as the opposite of \code{is\_valid()}:
@@ -427,7 +427,7 @@ let over = OverrideDefault;
 assert!(over.is_invalid()); // prints "Called OverrideDefault.is_invalid!"
 \end{rustc}
 
-\subsubsection*{Inheritance}
+\subsection*{Inheritance}
 
 Sometimes, implementing a trait requires implementing another trait:
 
@@ -461,7 +461,7 @@ If we forget to implement \code{Foo}, Rust will tell us:
 error: the trait `main::Foo` is not implemented for the type `main::Baz` [E0277]
 \end{verbatim}
 
-\subsubsection*{Deriving}
+\subsection*{Deriving}
 
 % TODO make atttribute a hyperref
 Implementing traits like \code{Debug} and \code{Default} repeatedly can become quite tedious. For that reason, Rust provides an attribute 

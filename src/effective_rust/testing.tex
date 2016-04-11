@@ -11,7 +11,7 @@ Let's talk about how to test Rust code. What we will not be talking about is the
 of thought regarding the right and wrong way to write tests. All of these approaches use the same basic tools, and so we'll show you 
 the syntax for using them.
 
-\subsubsection*{The \code{test} attribute}
+\subsection*{The \code{test} attribute}
 
 At its simplest, a test in Rust is a function that's annotated with the \code{test} attribute. Let's make a new project with Cargo 
 called \code{adder}:
@@ -224,7 +224,7 @@ fn it_works() {
 
 This is a very common use of \code{assert\_eq!}: call some function with some known arguments and compare it to the expected output.
 
-\subsubsection*{The \code{ignore} attribute}
+\subsection*{The \code{ignore} attribute}
 
 Sometimes a few specific tests can be very time-consuming to execute. These can be disabled by default by using the \code{ignore} attribute:
 
@@ -282,7 +282,7 @@ test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured
 The \code{--ignored} argument is an argument to the test binary, and not to Cargo, which is why the command is 
 \code{cargo test -- --ignored}.
 
-\subsubsection*{The \code{tests} module}
+\subsection*{The \code{tests} module}
 
 There is one way in which our existing example is not idiomatic: it's missing the \code{tests} module. The idiomatic way of 
 writing our example looks like this:
@@ -358,7 +358,7 @@ The current convention is to use the \code{tests} module to hold your \enquote{u
 small bit of functionality makes sense to go here. But what about \enquote{integration-style} \code{tests} instead? For that, 
 we have the tests directory.
 
-\subsubsection*{The \code{tests} directory}
+\subsection*{The \code{tests} directory}
 
 To write an integration test, let's make a \code{tests} directory, and put a \code{tests/lib.rs} file inside, with this as its contents:
 
@@ -413,7 +413,7 @@ That's all there is to the \code{tests} directory. The \code{tests} module isn't
 
 Let's finally check out that third section: documentation tests.
 
-\subsubsection*{Documentation tests}
+\subsection*{Documentation tests}
 
 Nothing is better than documentation with examples. Nothing is worse than examples that don't actually work, because the code has 
 changed since the documentation has been written. To this end, Rust supports automatically running examples in your documentation 

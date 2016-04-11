@@ -81,7 +81,7 @@ TcpStream::connect(&*addr_string); // convert addr_string to &str
 Viewing a \String\ as a \code{\&str} is cheap, but converting the \code{\&str} to a \String\ involves allocating memory. No reason to do 
 that unless you have to!
 
-\subsubsection*{Indexing}
+\subsection*{Indexing}
 
 Because strings are valid UTF-8, strings do not support indexing:
 
@@ -147,7 +147,7 @@ let dog = hachiko.chars().nth(1); // kinda like hachiko[1]
 
 This emphasizes that we have to walk from the beginning of the list of \varchar s.
 
-\subsubsection*{Slicing}
+\subsection*{Slicing}
 
 You can get a slice of a string with slicing syntax:
 
@@ -170,7 +170,7 @@ thread '<main>' panicked at 'index 0 and/or 2 in `忠犬ハチ公` do not lie on
 character boundary'
 \end{verbatim}
 
-\subsubsection*{Concatenation}
+\subsection*{Concatenation}
 
 If you have a \String, you can concatenate a \code{\&str} to the end of it:
 

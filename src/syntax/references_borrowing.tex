@@ -11,7 +11,7 @@ a few distinct concepts, each with its own chapter:
 
 These three chapters are related, and in order. You'll need all three to fully understand the ownership system.
 
-\subsubsection*{Meta}
+\subsection*{Meta}
 
 Before we get to the details, two important notes about the ownership system.
 
@@ -34,7 +34,7 @@ report that once they work with the rules of the ownership system for a period o
 
 With that in mind, let's learn about borrowing.
 
-\subsubsection*{Borrowing}
+\subsection*{Borrowing}
 
 At the end of the \nameref{sec:syntax_ownership} section, we had a nasty function that looked like this:
 
@@ -100,7 +100,7 @@ v.push(5);
 
 Pushing a value mutates the vector, and so we aren't allowed to do it.
 
-\subsubsection*{\&mut references}
+\subsection*{\&mut references}
 
 There's a second kind of reference: \code{\&mut T}. A 'mutable reference' allows you to mutate the resource you're borrowing. 
 For example:
@@ -145,7 +145,7 @@ fn main() {
 
 As it turns out, there are rules.
 
-\subsubsection*{The Rules}
+\subsection*{The Rules}
 
 Here's the rules about borrowing in Rust:
 

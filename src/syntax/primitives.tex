@@ -2,7 +2,7 @@ The Rust language has a number of types that are considered 'primitive'. This me
 structured in such a way that the standard library also provides a number of useful types built on top of these ones, as well, but 
 these are the most primitive.
 
-\subsubsection*{Booleans}
+\subsection*{Booleans}
 
 Rust has a built in boolean type, named \code{bool}. It has two values, \code{true} and \code{false}:
 
@@ -20,7 +20,7 @@ A common use of booleans is in if conditionals.
 You can find more documentation for \code{bool}s \href{https://doc.rust-lang.org/std/primitive.bool.html}{in the standard library
 documentation}.
 
-\subsubsection*{char}
+\subsection*{char}
 
 The \varchar\ type represents a single Unicode scalar value. You can create \varchar s with a single tick: (\code{'})
 
@@ -36,7 +36,7 @@ Unlike some other languages, this means that Rust's \varchar\ is not a single by
 You can find more documentation for \varchar s \href{https://doc.rust-lang.org/std/primitive.char.html}{in the standard library
 documentation}.
 
-\subsubsection*{Numeric types}
+\subsection*{Numeric types}
 
 Rust has a variety of numeric types in a few categories: signed and unsigned, fixed and variable, floating-point and integer.
 
@@ -99,7 +99,7 @@ and come in signed and unsigned varieties. This makes for two types: \code{isize
 
 Rust also has two floating point types: \code{f32} and \code{f64}. These correspond to IEEE-754 single and double precision numbers.
 
-\subsubsection*{Arrays}
+\subsection*{Arrays}
 
 Like many programming languages, Rust has list types to represent a sequence of things. The most basic is the \emph{array}, a 
 fixed-size list of elements of the same type. By default, arrays are immutable.
@@ -147,7 +147,7 @@ array access is bounds-checked at run-time. Such errant access is the source of 
 You can find more documentation for \code{array}s \href{https://doc.rust-lang.org/std/primitive.array.html}{in the standard library
 documentation}.
 
-\subsubsection*{Slices}
+\subsection*{Slices}
 
 A 'slice' is a reference to (or “view” into) another data structure. They are useful for allowing safe, efficient access to a portion 
 of an array without copying. For example, you might want to reference only one line of a file read into memory. By nature, a slice is 
@@ -172,7 +172,7 @@ Slices have type \code{\&[T]}. We'll talk about that \code{T} when we cover gene
 
 You can find more documentation for slices \href{https://doc.rust-lang.org/std/primitive.slice.html}{in the standard library documentation}.
 
-\subsubsection*{str}
+\subsection*{str}
 
 % TODO make unsized type a hyperref, make strings a hyperref and references a hyperref
 Rust's \code{str} type is the most primitive string type. As an unsized type, it's not very useful by itself, but becomes useful 
@@ -183,7 +183,7 @@ when placed behind a reference, like \code{\&str}. We'll elaborate further when 
 You can find more documentation for \code{str} \href{https://doc.rust-lang.org/std/primitive.str.html}{in the standard library
 documentation}.
 
-\subsubsection*{Tuples}
+\subsection*{Tuples}
 
 A tuple is an ordered list of fixed size. Like this:
 
@@ -260,7 +260,7 @@ Like array indexing, it starts at zero, but unlike array indexing, it uses a \co
 You can find more documentation for tuples \href{https://doc.rust-lang.org/std/primitive.tuple.html}{in the standard library 
 documentation}.
 
-\subsubsection*{Functions}
+\subsection*{Functions}
 
 Functions also have a type! They look like this:
 

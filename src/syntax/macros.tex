@@ -26,7 +26,7 @@ expanded code, not the source-level form that developers use.
 These drawbacks make macros something of a \enquote{feature of last resort}. That's not to say that macros are bad; they are part of 
 Rust because sometimes they're needed for truly concise, well-abstracted code. Just keep this tradeoff in mind.
 
-\subsubsection*{Defining a macro}
+\subsection*{Defining a macro}
 
 You may have seen the \code{vec!} macro, used to initialize a vector with any number of elements.
 
@@ -210,7 +210,7 @@ That's most of the matcher syntax. These examples use \code{\$(...)*}, which is 
 
 This system is based on \href{https://www.cs.indiana.edu/ftp/techreports/TR206.pdf}{Macro-by-Example} (PDF link).
 
-\subsubsection*{Hygiene}
+\subsection*{Hygiene}
 
 Some languages implement macros using simple text substitution, which leads to various problems. For example, this C program prints 
 \code{13} instead of the expected \code{25}.
@@ -341,7 +341,7 @@ fn main() {
 }
 \end{rustc}
 
-\subsubsection*{Recursive macros}
+\subsection*{Recursive macros}
 
 A macro's expansion can include more macro invocations, including invocations of the very same macro being expanded. These recursive 
 macros are useful for processing tree-structured input, as illustrated by this (simplistic) HTML shorthand:
@@ -376,7 +376,7 @@ fn main() {
 }
 \end{rustc}
 
-\subsubsection*{Debugging macro code}
+\subsection*{Debugging macro code}
 
 To see the results of expanding macros, run \code{rustc --pretty expanded}. The output represents a whole crate, so you can also 
 feed it back in to \code{rustc}, which will sometimes produce better error messages than the original compilation. Note that the 
@@ -393,7 +393,7 @@ are in play in the same scope. In this case \code{--pretty expanded,hygiene} wil
       later in expansion to turn it off.}
 \end{itemize}
 
-\subsubsection*{Syntactic requirements}
+\subsection*{Syntactic requirements}
 
 Even when Rust code contains un-expanded macros, it can be parsed as a full syntax tree (see \nameref{sec:gloss_syntaxtree}). This 
 property can be very useful for editors and other tools that process code. It also has a few consequences for the design of Rust's macro 
@@ -464,7 +464,7 @@ The macro system does not deal with parse ambiguity at all. For example, the gra
 parse, because the parser would be forced to choose between parsing \code{\$i} and parsing \code{\$e}. Changing the invocation syntax to 
 put a distinctive token in front can solve the problem. In this case, you can write \code{\$(I \$i:ident)* E \$e:expr}.
 
-\subsubsection*{Scoping and macro import/export}
+\subsection*{Scoping and macro import/export}
 
 Macros are expanded at an early stage in compilation, before name resolution. One downside is that scoping works differently for 
 macros, compared to other constructs in the language.
@@ -542,7 +542,7 @@ When this library is loaded with \code{\#[macro\_use] extern crate}, only \code{
 
 The Rust Reference has a \href{https://doc.rust-lang.org/reference.html\#macro-related-attributes}{listing of macro-related attributes}.
 
-\subsubsection*{The variable \code{\$crate}}
+\subsection*{The variable \code{\$crate}}
 
 A further difficulty occurs when a macro is used in multiple crates. Say that \code{mylib} defines
 
@@ -586,7 +586,7 @@ or \code{::mylib::increment}.
 To keep this system simple and correct, \code{\#[macro\_use] extern crate ...} may only appear at the root of your crate, not 
 inside \code{mod}.
 
-\subsubsection*{The deep end}
+\subsection*{The deep end}
 
 The introductory chapter mentioned recursive macros, but it did not give the full story. Recursive macros are useful for another 
 reason: Each recursive invocation gives you another opportunity to pattern-match the macro's arguments.
@@ -622,7 +622,7 @@ macro_rules! bct {
 
 Exercise: use macros to reduce duplication in the above definition of the \code{bct!} macro.
 
-\subsubsection*{Common macros}
+\subsection*{Common macros}
 
 Here are some common macros you'll see in Rust code.
 
@@ -725,7 +725,7 @@ The \code{unimplemented!} macro can be used when you're trying to get your funct
 out the body of the function. One example of this situation is implementing a trait with multiple required methods, where you want to tackle 
 one at a time. Define the others as \code{unimplemented!} until you're ready to write them.
 
-\subsubsection*{Procedural macros}
+\subsection*{Procedural macros}
 
 % TODO make compiler plugins a hyperref
 If Rust's macro system can't do what you need, you may want to write a compiler plugin instead. Compared to \code{macro\_rules!} macros, 

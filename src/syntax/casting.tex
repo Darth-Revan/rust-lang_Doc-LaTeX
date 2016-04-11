@@ -1,7 +1,7 @@
 Rust, with its focus on safety, provides two different ways of casting different types between each other. The first, \code{as}, is 
 for safe casts. In contrast, \code{transmute} allows for arbitrary casting, and is one of the most dangerous features of Rust!
 
-\subsubsection*{Coercion}
+\subsection*{Coercion}
 
 Coercion between types is implicit and has no syntax of its own, but can be spelled out with \code{as}.
 
@@ -39,7 +39,7 @@ Custom coercions may be defined using Deref.
 
 Coercion is transitive.
 
-\subsubsection*{\code{as}}
+\subsection*{\code{as}}
 
 The \code{as} keyword does safe casting:
 
@@ -127,7 +127,7 @@ let b = a as u32;
   \item{\code{e} is a function pointer type and \code{U} is an integer; \emph{fptr-addr-cast}}
 \end{itemize}
 
-\subsubsection*{\code{transmute}}
+\subsection*{\code{transmute}}
 
 \code{as} only allows safe casting, and will for example reject an attempt to cast four bytes into a \code{u32}:
 

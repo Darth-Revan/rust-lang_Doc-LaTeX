@@ -113,7 +113,7 @@ fn main() {
 }
 \end{rustc}
 
-\subsubsection*{Update syntax}
+\subsection*{Update syntax}
 
 A \struct\ can include \code{..} to indicate that you want to use a copy of some other \struct\ for some of the values. For example:
 
@@ -136,7 +136,7 @@ let origin = Point3d { x: 0, y: 0, z: 0 };
 let point = Point3d { z: 1, x: 2, .. origin };
 \end{rustc}
 
-\subsubsection*{Tuple structs}
+\subsection*{Tuple structs}
 \label{paragraph:tuple_structs}
 
 % TODO make tuple a reference
@@ -192,7 +192,7 @@ println!("length is {} inches", integer_length);
 As you can see here, you can extract the inner integer type through a destructuring \keylet, as with regular tuples. In this case, the 
 \code{let Inches(integer\_length)} assigns \code{10} to \code{integer\_length}.
 
-\subsubsection*{Unit-like structs}
+\subsection*{Unit-like structs}
 
 You can define a \struct\ with no members at all:
 

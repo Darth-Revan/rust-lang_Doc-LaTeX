@@ -13,7 +13,7 @@ that the vast majority of this is provided by the standard library, not by the l
 of the way Rust handles concurrency, you can implement an alternative way of doing things. \href{https://github.com/carllerche/mio}{mio} 
 is a real-world example of this principle in action.
 
-\subsubsection*{Background: \code{Send} and \code{Sync}}
+\subsection*{Background: \code{Send} and \code{Sync}}
 
 Concurrency is difficult to reason about. In Rust, we have a strong, static type system to help us reason about our code. As such, 
 Rust gives us two traits to help us make sense of code that can possibly be concurrent.
@@ -54,7 +54,7 @@ not implement \code{Send}.
 These two traits allow you to use the type system to make strong guarantees about the properties of your code under concurrency. 
 Before we demonstrate why, we need to learn how to create a concurrent Rust program in the first place!
 
-\subsubsection*{Threads}
+\subsection*{Threads}
 
 Rust's standard library provides a library for threads, which allow you to run Rust code in parallel. Here's a basic example of using 
 \code{std::thread}:
@@ -88,7 +88,7 @@ Many languages have the ability to execute threads, but it's wildly unsafe. Ther
 occur from shared mutable state. Rust helps out with its type system here as well, by preventing data races at compile time. Let's 
 talk about how you actually share things between threads.
 
-\subsubsection*{Safe Shared Mutable State}
+\subsection*{Safe Shared Mutable State}
 
 Due to Rust's type system, we have a concept that sounds like a lie: \enquote{safe shared mutable state.} Many programmers agree 
 that shared mutable state is very, very bad.
@@ -198,7 +198,7 @@ at a time is able to mutate the value inside it at any one time.
 
 \blank
 
-For that, we can use the \code{Mutex<T>0 type! Here's the working version:
+For that, we can use the \code{Mutex<T>} type! Here's the working version:
 
 \begin{rustc}
 use std::sync::{Arc, Mutex};
@@ -260,7 +260,7 @@ the threads actually take to finish computing when the program runs.
 A more precise alternative to the timer would be to use one of the mechanisms provided by the Rust standard library for synchronizing 
 threads with each other. Let's talk about one of them: channels.
 
-\subsubsection*{Channels}
+\subsection*{Channels}
 
 Here's a version of our code that uses channels for synchronization, rather than waiting for a specific time:
 
@@ -324,7 +324,7 @@ fn main() {
 Here we create 10 threads, asking each to calculate the square of a number (\code{i} at the time of \code{spawn()}), and then \code{send()} 
 back the answer over the channel.
 
-\subsubsection*{Panics}
+\subsection*{Panics}
 
 A \code{panic!} will crash the currently executing thread. You can use Rust's threads as a simple isolation mechanism:
 

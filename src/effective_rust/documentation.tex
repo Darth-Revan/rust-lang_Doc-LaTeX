@@ -1,7 +1,7 @@
 Documentation is an important part of any software project, and it's first-class in Rust. Let's talk about the tooling Rust gives 
 you to document your project.
 
-\subsubsection*{About \code{rustdoc}}
+\subsection*{About \code{rustdoc}}
 
 The Rust distribution includes a tool, \code{rustdoc}, that generates documentation. \code{rustdoc} is also used by Cargo through 
 \code{cargo doc}.
@@ -10,7 +10,7 @@ The Rust distribution includes a tool, \code{rustdoc}, that generates documentat
 
 Documentation can be generated in two ways: from source code, and from standalone Markdown files.
 
-\subsubsection*{Documenting source code}
+\subsection*{Documenting source code}
 
 The primary way of documenting a Rust project is through annotating the source code. You can use documentation comments for this purpose:
 
@@ -182,7 +182,7 @@ It's important to choose the correct annotation here, because \code{rustdoc} use
 actually test your examples in a library crate, so that they don't get out of date. If you have some C code but \code{rustdoc} 
 thinks it's Rust because you left off the annotation, \code{rustdoc} will complain when trying to generate the documentation.
 
-\subsubsection*{Documentation as tests}
+\subsection*{Documentation as tests}
 
 Let's discuss our sample example documentation:
 
@@ -313,7 +313,7 @@ Here's what we put in our source code:
 By repeating all parts of the example, you can ensure that your example still compiles, while only showing the parts that are relevant 
 to that part of your explanation.
 
-\subsubsection*{Documenting macros}
+\subsection*{Documenting macros}
 
 Here’s an example of documenting a macro:
 
@@ -374,7 +374,7 @@ mismatched types error.
 You can get around this by wrapping the code in a function. This catches and swallows the \code{Result<T, E>} when running tests on 
 the docs. This pattern appears regularly in the standard library.
 
-\subsubsection*{Running documentation tests}
+\subsection*{Running documentation tests}
 
 To run the tests, either:
 
@@ -421,7 +421,7 @@ you care about.
 The \code{no\_run} attribute will compile your code, but not run it. This is important for examples such as \enquote{Here's how to 
 start up a network service,} which you would want to make sure compile, but might run in an infinite loop!
 
-\subsubsection*{Documenting modules}
+\subsection*{Documenting modules}
 
 Rust has another kind of doc comment, \code{//!}. This comment doesn't document the next item, but the enclosing item. In other words:
 
@@ -444,12 +444,12 @@ open its code and see this:
 //! The `foo` module contains a lot of useful functionality blah blah blah
 \end{rustc}
 
-\subsubsection*{Documentation comment style}
+\subsection*{Documentation comment style}
 
 Check out \href{https://github.com/rust-lang/rfcs/blob/master/text/0505-api-comment-conventions.md}{RFC 505} for full conventions 
 around the style and format of documentation.
 
-\subsubsection*{Other documentation}
+\subsection*{Other documentation}
 
 All of this behavior works in non-Rust source files too. Because comments are written in Markdown, they're often \code{.md} files.
 
@@ -489,7 +489,7 @@ This is the example documentation.
 
 This \code{\%} line needs to be the very first line of the file.
 
-\subsubsection*{\code{doc} attributes}
+\subsection*{\code{doc} attributes}
 
 At a deeper level, documentation comments are syntactic sugar for documentation attributes:
 
@@ -509,7 +509,7 @@ are the same, as are these:
 
 You won't often see this attribute used for writing documentation, but it can be useful when changing some options, or when writing a macro.
 
-\subsubsection*{Re-exports}
+\subsection*{Re-exports}
 
 \code{rustdoc} will show the documentation for a public re-export in both places:
 
@@ -533,7 +533,7 @@ extern crate foo;
 pub use foo::bar;
 \end{rustc}
 
-\subsubsection*{Missing documentation}
+\subsection*{Missing documentation}
 
 Sometimes you want to make sure that every single public thing in your project is documented, especially when you are working on 
 a library. Rust allows you to to generate warnings or errors, when an item is missing documentation. To generate warnings you use 
@@ -563,7 +563,7 @@ You might even want to hide items from the documentation completely:
 struct Hidden;
 \end{rustc}
 
-\subsubsection*{Controlling HTML}
+\subsection*{Controlling HTML}
 
 You can control a few aspects of the HTML that \code{rustdoc} generates through the \code{\#![doc]} version of the attribute:
 
@@ -575,7 +575,7 @@ You can control a few aspects of the HTML that \code{rustdoc} generates through 
 
 This sets a few different options, with a logo, favicon, and a root URL.
 
-\subsubsection*{Configuring documentation tests}
+\subsection*{Configuring documentation tests}
 
 You can also configure the way that \code{rustdoc} tests your documentation examples through the \code{\#![doc(test(..))]} attribute.
 
@@ -585,7 +585,7 @@ You can also configure the way that \code{rustdoc} tests your documentation exam
 
 This allows unused variables within the examples, but will fail the test for any other lint warning thrown.
 
-\subsubsection*{Generation options}
+\subsection*{Generation options}
 
 \code{rustdoc} also contains a few other options on the command line, for further customization:
 
@@ -596,7 +596,7 @@ This allows unused variables within the examples, but will fail the test for any
   \item{\code{--html-after-content FILE}: includes the contents of FILE after all the rendered content.}
 \end{itemize}
 
-\subsubsection*{Security note}
+\subsection*{Security note}
 
 The Markdown in documentation comments is placed without processing into the final webpage. Be careful with literal HTML:
 

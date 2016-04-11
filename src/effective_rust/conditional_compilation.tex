@@ -52,7 +52,7 @@ If we compile it with \code{cargo build --features "foo"}, it will send the \cod
 output will have the \code{mod foo} in it. If we compile it with a regular \code{cargo build}, no extra flags get passed on, and so, 
 no \code{foo} module will exist.
 
-\subsubsection*{cfg\_attr}
+\subsection*{cfg\_attr}
 
 You can also set another attribute based on a \code{cfg} variable with \code{cfg\_attr}:
 
@@ -62,7 +62,7 @@ You can also set another attribute based on a \code{cfg} variable with \code{cfg
 
 Will be the same as \code{\#[b]} if a is set by \code{cfg} attribute, and nothing otherwise.
 
-\subsubsection*{cfg!}
+\subsection*{cfg!}
 
 % TODO make syntax extension a hyperref
 The \code{cfg!} syntax extension lets you use these kinds of flags elsewhere in your code, too:

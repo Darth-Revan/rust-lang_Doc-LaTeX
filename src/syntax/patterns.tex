@@ -42,7 +42,7 @@ In other words, \code{x =>} matches the pattern and introduces a new binding nam
 and takes on the value of \code{c}. Notice that the value of \x\ outside the scope of the match has no bearing on the value of \x\ 
 within it. Because we already have a binding named \x\, this new \x\ shadows it.
 
-\subsubsection*{Multiple patterns}
+\subsection*{Multiple patterns}
 
 You can match multiple patterns with \code{|}:
 
@@ -129,7 +129,7 @@ This prints \code{y is 0}.
 % TODO make tuples and enums hyperrefs
 This 'destructuring' behavior works on any compound data type, like tuples or enums.
 
-\subsubsection*{Ignoring bindings}
+\subsection*{Ignoring bindings}
 
 You can use \code{\_} in a pattern to disregard the type and value. For example, here's a \match\ against a \code{Result<T, E>}:
 
@@ -177,7 +177,7 @@ match x {
 
 This prints \code{Got a tuple!}.
 
-\subsubsection*{ref and ref mut}
+\subsection*{ref and ref mut}
 
 If you want to get a reference (see \nameref{sec:syntax_referencesBorrowing}), use the \keyref\ keyword:
 
@@ -204,7 +204,7 @@ match x {
 }
 \end{rustc}
 
-\subsubsection*{Ranges}
+\subsection*{Ranges}
 
 You can match a range of values with \code{...}:
 
@@ -235,7 +235,7 @@ match x {
 
 This prints \code{something else}.
 
-\subsubsection*{Bindings}
+\subsection*{Bindings}
 
 You can bind values to names with \code{@}:
 
@@ -279,7 +279,7 @@ match x {
 }
 \end{rustc}
 
-\subsubsection*{Guards}
+\subsection*{Guards}
 
 You can introduce 'match guards' with \keyif:
 
@@ -327,7 +327,7 @@ not this:
 4 | (5 if y) => ...
 \end{verbatim}
 
-\subsubsection*{Mix and Match}
+\subsection*{Mix and Match}
 
 Whew! That's a lot of different ways to match things, and they can all be mixed and matched, depending on what you're doing:
 

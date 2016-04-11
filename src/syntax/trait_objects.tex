@@ -2,7 +2,7 @@ When code involves polymorphism, there needs to be a mechanism to determine whic
 'dispatch'. There are two major forms of dispatch: static dispatch and dynamic dispatch. While Rust favors static dispatch, it also 
 supports dynamic dispatch through a mechanism called 'trait objects'.
 
-\subsubsection*{Background}
+\subsection*{Background}
 
 For the rest of this chapter, we'll need a trait and some implementations. Let's make a simple one, \code{Foo}. It has one method that 
 is expected to return a \String.
@@ -25,7 +25,7 @@ impl Foo for String {
 }
 \end{rustc}
 
-\subsubsection*{Static dispatch}
+\subsection*{Static dispatch}
 
 We can use this trait to perform static dispatch with trait bounds:
 
@@ -81,7 +81,7 @@ However, the common case is that it is more efficient to use static dispatch, an
 function that does a dynamic dispatch, but not vice versa, meaning static calls are more flexible. The standard library tries to be 
 statically dispatched where possible for this reason.
 
-\subsubsection*{Dynamic dispatch}
+\subsection*{Dynamic dispatch}
 
 Rust provides dynamic dispatch through a feature called 'trait objects'. Trait objects, like \code{\&Foo} or \code{Box<Foo>}, are normal 
 values that store a value of \emph{any type} that implements the given trait, where the precise type can only be known at runtime.
@@ -133,7 +133,7 @@ A function that takes a trait object is not specialized to each of the types tha
 (but not always) resulting in less code bloat. However, this comes at the cost of requiring slower virtual function calls, and effectively
 inhibiting any chance of inlining and related optimizations from occurring.
 
-\subsubsection*{Why pointers?}
+\subsection*{Why pointers?}
 
 Rust does not put things behind a pointer by default, unlike many managed languages, so types can have different sizes. Knowing the size of 
 the value at compile time is important for things like passing it as an argument to a function, moving it about on the stack and allocating 
@@ -150,7 +150,7 @@ point can work if the values are stored without a pointer, because those other t
 Putting the value behind a pointer means the size of the value is not relevant when we are tossing a trait object around, only the size 
 of the pointer itself.
 
-\subsubsection*{Representation}
+\subsection*{Representation}
 
 The methods of the trait can be called on a trait object via a special record of function pointers traditionally called a 'vtable' 
 (created and managed by the compiler).
@@ -271,7 +271,7 @@ let y = TraitObject {
 (y.vtable.method)(y.data);
 \end{rustc}
 
-\subsubsection*{Object Safety}
+\subsection*{Object Safety}
 
 Not every trait can be used to make a trait object. For example, vectors implement \code{Clone}, but if we try to make a trait object:
 
