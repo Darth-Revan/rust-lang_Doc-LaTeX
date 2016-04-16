@@ -1,0 +1,69 @@
+Rust's standard library provides a lot of useful functionality, but assumes support for various features of its host system: 
+threads, networking, heap allocation, and others. There are systems that do not have these features, however, and Rust can work 
+with those too! To do so, we tell Rust that we don't want to use the standard library via an attribute: \code{\#![no\_std]}.
+
+\begin{myquote}
+Note: This feature is technically stable, but there are some caveats. For one, you can build a \code{\#![no\_std]} \emph{library} 
+on stable, but not a \emph{binary}. For details on libraries without the standard library, see the chapter on \code{\#![no\_std]} (
+see \nameref{sec:effective_rustWithoutStdLib}).
+\end{myquote}
+
+Obviously there's more to life than just libraries: one can use \code{\#[no\_std]} with an executable, controlling the entry 
+point is possible in two ways: the \code{\#[start]} attribute, or overriding the default shim for the C \code{main} function 
+with your own.
+
+\blank
+
+The function marked \code{\#[start]} is passed the command line parameters in the same format as C:
+
+\begin{rustc}
+#![feature(lang_items)]
+#![feature(start)]
+#![no_std]
+
+// Pull in the system libc library for what crt0.o likely requires
+extern crate libc;
+
+// Entry point for this program
+#[start]
+fn start(_argc: isize, _argv: *const *const u8) -> isize {
+    0
+}
+
+// These functions and traits are used by the compiler, but not
+// for a bare-bones hello world. These are normally
+// provided by libstd.
+#[lang = "eh_personality"] extern fn eh_personality() {}
+#[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }
+\end{rustc}
+
+To override the compiler-inserted \code{main} shim, one has to disable it with \code{\#![no\_main]} and then create the 
+appropriate symbol with the correct ABI and the correct name, which requires overriding the compiler's name mangling too:
+
+\begin{rustc}
+#![feature(lang_items)]
+#![feature(start)]
+#![no_std]
+#![no_main]
+
+extern crate libc;
+
+#[no_mangle] // ensure that this symbol is called `main` in the output
+pub extern fn main(argc: i32, argv: *const *const u8) -> i32 {
+    0
+}
+
+#[lang = "eh_personality"] extern fn eh_personality() {}
+#[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }
+\end{rustc}
+
+The compiler currently makes a few assumptions about symbols which are available in the executable to call. Normally 
+these functions are provided by the standard library, but without it you must define your own.
+
+\blank
+
+The first of these two functions, \code{eh\_personality}, is used by the failure mechanisms of the compiler. This is often 
+mapped to GCC's personality function (see the 
+\href{https://github.com/rust-lang/rust/blob/master/src/libstd/sys/common/unwind/gcc.rs}{libstd implementation} for more 
+information), but crates which do not trigger a panic can be assured that this function is never called. The second function, 
+\code{panic\_fmt}, is also used by the failure mechanisms of the compiler.

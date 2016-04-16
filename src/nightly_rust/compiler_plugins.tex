@@ -1,0 +1,265 @@
+\subsection*{Introduction}
+
+\code{rustc} can load compiler plugins, which are user-provided libraries that extend the compiler's behavior with new syntax 
+extensions, lint checks, etc.
+
+\blank
+
+A plugin is a dynamic library crate with a designated registrar function that registers extensions with \code{rustc}. Other 
+crates can load these extensions using the crate attribute \code{\#![plugin(...)]}. See the 
+\href{https://doc.rust-lang.org/rustc\_plugin/}{rustc\_plugin} documentation for more about the mechanics of defining and 
+loading a plugin.
+
+\blank
+
+If present, arguments passed as \code{\#![plugin(foo(... args ...))]} are not interpreted by \code{rustc} itself. They are 
+provided to the plugin through the \code{Registry}'s 
+\href{https://doc.rust-lang.org/rustc\_plugin/registry/struct.Registry.html\#method.args}{args method}.
+
+\blank
+
+In the vast majority of cases, a plugin should \emph{only} be used through \code{\#![plugin]} and not through an \code{extern crate} 
+item. Linking a plugin would pull in all of \code{libsyntax} and \code{librustc} as dependencies of your crate. This is generally 
+unwanted unless you are building another plugin. The \code{plugin\_as\_library} lint checks these guidelines.
+
+\blank
+
+The usual practice is to put compiler plugins in their own crate, separate from any \code{macro\_rules!} macros or ordinary Rust 
+code meant to be used by consumers of a library.
+
+\subsection*{Syntax extensions}
+
+Plugins can extend Rust's syntax in various ways. One kind of syntax extension is the procedural macro. These are invoked 
+the same way as ordinary macros (see \nameref{sec:syntax_macros}), but the expansion is performed by arbitrary Rust code 
+that manipulates \href{https://doc.rust-lang.org/syntax/ast/}{syntax trees} at compile time.
+
+\blank
+
+Let's write a plugin \href{https://github.com/rust-lang/rust/tree/master/src/test/auxiliary/roman\_numerals.rs}{roman\_numerals.rs} 
+that implements Roman numeral integer literals.
+
+\begin{rustc}
+#![crate_type="dylib"]
+#![feature(plugin_registrar, rustc_private)]
+
+extern crate syntax;
+extern crate rustc;
+extern crate rustc_plugin;
+
+use syntax::codemap::Span;
+use syntax::parse::token;
+use syntax::ast::TokenTree;
+use syntax::ext::base::{ExtCtxt, MacResult, DummyResult, MacEager};
+use syntax::ext::build::AstBuilder;  // trait for expr_usize
+use rustc_plugin::Registry;
+
+fn expand_rn(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
+        -> Box<MacResult + 'static> {
+
+    static NUMERALS: &'static [(&'static str, usize)] = &[
+        ("M", 1000), ("CM", 900), ("D", 500), ("CD", 400),
+        ("C",  100), ("XC",  90), ("L",  50), ("XL",  40),
+        ("X",   10), ("IX",   9), ("V",   5), ("IV",   4),
+        ("I",    1)];
+
+    if args.len() != 1 {
+        cx.span_err(
+            sp,
+            &format!("argument should be a single identifier, but got {} arguments", args.len()));
+        return DummyResult::any(sp);
+    }
+
+    let text = match args[0] {
+        TokenTree::Token(_, token::Ident(s, _)) => s.to_string(),
+        _ => {
+            cx.span_err(sp, "argument should be a single identifier");
+            return DummyResult::any(sp);
+        }
+    };
+
+    let mut text = &*text;
+    let mut total = 0;
+    while !text.is_empty() {
+        match NUMERALS.iter().find(|&&(rn, _)| text.starts_with(rn)) {
+            Some(&(rn, val)) => {
+                total += val;
+                text = &text[rn.len()..];
+            }
+            None => {
+                cx.span_err(sp, "invalid Roman numeral");
+                return DummyResult::any(sp);
+            }
+        }
+    }
+
+    MacEager::expr(cx.expr_usize(sp, total))
+}
+
+#[plugin_registrar]
+pub fn plugin_registrar(reg: &mut Registry) {
+    reg.register_macro("rn", expand_rn);
+}
+\end{rustc}
+
+Then we can use \code{rn!()} like any other macro:
+
+\begin{rustc}
+#![feature(plugin)]
+#![plugin(roman_numerals)]
+
+fn main() {
+    assert_eq!(rn!(MMXV), 2015);
+}
+\end{rustc}
+
+The advantages over a simple \code{fn(\&str) -> u32} are:
+
+\begin{itemize}
+  \item{The (arbitrarily complex) conversion is done at compile time.}
+  \item{Input validation is also performed at compile time.}
+  \item{It can be extended to allow use in patterns, which effectively gives a way to define new literal syntax for any data type.}
+\end{itemize}
+
+In addition to procedural macros, you can define new \href{https://doc.rust-lang.org/reference.html\#derive}{derive}-like 
+attributes and other kinds of extensions. See 
+\href{https://doc.rust-lang.org/rustc\_plugin/registry/struct.Registry.html\#method.register\_syntax\_extension}
+{Registry::register\_syntax\_extension} and the \href{https://doc.rust-lang.org/syntax/ext/base/enum.SyntaxExtension.html}
+{SyntaxExtension enum}. For a more involved macro example, see 
+\href{https://github.com/rust-lang/regex/blob/master/regex\_macros/src/lib.rs}{regex\_macros}.
+
+\subsection*{Tips and tricks}
+
+Some of the macro debugging tips are applicable.
+
+\blank
+
+You can use \href{https://doc.rust-lang.org/syntax/parse/}{syntax::parse} to turn token trees into higher-level syntax elements 
+like expressions:
+
+\begin{rustc}
+fn expand_foo(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
+        -> Box<MacResult+'static> {
+
+    let mut parser = cx.new_parser_from_tts(args);
+
+    let expr: P<Expr> = parser.parse_expr();
+\end{rustc}
+
+Looking through \href{https://github.com/rust-lang/rust/blob/master/src/libsyntax/parse/parser.rs}{libsyntax parser code} will 
+give you a feel for how the parsing infrastructure works.
+
+\blank
+
+Keep the \href{https://doc.rust-lang.org/syntax/codemap/struct.Span.html}{Spans} of everything you parse, for better error 
+reporting. You can wrap \href{https://doc.rust-lang.org/syntax/codemap/struct.Spanned.html}{Spanned} around your custom data structures.
+
+\blank
+
+Calling \href{https://doc.rust-lang.org/syntax/ext/base/struct.ExtCtxt.html\#method.span\_fatal}{ExtCtxt::span\_fatal} will 
+immediately abort compilation. It's better to instead call 
+\href{https://doc.rust-lang.org/syntax/ext/base/struct.ExtCtxt.html\#method.span\_err}{ExtCtxt::span\_err} and return 
+\href{https://doc.rust-lang.org/syntax/ext/base/struct.DummyResult.html}{DummyResult}, so that the compiler can continue and 
+find further errors.
+
+\blank
+
+To print syntax fragments for debugging, you can use 
+\href{https://doc.rust-lang.org/syntax/ext/base/struct.ExtCtxt.html\#method.span\_note}{span\_note} together with 
+\href{https://doc.rust-lang.org/syntax/print/pprust/\#functions}{syntax::print::pprust::*\_to\_string}.
+
+\blank
+
+The example above produced an integer literal using 
+\href{https://doc.rust-lang.org/syntax/ext/build/trait.AstBuilder.html\#tymethod.expr\_usize}{AstBuilder::expr\_usize}. As 
+an alternative to the \code{AstBuilder} trait, \code{libsyntax} provides a set of 
+\href{https://doc.rust-lang.org/syntax/ext/quote/}{quasiquote macros}. They are undocumented and very rough around the edges. 
+However, the implementation may be a good starting point for an improved quasiquote as an ordinary plugin library.
+
+\subsection*{Lint plugins}
+
+Plugins can extend \href{https://doc.rust-lang.org/reference.html\#lint-check-attributes}{Rust's lint infrastructure} with 
+additional checks for code style, safety, etc. Now let's write a plugin 
+\href{https://github.com/rust-lang/rust/blob/master/src/test/auxiliary/lint\_plugin\_test.rs}{lint\_plugin\_test.rs} that warns 
+about any item named lintme.
+
+\begin{rustc}
+#![feature(plugin_registrar)]
+#![feature(box_syntax, rustc_private)]
+
+extern crate syntax;
+
+// Load rustc as a plugin to get macros
+#[macro_use]
+extern crate rustc;
+extern crate rustc_plugin;
+
+use rustc::lint::{EarlyContext, LintContext, LintPass, EarlyLintPass,
+                  EarlyLintPassObject, LintArray};
+use rustc_plugin::Registry;
+use syntax::ast;
+
+declare_lint!(TEST_LINT, Warn, "Warn about items named 'lintme'");
+
+struct Pass;
+
+impl LintPass for Pass {
+    fn get_lints(&self) -> LintArray {
+        lint_array!(TEST_LINT)
+    }
+}
+
+impl EarlyLintPass for Pass {
+    fn check_item(&mut self, cx: &EarlyContext, it: &ast::Item) {
+        if it.ident.name.as_str() == "lintme" {
+            cx.span_lint(TEST_LINT, it.span, "item is named 'lintme'");
+        }
+    }
+}
+
+#[plugin_registrar]
+pub fn plugin_registrar(reg: &mut Registry) {
+    reg.register_early_lint_pass(box Pass as EarlyLintPassObject);
+}
+\end{rustc}
+
+Then code like
+
+\begin{rustc}
+#![plugin(lint_plugin_test)]
+
+fn lintme() { }
+\end{rustc}
+
+will produce a compiler warning:
+
+\begin{verbatim}
+foo.rs:4:1: 4:16 warning: item is named 'lintme', #[warn(test_lint)] on by default
+foo.rs:4 fn lintme() { }
+         ^~~~~~~~~~~~~~~
+\end{verbatim}
+
+The components of a lint plugin are:
+
+\begin{itemize}
+  \item{one or more \code{declare\_lint!} invocations, which define static 
+      \href{https://doc.rust-lang.org/rustc/lint/struct.Lint.html}{Lint} structs;}
+  \item{a struct holding any state needed by the lint pass (here, none);}
+  \item{a \href{https://doc.rust-lang.org/rustc/lint/trait.LintPass.html}{LintPass} implementation defining how to check each 
+      syntax element. A single \code{LintPass} may call \code{span\_lint} for several different \code{Lint}s, but should register 
+      them all through the \code{get\_lints} method.}
+\end{itemize}
+
+Lint passes are syntax traversals, but they run at a late stage of compilation where type information is available. 
+\code{rustc}'s \href{https://github.com/rust-lang/rust/blob/master/src/librustc/lint/builtin.rs}{built-in lints} mostly use 
+the same infrastructure as lint plugins, and provide examples of how to access type information.
+
+\blank
+
+Lints defined by plugins are controlled by the usual \href{https://doc.rust-lang.org/reference.html\#lint-check-attributes}{attributes 
+and compiler flags}, e.g. \code{\#[allow(test\_lint)]} or \code{-A test-lint}. These identifiers are derived from the first argument to 
+\code{declare\_lint!}, with appropriate case and punctuation conversion.
+
+\blank
+
+You can run \code{rustc -W help foo.rs} to see a list of lints known to \code{rustc}, including those provided by plugins loaded 
+by \code{foo.rs}.

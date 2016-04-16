@@ -1,0 +1,80 @@
+\begin{myquote}
+Note: lang items are often provided by crates in the Rust distribution, and lang items themselves have an unstable 
+interface. It is recommended to use officially distributed crates instead of defining your own lang items.
+\end{myquote}
+
+The \code{rustc} compiler has certain pluggable operations, that is, functionality that isn't hard-coded into the language, 
+but is implemented in libraries, with a special marker to tell the compiler it exists. The marker is the attribute 
+\code{\#[lang = \enquote{...}]} and there are various different values of \code{...}, i.e. various different 'lang items'.
+
+\blank
+
+For example, \code{Box} pointers require two lang items, one for allocation and one for deallocation. A freestanding program 
+that uses the \code{Box} sugar for dynamic allocations via \code{malloc} and \code{free}:
+
+\begin{rustc}
+#![feature(lang_items, box_syntax, start, libc)]
+#![no_std]
+
+extern crate libc;
+
+extern {
+    fn abort() -> !;
+}
+
+#[lang = "owned_box"]
+pub struct Box<T>(*mut T);
+
+#[lang = "exchange_malloc"]
+unsafe fn allocate(size: usize, _align: usize) -> *mut u8 {
+    let p = libc::malloc(size as libc::size_t) as *mut u8;
+
+    // malloc failed
+    if p as usize == 0 {
+        abort();
+    }
+
+    p
+}
+
+#[lang = "exchange_free"]
+unsafe fn deallocate(ptr: *mut u8, _size: usize, _align: usize) {
+    libc::free(ptr as *mut libc::c_void)
+}
+
+#[lang = "box_free"]
+unsafe fn box_free<T>(ptr: *mut T) {
+    deallocate(ptr as *mut u8, ::core::mem::size_of::<T>(), ::core::mem::align_of::<T>());
+}
+
+#[start]
+fn main(argc: isize, argv: *const *const u8) -> isize {
+    let x = box 1;
+
+    0
+}
+
+#[lang = "eh_personality"] extern fn eh_personality() {}
+#[lang = "panic_fmt"] fn panic_fmt() -> ! { loop {} }
+\end{rustc}
+
+Note the use of \code{abort}: the \code{exchange\_malloc} lang item is assumed to return a valid pointer, and so needs to 
+do the check internally.
+
+\blank
+
+Other features provided by lang items include:
+
+\begin{itemize}
+  \item{overloadable operators via traits: the traits corresponding to the \code{==}, \code{<}, dereferencing (\code{*}) 
+      and \code{+} (etc.) operators are all marked with lang items; those specific four are \code{eq}, \code{ord}, \code{deref}, 
+      and \code{add} respectively.}
+  \item{stack unwinding and general failure; the \code{eh\_personality}, \code{fail} and \code{fail\_bounds\_checks} lang items.}
+  \item{the traits in \code{std::marker} used to indicate types of various kinds; lang items \code{send}, \code{sync} and \code{copy}.}
+  \item{the marker types and variance indicators found in \code{std::marker}; lang items \code{covariant\_type}, 
+      \code{contravariant\_lifetime}, etc.}
+\end{itemize}
+
+Lang items are loaded lazily by the compiler; e.g. if one never uses \code{Box} then there is no need to define functions 
+for \code{exchange\_malloc} and \code{exchange\_free}. \code{rustc} will emit an error when an item is needed but not found 
+in the current crate or any that it depends on.

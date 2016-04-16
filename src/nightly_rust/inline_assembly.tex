@@ -1,0 +1,145 @@
+For extremely low-level manipulations and performance reasons, one might wish to control the CPU directly. Rust supports 
+using inline assembly to do this via the \code{asm!} macro. The syntax roughly matches that of GCC \& Clang:
+
+\begin{rustc}
+asm!(assembly template
+   : output operands
+   : input operands
+   : clobbers
+   : options
+   );
+\end{rustc}
+
+Any use of \code{asm} is feature gated (requires \code{\#![feature(asm)]} on the crate to allow) and of course requires 
+an \code{unsafe} block.
+
+\begin{myquote}
+Note: the examples here are given in x86/x86-64 assembly, but all platforms are supported.
+\end{myquote}
+
+\subsection*{Assembly template}
+
+The \code{assembly template} is the only required parameter and must be a literal string (i.e. \code{""})
+
+\begin{rustc}
+#![feature(asm)]
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+fn foo() {
+    unsafe {
+        asm!("NOP");
+    }
+}
+
+// other platforms
+#[cfg(not(any(target_arch = "x86", target_arch = "x86_64")))]
+fn foo() { /* ... */ }
+
+fn main() {
+    // ...
+    foo();
+    // ...
+}
+\end{rustc}
+
+(The \code{feature(asm)} and \code{\#[cfg]}s are omitted from now on.)
+
+\blank
+
+Output operands, input operands, clobbers and options are all optional but you must add the right number of \code{:} 
+if you skip them:
+
+\begin{rustc}
+asm!("xor %eax, %eax"
+    :
+    :
+    : "{eax}"
+   );
+\end{rustc}
+
+Whitespace also doesn't matter:
+
+\begin{rustc}
+asm!("xor %eax, %eax" ::: "{eax}");
+\end{rustc}
+
+\subsection*{Operands}
+
+Input and output operands follow the same format: \code{: \enquote{constraints1}(expr1), \enquote{constraints2}(expr2), ..."}. 
+Output operand expressions must be mutable lvalues, or not yet assigned:
+
+\begin{rustc}
+fn add(a: i32, b: i32) -> i32 {
+    let c: i32;
+    unsafe {
+        asm!("add $2, $0"
+             : "=r"(c)
+             : "0"(a), "r"(b)
+             );
+    }
+    c
+}
+
+fn main() {
+    assert_eq!(add(3, 14159), 14162)
+}
+\end{rustc}
+
+If you would like to use real operands in this position, however, you are required to put curly braces \code{\{\}} around the 
+register that you want, and you are required to put the specific size of the operand. This is useful for very low level programming, 
+where which register you use is important:
+
+\begin{rustc}
+let result: u8;
+asm!("in %dx, %al" : "={al}"(result) : "{dx}"(port));
+result
+\end{rustc}
+
+\subsection*{Clobbers}
+
+Some instructions modify registers which might otherwise have held different values so we use the clobbers list to indicate 
+to the compiler not to assume any values loaded into those registers will stay valid.
+
+\begin{rustc}
+// Put the value 0x200 in eax
+asm!("mov $$0x200, %eax" : /* no outputs */ : /* no inputs */ : "{eax}");
+\end{rustc}
+
+Input and output registers need not be listed since that information is already communicated by the given constraints. 
+Otherwise, any other registers used either implicitly or explicitly should be listed.
+
+\blank
+
+If the assembly changes the condition code register \code{cc} should be specified as one of the clobbers. Similarly, if 
+the assembly modifies memory, \code{memory} should also be specified.
+
+\subsection*{Options}
+
+The last section, \code{options} is specific to Rust. The format is comma separated literal strings (i.e. 
+\code{:\enquote{foo}, \enquote{bar}, \enquote{baz}}). It's used to specify some extra info about the inline assembly:
+
+\blank
+
+Current valid options are:
+
+\begin{enumerate}
+  \item{\emph{volatile} - specifying this is analogous to \code{\_\_asm\_\_ \_\_volatile\_\_ (...)} in gcc/clang.}
+  \item{\emph{alignstack} - certain instructions expect the stack to be aligned a certain way (i.e. SSE) and specifying this 
+      indicates to the compiler to insert its usual stack alignment code}
+  \item{\emph{intel} - use intel syntax instead of the default AT\&T.}
+\end{enumerate}
+
+\begin{rustc}
+let result: i32;
+unsafe {
+   asm!("mov eax, 2" : "={eax}"(result) : : : "intel")
+}
+println!("eax is currently {}", result);
+\end{rustc}
+
+\subsection*{More Information}
+
+The current implementation of the \code{asm!} macro is a direct binding to 
+\href{http://llvm.org/docs/LangRef.html\#inline-assembler-expressions}{LLVM's inline assembler expressions}, so be sure to 
+check out \href{http://llvm.org/docs/LangRef.html\#inline-assembler-expressions}{their documentation} as well for more information 
+about clobbers, constraints, etc.
