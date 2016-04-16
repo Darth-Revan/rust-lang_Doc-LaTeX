@@ -10,6 +10,8 @@
 \usepackage{lmodern}
 \usepackage{xspace}
 \usepackage{minted}
+\usepackage{listings}
+\usepackage{spverbatim}
 \usepackage{amssymb}
 \usepackage[autostyle=true]{csquotes}
 \usepackage{graphicx}
@@ -45,11 +47,27 @@
     \setmonofont{Source Code Pro}
 
     \renewcommand{\arraystretch}{1.4}
+%     \renewenvironment{verbatim}
+%     {\VerbatimEnvironment
+%      \begin{mdframed}[backgroundcolor=cverbbg,topline=false,bottomline=false,rightline=false,leftline=false]
+%      \begin{Verbatim}[fontsize=\footnotesize]}
+%     {\end{Verbatim}
+%      \end{mdframed}}
+
+    \setminted[bash]{
+      breaklines=true,
+      samepage=false,
+      fontsize=\footnotesize,
+      tabsize=4,
+      encoding=utf-8,
+      outencoding=utf-8,
+    }
+
     \renewenvironment{verbatim}
     {\VerbatimEnvironment
      \begin{mdframed}[backgroundcolor=cverbbg,topline=false,bottomline=false,rightline=false,leftline=false]
-     \begin{Verbatim}[fontsize=\footnotesize]}
-    {\end{Verbatim}
+     \begin{minted}{bash}}
+    {\end{minted}
      \end{mdframed}}
     
     \usemintedstyle{manni}
@@ -58,7 +76,6 @@
       samepage=false,
       fontsize=\footnotesize,
       tabsize=4,
-      bgcolor=cverbbg,
       encoding=utf-8,
       outencoding=utf-8,
     }
@@ -66,8 +83,10 @@
     \newenvironment{rustc}
     {\VerbatimEnvironment
      \vspace{0.5em}
+     \begin{mdframed}[backgroundcolor=cverbbg,topline=false,bottomline=false,rightline=false,leftline=false]
      \begin{minted}{rust}}
     {\end{minted}
+     \end{mdframed}
      \vspace{0.5em}}
     
     \newcommand{\code}[1]{\texttt{\small \textcolor{red!60!black}{#1}}}
