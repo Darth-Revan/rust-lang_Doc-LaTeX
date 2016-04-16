@@ -7,8 +7,8 @@ BUILDVERB=latexmk -xelatex -pdf -synctex=1 -shell-escape
 standard:
 	$(BUILDTEX) $(PROJECT_STD)
 
-ereader:
-	$(BUILDTEX) $(PROJECT_EREADER)
+#ereader:
+#	$(BUILDTEX) $(PROJECT_EREADER)
 
 std-verb:
 	$(BUILDVERB) $(PROJECT_STD)
