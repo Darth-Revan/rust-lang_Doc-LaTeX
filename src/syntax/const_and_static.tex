@@ -45,9 +45,8 @@ You can introduce mutability with the \mut\ keyword:
 static mut N: i32 = 5;
 \end{rustc}
 
-% TODO make unsafe a hyperref
 Because this is mutable, one thread could be updating \code{N} while another is reading it, causing memory unsafety. As such both 
-accessing and mutating a \code{static mut} is unsafe, and so must be done in an \code{unsafe} block:
+accessing and mutating a \code{static mut} is unsafe, and so must be done in an \code{unsafe} block (see \nameref{sec:syntax_unsafe}):
 
 \begin{rustc}
 unsafe {

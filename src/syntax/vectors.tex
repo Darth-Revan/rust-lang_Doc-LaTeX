@@ -1,7 +1,6 @@
-% TODO make generics a hyperref
 A 'vector' is a dynamic or 'growable' array, implemented as the standard library type \href{https://doc.rust-lang.org/std/vec/}{Vec<T>}. The 
-\code{T} means that we can have vectors of any type (see the chapter on generics for more). Vectors always allocate their data on the heap. 
-You can create them with the \code{vec!} macro:
+\code{T} means that we can have vectors of any type (see the chapter on \nameref{sec:syntax_generics} for more). Vectors always allocate 
+their data on the heap. You can create them with the \code{vec!} macro:
 
 \begin{rustc}
 let v = vec![1, 2, 3, 4, 5]; // v: Vec<i32>
@@ -69,8 +68,7 @@ let v = vec![1, 2, 3];
 println!("Item 7 is {}", v[7]);
 \end{rustc}
 
-% TODO make panic a hyperref
-then the current thread will panic with a message like this:
+then the current thread will panic (see \nameref{sec:effective_concurrency}) with a message like this:
 
 \begin{verbatim}
 thread '<main>' panicked at 'index out of bounds: the len is 3 but the index is 7'

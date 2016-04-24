@@ -79,12 +79,11 @@ for var in expression {
 }
 \end{rustc}
 
-% TODO make iterator a hyperref
 The expression is an item that can be converted into an iterator using 
-\href{https://doc.rust-lang.org/std/iter/trait.IntoIterator.html\{IntoIterator}. The iterator gives back a series of elements. Each 
-element is one iteration of the loop. That value is then bound to the name \code{var}, which is valid for the loop body. Once the 
-body is over, the next value is fetched from the iterator, and we loop another time. When there are no more values, the for loop is 
-over.
+\href{https://doc.rust-lang.org/std/iter/trait.IntoIterator.html\{IntoIterator} (see \nameref{sec:effective_iterators}). The iterator 
+gives back a series of elements. Each element is one iteration of the loop. That value is then bound to the name \code{var}, which is 
+valid for the loop body. Once the body is over, the next value is fetched from the iterator, and we loop another time. When there are 
+no more values, the for loop is over.
 
 \blank
 

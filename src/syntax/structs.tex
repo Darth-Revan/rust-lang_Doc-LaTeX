@@ -139,7 +139,6 @@ let point = Point3d { z: 1, x: 2, .. origin };
 \subsection*{Tuple structs}
 \label{paragraph:tuple_structs}
 
-% TODO make tuple a reference
 Rust has another data type that's like a hybrid between a tuple and a \struct, called a 'tuple struct'. Tuple structs have a name, 
 but their fields don't. They are declared with the \struct\ keyword, and then with a name followed by a tuple:
 
@@ -207,7 +206,6 @@ it defines a new type.
 
 \blank
 
-% TODO make trait a hyperref
 This is rarely useful on its own (although sometimes it can serve as a marker type), but in combination with other features, it can 
-become useful. For instance, a library may ask you to create a structure that implements a certain trait to handle events. If you 
-don't have any data you need to store in the structure, you can create a unit-like \struct.
+become useful. For instance, a library may ask you to create a structure that implements a certain trait to handle events 
+(see \nameref{sec:syntax_traits}). If you don't have any data you need to store in the structure, you can create a unit-like \struct.

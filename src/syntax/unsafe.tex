@@ -14,8 +14,8 @@ unsafe fn danger_will_robinson() {
 }
 \end{rustc}
 
-% TODO make FFI a hyperref
-All functions called from FFI must be marked as \code{unsafe}, for example. The second use of \code{unsafe} is an unsafe block:
+All functions called from FFI must be marked as \code{unsafe}, for example (see \nameref{sec:effective_FFI}). The second use 
+of \code{unsafe} is an unsafe block:
 
 \begin{rustc}
 unsafe {
@@ -122,9 +122,8 @@ This last ability works with both aspects of \code{unsafe}: you can only call fu
 
 \blank
 
-% TODO make instrincts a hyperref
-This ability is powerful and varied. Rust exposes some compiler intrinsics as unsafe functions, and some unsafe functions bypass 
-safety checks, trading safety for speed.
+This ability is powerful and varied. Rust exposes some compiler intrinsics as unsafe functions (see \nameref{sec:nightly_intrinsics}), 
+and some unsafe functions bypass safety checks, trading safety for speed.
 
 \blank
 

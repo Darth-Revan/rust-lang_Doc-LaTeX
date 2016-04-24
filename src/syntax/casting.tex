@@ -18,8 +18,7 @@ The most common case of coercion is removing mutability from a reference:
   \item{\code{\&mut T} to \code{\&T}}
 \end{itemize}
 
-% TODO make raw pointer a hyperref
-An analogous conversion is to remove mutability from a raw pointer:
+An analogous conversion is to remove mutability from a raw pointer (see \nameref{sec:syntax_rawPointers}):
 
 \begin{itemize}
   \item{\code{*mut T} to \code{*const T}}
@@ -32,8 +31,7 @@ References can also be coerced to raw pointers:
   \item{\code{\&mut T} to \code{*mut T}}
 \end{itemize}
 
-% TODO make Deref a hyperref
-Custom coercions may be defined using Deref.
+Custom coercions may be defined using Deref (see \nameref{sec:syntax_derefCoercions}).
 
 \blank
 
@@ -106,9 +104,8 @@ The semantics of numeric casts are:
 
 \myparagraph{Pointer casts}
 
-% TODO make raw pointers a hyperref
 Perhaps surprisingly, it is safe to cast raw pointers to and from integers, and to cast between pointers to different types subject 
-to some constraints. It is only unsafe to dereference the pointer:
+to some constraints (see \nameref{sec:syntax_rawPointers}). It is only unsafe to dereference the pointer:
 
 \begin{rustc}
 let a = 300 as *const char; // a pointer to location 300
@@ -151,10 +148,9 @@ something more dangerous.
 
 \blank
 
-% TODO make intrinsic a hyperref
-The \code{transmute} function is provided by a compiler intrinsic, and what it does is very simple, but very scary. It tells Rust 
-to treat a value of one type as though it were another type. It does this regardless of the typechecking system, and completely 
-trusts you.
+The \code{transmute} function is provided by a compiler intrinsic (see \nameref{sec:nightly_intrinsics}), and what it does is very 
+simple, but very scary. It tells Rust to treat a value of one type as though it were another type. It does this regardless of the 
+typechecking system, and completely trusts you.
 
 \blank
 

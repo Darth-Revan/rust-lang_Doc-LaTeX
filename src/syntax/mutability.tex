@@ -43,8 +43,7 @@ Now \y\ can be bound to another value, and the value it's referencing can be cha
 
 \blank
 
-% TODO make pattern a hyperref
-It's important to note that \mut\ is part of a pattern, so you can do things like this:
+It's important to note that \mut\ is part of a pattern (see \nameref{sec:syntax_patterns}), so you can do things like this:
 
 \begin{rustc}
 let (mut x, y) = (5, 6);
@@ -116,9 +115,8 @@ first.
 
 \myparagraph{Field-level mutability}
 
-% TODO make struct a hyperref
 Mutability is a property of either a borrow (\code{\&mut}) or a binding (\code{let mut}). This means that, for example, you cannot 
-have a struct with some fields mutable and some immutable:
+have a \struct\ (see \nameref{sec:syntax_structs}) with some fields mutable and some immutable:
 
 \begin{rustc}
 struct Point {

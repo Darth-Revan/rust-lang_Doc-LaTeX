@@ -12,18 +12,17 @@ make sure to edit your \code{main()} function, rather than leaving it off. Other
 
 \subsection*{Patterns}
 
-% TODO make patern a hyperref
 In many languages, a variable binding would be called a \emph{variable}, but Rust's variable bindings have a few tricks up 
-their sleeves. For example the left-hand side of a \keylet\ expression is a 'pattern', not a variable name. This means we can 
-do things like:
+their sleeves. For example the left-hand side of a \keylet\ expression is a 'pattern', not a variable name (see 
+\nameref{sec:syntax_patterns}). This means we can do things like:
 
 \begin{rustc}
 let (x, y) = (1, 2);
 \end{rustc}
 
-% TODO make their own section a hyperref
 After this expression is evaluated, \x\ will be one, and \y\ will be two. Patterns are really powerful, and have their 
-own section in the book. We don't need those features for now, so we'll keep this in the back of our minds as we go forward.
+own section in the book (see \nameref{sec:syntax_patterns}). We don't need those features for now, so we'll keep this in the back 
+of our minds as we go forward.
 
 \subsection*{Type annotations}
 

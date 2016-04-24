@@ -2,11 +2,10 @@ This guide is one of three presenting Rust's ownership system. This is one of Ru
 which Rust developers should become quite acquainted. Ownership is how Rust achieves its largest goal, memory safety. There are 
 a few distinct concepts, each with its own chapter:
 
-% TODO make borrowing and lifetimes hyperrefs
 \begin{itemize}
   \item{ownership, which you're reading now}
-  \item{borrowing, and their associated feature 'references'}
-  \item{lifetimes, an advanced concept of borrowing}
+  \item{\nameref{sec:syntax_referencesBorrowing}, and their associated feature 'references'}
+  \item{\nameref{sec:syntax_lifetimes}, an advanced concept of borrowing}
 \end{itemize}
 
 These three chapters are related, and in order. You'll need all three to fully understand the ownership system.
@@ -45,22 +44,20 @@ fn foo() {
 }
 \end{rustc}
 
-% TODO make heap a hyperref
-When \code{v} comes into scope, a new [vector] is created, and it allocates space on the heap for each of its elements. When \code{v}
-goes out of scope at the end of \code{foo()}, Rust will clean up everything related to the vector, even the heap-allocated memory. 
-This happens deterministically, at the end of the scope.
+When \code{v} comes into scope, a new [vector] is created, and it allocates space on the heap for each of its elements 
+(see \nameref{sec:effective_stackAndHeap}). When \code{v} goes out of scope at the end of \code{foo()}, Rust will clean up 
+everything related to the vector, even the heap-allocated memory. This happens deterministically, at the end of the scope.
 
 \blank
 
-% TODO make vectors a hyperref
-We'll cover vectors in detail later in this chapter; we only use them here as an example of a type that allocates space on the 
-heap at runtime. They behave like arrays, except their size may change by \code{push()}ing more elements onto them.
+We'll cover vectors in detail later in this chapter (see \nameref{sec:syntax_vectors}); we only use them here as an example of a 
+type that allocates space on the heap at runtime. They behave like arrays, except their size may change by \code{push()}ing more 
+elements onto them.
 
 \blank
 
-% TODO make generic type a hyperref
-Vectors have a generic type \code{Vec<T>}, so in this example \code{v} will have type \code{Vec<i32>}. We'll cover generics 
-in detail later in this chapter.
+Vectors have a generic type \code{Vec<T>} , so in this example \code{v} will have type 
+\code{Vec<i32>}. We'll cover generics in detail later in this chapter (see \nameref{sec:syntax_generics}).
 
 \subsection*{Move semantics}
 
@@ -119,7 +116,6 @@ let v = vec![1, 2, 3];
 let v2 = v;
 \end{rustc}
 
-% TODO make stack and heap hyperrefs
 The first line allocates memory for the vector object, \code{v}, and for the data it contains. The vector object is stored on the 
 stack and contains a pointer to the content (\code{[1, 2, 3]}) stored on the heap. When we move \code{v} to \code{v2}, it creates 
 a copy of that pointer, for \code{v2}. Which means that there would be two pointers to the content of the vector on the heap. It 
@@ -132,10 +128,9 @@ So it may not be as inefficient as it initially seems.
 
 \myparagraph{\code{Copy} types}
 
-% TODO make trait a hyperref
 We've established that when ownership is transferred to another binding, you cannot use the original binding. However, there's a 
 trait that changes this behavior, and it's called \code{Copy}. We haven't discussed traits yet, but for now, you can think of them 
-as an annotation to a particular type that adds extra behavior. For example:
+as an annotation to a particular type that adds extra behavior (see \nameref{sec:syntax_generics}). For example:
 
 \begin{rustc}
 let v = 1;
@@ -189,8 +184,7 @@ println!("{}", a);
                ^
 \end{verbatim}
 
-% TODO make traits a hyperref
-We will discuss how to make your own types \code{Copy} in the traits section.
+We will discuss how to make your own types \code{Copy} in the traits section (see \nameref{sec:syntax_traits}).
 
 \subsection*{More than ownership}
 

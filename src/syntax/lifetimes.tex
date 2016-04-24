@@ -2,10 +2,9 @@ This guide is one of three presenting Rust's ownership system. This is one of Ru
 which Rust developers should become quite acquainted. Ownership is how Rust achieves its largest goal, memory safety. There are 
 a few distinct concepts, each with its own chapter:
 
-% TODO make borrowing and ownership hyperrefs
 \begin{itemize}
-  \item{ownership, which you're reading now}
-  \item{borrowing, and their associated feature 'references'}
+  \item{\nameref{sec:syntax_ownership}, which you're reading now}
+  \item{\nameref{sec:syntax_referencesBorrowing}, and their associated feature 'references'}
   \item{lifetimes, an advanced concept of borrowing}
 \end{itemize}
 
@@ -75,10 +74,9 @@ example down:
 fn bar<'a>(...)
 \end{rustc}
 
-% TODO make later in the book a hyperref
 We previously talked a little about function syntax (\nameref{sec:syntax_functions}), but we didn't discuss the \code{<>}s after 
 a function's name. A function can have 'generic parameters' between the \code{<>}s, of which lifetimes are one kind. We'll discuss 
-other kinds of generics later in the book, but for now, let's focus on the lifetimes aspect.
+other kinds of generics later in the book (see \nameref{sec:syntax_generics}), but for now, let's focus on the lifetimes aspect.
 
 \blank
 
@@ -107,8 +105,7 @@ If you compare \code{\&mut i32} to \code{\&'a mut i32}, they're the same, it's t
 
 \subsection*{In \code{struct}s}
 
-% TODO make structs a hyperref
-You'll also need explicit lifetimes when working with structs that contain references:
+You'll also need explicit lifetimes when working with \code{struct}s that contain references (see \nameref{sec:syntax_structs}):
 
 \begin{rustc}
 struct Foo<'a> {

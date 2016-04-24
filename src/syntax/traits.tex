@@ -190,10 +190,9 @@ Now, a rectangle can be defined in terms of any type that can be compared for eq
 
 \blank
 
-% TODO make operators traits a hyperref
 Here we defined a new struct \code{Rectangle} that accepts numbers of any precision—really, objects of pretty much any type—as long as they 
 can be compared for equality. Could we do the same for our \code{HasArea} structs, \code{Square} and \code{Circle}? Yes, but they need
-multiplication, and to work with that we need to know more about operator traits.
+multiplication, and to work with that we need to know more about operator traits (\nameref{sec:syntax_operatorsAndOverloading}).
 
 \subsection*{Rules for implementing traits}
 
@@ -263,9 +262,8 @@ by you. So, we could implement the \code{HasArea} type for \itt, because \code{H
 
 \blank
 
-% TODO make trait objects a hyperref
 One last thing about traits: generic functions with a trait bound use 'monomorphization' (mono: one, morph: form), so they are 
-statically dispatched. What's that mean? Check out the chapter on trait objects for more details.
+statically dispatched. What's that mean? Check out the chapter on trait objects for more details (see \nameref{sec:syntax_traitObjects}).
 
 \subsection*{Multiple trait bounds}
 
@@ -463,9 +461,8 @@ error: the trait `main::Foo` is not implemented for the type `main::Baz` [E0277]
 
 \subsection*{Deriving}
 
-% TODO make atttribute a hyperref
 Implementing traits like \code{Debug} and \code{Default} repeatedly can become quite tedious. For that reason, Rust provides an attribute 
-that allows you to let Rust automatically implement traits for you:
+that allows you to let Rust automatically implement traits for you (see \nameref{sec:syntax_attributes}):
 
 \begin{rustc}
 #[derive(Debug)]

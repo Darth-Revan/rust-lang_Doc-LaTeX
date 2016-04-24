@@ -22,13 +22,21 @@ In order to build the PDF file yourself from the LaTeX-source:
     `$ git clone https://github.com/Darth-Revan/rust-lang_Doc-LaTeX.git; cd rust-lang_Doc-LaTeX`
 3. Build:
 
-    For the standard PDF version:
+    For the standard PDF version (A4 size):
 
     `$ make standard`
 
     For building the standard PDF version with verbose output:
 
     `$ make stb-verb`
+
+    For the A5-sized version:
+
+    `$ make ereader`
+
+    For the A5-sized version with verbose output:
+
+    `$ make eread-verb`
 
     In order to clean the working directory from temporary files created by `xelatex` invoke:
 

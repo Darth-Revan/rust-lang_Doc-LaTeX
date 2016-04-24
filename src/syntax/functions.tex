@@ -140,11 +140,10 @@ statement, not an expression.
 
 \blank
 
-% TODO make only one ownership a hyperref
 Note that assigning to an already-bound variable (e.g. \code{y = 5}) is still an expression, although its value is not 
 particularly useful. Unlike other languages where an assignment evaluates to the assigned value (e.g. \code{5} in the previous
-example), in Rust the value of an assignment is an empty tuple \code{()} because the assigned value can have only one owner, and 
-any other returned value would be too surprising:
+example), in Rust the value of an assignment is an empty tuple \code{()} because the assigned value can have only one owner 
+(see \nameref{sec:syntax_ownership}), and any other returned value would be too surprising:
 
 \begin{rustc}
 let mut y = 5;

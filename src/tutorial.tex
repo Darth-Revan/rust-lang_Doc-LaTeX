@@ -107,10 +107,9 @@ number of useful, \code{io}-related things.
 fn main() {
 \end{rustc}
 
-% TODO make tuple a hyperref to tuple
 As you've seen before, the \code{main()} function is the entry point into your program. The \code{fn} syntax declares a new 
 function, the \code{()}s indicate that there are no arguments, and \code{\{} starts the body of the function. Because we 
-didn't include a return type, it's assumed to be \code{()}, an empty tuple.
+didn't include a return type, it's assumed to be \code{()}, an empty tuple (see \nameref{sec:syntax_primitives}).
 
 \begin{rustc}
     println!("Guess the number!");
@@ -118,16 +117,15 @@ didn't include a return type, it's assumed to be \code{()}, an empty tuple.
     println!("Please input your guess.");
 \end{rustc}
 
-% TODO make macro and string to hyperrefs
-We previously learned that \code{println!()} is a macro that prints a string to the screen.
+We previously learned that \code{println!()} is a macro (see \nameref{sec:syntax_macros}) that prints a string (see 
+\nameref{sec:syntax_strings}) to the screen.
 
 \begin{rustc}
     let mut guess = String::new();
 \end{rustc}
 
-% TODO make let statement a hyperref
 Now we're getting interesting! There's a lot going on in this little line. The first thing to notice is that this is a 
-let statement, which is used to create 'variable bindings'. They take this form:
+let statement (see \nameref{sec:syntax_variableBindings}), which is used to create 'variable bindings'. They take this form:
 
 \begin{rustc}
 let foo = bar;
@@ -138,18 +136,16 @@ This will create a new binding named \code{foo}, and bind it to the value \code{
 
 \blank
 
-% TODO make immutable and pattern hyperrefs
-For example, they're immutable by default. That's why our example uses \code{mut}: it makes a binding mutable, rather than 
-immutable. \code{let} doesn't take a name on the left hand side of the assignment, it actually accepts a 'pattern'. We'll 
-use patterns later. It's easy enough to use for now:
+For example, they're immutable by default (see \nameref{sec:syntax_mutability}). That's why our example uses \code{mut}: it makes 
+a binding mutable, rather than immutable. \code{let} doesn't take a name on the left hand side of the assignment, it actually accepts 
+a 'pattern' (see \nameref{sec:syntax_patterns}). We'll use patterns later. It's easy enough to use for now:
 
 \begin{rustc}
 let foo = 5; // immutable.
 let mut bar = 5; // mutable
 \end{rustc}
 
-% TODO make comments a hyperref
-Oh, and \code{//} will start a comment, until the end of the line. Rust ignores everything in comments.
+Oh, and \code{//} will start a comment, until the end of the line. Rust ignores everything in comments (see \nameref{sec:syntax_comments}).
 
 \blank
 
@@ -158,8 +154,8 @@ other side of the \code{=} for what it's bound to: \code{String::new()}.
 
 \blank
 
-% TODO make string a hyperref
-\code{String} is a string type, provided by the standard library. A String is a growable, UTF-8 encoded bit of text.
+\code{String} is a string type, provided by the standard library. A 
+\href{https://doc.rust-lang.org/std/string/struct.String.html}{String} is a growable, UTF-8 encoded bit of text.
 
 \blank
 
@@ -204,20 +200,18 @@ The next part will use this handle to get input from the user:
 .read_line(&mut guess)
 \end{rustc}
 
-% TODO make methods a hyperref
 Here, we call the \href{https://doc.rust-lang.org/std/io/struct.Stdin.html\#method.read\_line}{read\_line()} method on our handle.
-Methods are like associated functions, but are only available on a particular instance of a type, rather than the type itself. 
-We're also passing one argument to \code{read\_line(): \&mut guess}.
+Methods are like associated functions, but are only available on a particular instance of a type, rather than the type itself 
+(see \nameref{sec:syntax_methodSyntax}). We're also passing one argument to \code{read\_line(): \&mut guess}.
 
 \blank
 
-% TODO make references a hyperref
 Remember how we bound \code{guess} above? We said it was mutable. However, \code{read\_line} doesn't take a \code{String} as 
-an argument: it takes a \code{\&mut String}. Rust has a feature called 'references', which allows you to have multiple references 
-to one piece of data, which can reduce copying. References are a complex feature, as one of Rust's major selling points is how 
-safe and easy it is to use references. We don't need to know a lot of those details to finish our program right now, though. 
-For now, all we need to know is that like \code{let} bindings, references are immutable by default. Hence, we need to write 
-\code{\&mut guess}, rather than \code{\&guess}.
+an argument: it takes a \code{\&mut String}. Rust has a feature called 'references' (see \nameref{sec:syntax_referencesBorrowing}), 
+which allows you to have multiple references to one piece of data, which can reduce copying. References are a complex feature, as 
+one of Rust's major selling points is how safe and easy it is to use references. We don't need to know a lot of those details to 
+finish our program right now, though. For now, all we need to know is that like \code{let} bindings, references are immutable by 
+default. Hence, we need to write \code{\&mut guess}, rather than \code{\&guess}.
 
 \blank
 
@@ -249,12 +243,11 @@ for sub-libraries, like \code{io::Result}.
 
 \blank
 
-% TODO make panic! a hyperref
 The purpose of these \code{Result} types is to encode error handling information. Values of the \code{Result} type, like any 
 type, have methods defined on them. In this case, \code{io::Result} has an 
 \href{https://doc.rust-lang.org/std/option/enum.Option.html\#method.expect}{expect()} method that takes a value it's called on, 
-and if it isn't a successful one, panic!s with a message you passed it. A \code{panic!} like this will cause our program to crash,
-displaying the message.
+and if it isn't a successful one, \code{panic!}s with a message you passed it. A \code{panic!} like this will cause our program to crash,
+displaying the message (see \nameref{sec:effective_errorHandling}).
 
 \blank
 
@@ -446,10 +439,9 @@ equivalent of a \code{use rand}; as well, so we can make use of anything in the 
 
 \blank
 
-% TODO make traits a hyperref
 Next, we added another \code{use} line: \code{use rand::Rng}. We're going to use a method in a moment, and it requires that 
 \code{Rng} be in scope to work. The basic idea is this: methods are defined on something called 'traits', and for the method 
-to work, it needs the trait to be in scope. For more about the details, read the traits section.
+to work, it needs the trait to be in scope. For more about the details, read the traits section (see \nameref{sec:syntax_traits}).
 
 \blank
 
@@ -461,11 +453,10 @@ There are two other lines we added, in the middle:
     println!("The secret number is: {}", secret_number);
 \end{rustc}
 
-% TODO make thread a hyperref
 We use the \code{rand::thread\_rng()} function to get a copy of the random number generator, which is local to the particular 
-thread of execution we're in. Because we \code{use rand::Rng}'d above, it has a \code{gen\_range()} method available. This 
-method takes two arguments, and generates a number between them. It's inclusive on the lower bound, but exclusive on the upper 
-bound, so we need 1 and 101 to get a number ranging from one to a hundred.
+thread of execution we're in (see \nameref{sec:effective_concurrency}). Because we \code{use rand::Rng}'d above, it has a 
+\code{gen\_range()} method available. This method takes two arguments, and generates a number between them. It's inclusive on the 
+lower bound, but exclusive on the upper bound, so we need 1 and 101 to get a number ranging from one to a hundred.
 
 \blank
 
@@ -543,11 +534,10 @@ match guess.cmp(&secret_number) {
 }
 \end{rustc}
 
-% TODO make match a hyperref
-% TODO make enum a hyperref
 The \code{cmp()} method can be called on anything that can be compared, and it takes a reference to the thing you want to compare 
-it to. It returns the \code{Ordering} type we \code{use}d earlier. We use a match statement to determine exactly what kind of 
-\code{Ordering} it is. \code{Ordering} is an enum, short for 'enumeration', which looks like this:
+it to. It returns the \code{Ordering} type we \code{use}d earlier. We use a \code{match} statement (see \nameref{sec:syntax_match}) 
+to determine exactly what kind of \code{Ordering} it is. \code{Ordering} is an \code{enum} (see \nameref{sec:syntax_enums}), short 
+for 'enumeration', which looks like this:
 
 \begin{rustc}
 enum Foo {
@@ -657,7 +647,6 @@ We bind \code{guess} to an expression that looks like something we wrote earlier
 guess.trim().parse()
 \end{rustc}
 
-% TODO make built-in number types a hyperref
 Here, \code{guess} refers to the old \code{guess}, the one that was a \code{String} with our input in it. The \code{trim()} method 
 on \code{String}s will eliminate any white space at the beginning and end of our string. This is important, as we had to press the
 'return' key to satisfy \code{read\_line()}. This means that if we type \code{5} and hit return, \code{guess} looks like this: 
@@ -666,7 +655,7 @@ on \code{String}s will eliminate any white space at the beginning and end of our
 some kind of number. Since it can parse a variety of numbers, we need to give Rust a hint as to the exact type of number we want.
 Hence, \code{let guess: u32}. The colon (\code{:}) after \code{guess} tells Rust we're going to annotate its type. \code{u32} is 
 an unsigned, thirty-two bit integer. Rust has a number of built-in number types, but we've chosen \code{u32}. It's a good default
-choice for a small positive number.
+choice for a small positive number (see \nameref{sec:syntax_primitives}).
 
 \blank
 

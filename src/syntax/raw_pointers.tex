@@ -1,6 +1,6 @@
-% TODO make unsafe a hyperref
 Rust has a number of different smart pointer types in its standard library, but there are two types that are extra-special. Much 
-of Rust's safety comes from compile-time checks, but raw pointers don't have such guarantees, and are unsafe to use.
+of Rust's safety comes from compile-time checks, but raw pointers don't have such guarantees, and are unsafe to use (see 
+\nameref{sec:syntax_unsafe}).
 
 \blank
 
@@ -68,9 +68,8 @@ For more operations on raw pointers, see \href{https://doc.rust-lang.org/std/pri
 
 \subsection*{FFI}
 
-% TODO make FFI a hyperref
 Raw pointers are useful for FFI: Rust's \code{*const T} and \code{*mut T} are similar to C's \code{const T*} and \code{T*}, respectively. 
-For more about this use, consult the FFI chapter.
+For more about this use, consult the FFI chapter (see \nameref{sec:effective_FFI}).
 
 \subsection*{References and raw pointers}
 

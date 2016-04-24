@@ -30,17 +30,16 @@ able to send some data down the channel and to the other thread. Therefore, we'd
 
 \blank
 
-% TODO make FFI a hyperref
-In the opposite way, if we were wrapping a library with FFI that isn't threadsafe, we wouldn't want to implement \code{Send}, 
-and so the compiler will help us enforce that it can't leave the current thread.
+In the opposite way, if we were wrapping a library with FFI (see \nameref{sec:effective_FFI}) that isn't threadsafe, we wouldn't want to 
+implement \code{Send}, and so the compiler will help us enforce that it can't leave the current thread.
 
 \myparagraph{\code{Sync}}
 
-% TODO make interior mutability a hyperref
 The second of these traits is called \href{https://doc.rust-lang.org/std/marker/trait.Sync.html}{Sync}. When a type \code{T} 
 implements \code{Sync}, it indicates that something of this type has no possibility of introducing memory unsafety when used from 
-multiple threads concurrently through shared references. This implies that types which don't have interior mutability are inherently 
-\code{Sync}, which includes simple primitive types (like \code{u8}) and aggregate types containing them.
+multiple threads concurrently through shared references. This implies that types which don't have interior mutability (see 
+\nameref{sec:syntax_mutability}) are inherently \code{Sync}, which includes simple primitive types (like \code{u8}) and aggregate 
+types containing them.
 
 \blank
 

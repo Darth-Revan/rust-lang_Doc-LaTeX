@@ -3,11 +3,10 @@ system: threads, networking, heap allocation, and others. There are systems that
 Rust can work with those too! To do so, we tell Rust that we don't want to use the standard library via an attribute: 
 \code{\#![no\_std]}.
 
-% TODO make no stdlib a hyperref
 \begin{myquote}
 Note: This feature is technically stable, but there are some caveats. For one, you can build a \code{\#![no\_std]} library 
 on stable, but not a binary. For details on binaries without the standard library, see the nightly chapter on 
-\code{\#![no\_std]}.
+\code{\#![no\_std]} (see \nameref{sec:nightly_nostdlib}).
 \end{myquote}
 
 To use \code{\#![no\_std]}, add a it to your crate root:

@@ -12,8 +12,7 @@ let x = true;
 let y: bool = false;
 \end{rustc}
 
-% TODO make if conditionals a hyperref
-A common use of booleans is in if conditionals.
+A common use of booleans is in if conditionals (see \nameref{sec:syntax_if}).
 
 \blank
 
@@ -109,9 +108,8 @@ let a = [1, 2, 3]; // a: [i32; 3]
 let mut m = [1, 2, 3]; // m: [i32; 3]
 \end{rustc}
 
-% TODO make generics section a hyperref
-Arrays have type \code{[T; N]}. We'll talk about this \code{T} notation in the generics section. The \code{N} is a compile-time 
-constant, for the length of the array.
+Arrays have type \code{[T; N]}. We'll talk about this \code{T} notation in the generics section (see \nameref{sec:syntax_generics}). 
+The \code{N} is a compile-time constant, for the length of the array.
 
 \blank
 
@@ -155,9 +153,9 @@ not created directly, but from an existing variable binding. Slices have a defin
 
 \myparagraph{Slicing syntax}
 
-% TODO make references a hyperref
 You can use a combo of \code{\&} and \code{[]} to create a slice from various things. The \code{\&} indicates that slices are similar 
-to references, which we will cover in detail later in this section. The \code{[]}s, with a range, let you define the length of the slice:
+to references (see \nameref{sec:syntax_referencesBorrowing}), which we will cover in detail later in this section. The \code{[]}s, with 
+a range, let you define the length of the slice:
 
 \begin{rustc}
 let a = [0, 1, 2, 3, 4];
@@ -165,8 +163,7 @@ let complete = &a[..]; // A slice containing all of the elements in a
 let middle = &a[1..4]; // A slice of a: only the elements 1, 2, and 3
 \end{rustc}
 
-% TODO make generics a hyperref
-Slices have type \code{\&[T]}. We'll talk about that \code{T} when we cover generics.
+Slices have type \code{\&[T]}. We'll talk about that \code{T} when we cover generics (see \nameref{sec:syntax_generics}).
 
 \blank
 
@@ -174,9 +171,9 @@ You can find more documentation for slices \href{https://doc.rust-lang.org/std/p
 
 \subsection*{str}
 
-% TODO make unsized type a hyperref, make strings a hyperref and references a hyperref
-Rust's \code{str} type is the most primitive string type. As an unsized type, it's not very useful by itself, but becomes useful 
-when placed behind a reference, like \code{\&str}. We'll elaborate further when we cover Strings and references.
+Rust's \code{str} type is the most primitive string type. As an unsized type (see \nameref{sec:syntax_unsizedTypes}), it's not very 
+useful by itself, but becomes useful when placed behind a reference, like \code{\&str}. We'll elaborate further when we cover 
+\nameref{sec:syntax_strings} and references (see \nameref{sec:syntax_referencesBorrowing}).
 
 \blank
 

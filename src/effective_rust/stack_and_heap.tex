@@ -311,10 +311,10 @@ The memory now looks like this:
   \end{tabular}
 \end{table}
 
-% TODO make raw pointer a hyperref
 We have ($2^{30}$) - 1 addresses in our hypothetical computer with 1GB of RAM. And since our stack grows from zero, the easiest place 
 to allocate memory is from the other end. So our first value is at the highest place in memory. And the value of the struct at \x\ has a 
-raw pointer to the place we've allocated on the heap, so the value of \x\ is ($2^{30}$) - 1, the memory location we've asked for.
+raw pointer (see \nameref{sec:syntax_rawPointers}) to the place we've allocated on the heap, so the value of \x\ is ($2^{30}$) - 1, the 
+memory location we've asked for.
 
 \blank
 

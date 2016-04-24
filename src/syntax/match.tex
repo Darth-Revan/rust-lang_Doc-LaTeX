@@ -15,10 +15,10 @@ match x {
 }
 \end{rustc}
 
-% TODO make sections a hyperref
 \match\ takes an expression and then branches based on its value. Each 'arm' of the branch is of the form \code{val => expression}. When 
 the value matches, that arm's expression will be evaluated. It's called \match\ because of the term 'pattern matching', which \match\ is 
-an implementation of. There's a separate section on patterns that covers all the patterns that are possible here.
+an implementation of. There's a separate section on patterns that covers all the patterns that are possible here (see 
+\nameref{sec:syntax_patterns}).
 
 \blank
 
@@ -85,6 +85,5 @@ one off, it will give you a compile-time error unless you use \code{\_} or provi
 
 \blank
 
-% TODO make if let a hyperref
-Unlike the previous uses of \match, you can't use the normal \keyif\ statement to do this. You can use the \code{if let} (see) 
-statement, which can be seen as an abbreviated form of \match.
+Unlike the previous uses of \match, you can't use the normal \keyif\ statement to do this. You can use the \code{if let} (see 
+\nameref{sec:syntax_iflet}) statement, which can be seen as an abbreviated form of \match.

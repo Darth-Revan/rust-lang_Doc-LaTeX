@@ -64,8 +64,7 @@ Will be the same as \code{\#[b]} if a is set by \code{cfg} attribute, and nothin
 
 \subsection*{cfg!}
 
-% TODO make syntax extension a hyperref
-The \code{cfg!} syntax extension lets you use these kinds of flags elsewhere in your code, too:
+The \code{cfg!} syntax extension (see \nameref{sec:nightly_compilerPlugins}) lets you use these kinds of flags elsewhere in your code, too:
 
 \begin{rustc}
 if cfg!(target_os = "macos") || cfg!(target_os = "ios") {

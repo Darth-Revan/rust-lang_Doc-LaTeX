@@ -46,10 +46,10 @@ fn process_color_change(msg: Message) {
 }
 \end{rustc}
 
-% TODO make traits and match hyperrefs
 Not supporting these operations may seem rather limiting, but it's a limitation which we can overcome. There are two ways: by 
-implementing equality ourselves, or by pattern matching variants with match expressions, which you'll learn in the next section. 
-We don't know enough about Rust to implement equality yet, but we'll find out in the traits section.
+implementing equality ourselves, or by pattern matching variants with \code{match} expressions, which you'll learn in the next section 
+(see \nameref{sec:syntax_match}). We don't know enough about Rust to implement equality yet, but we'll find out in the traits section 
+(see \nameref{sec:syntax_traits}).
 
 \subsection*{Constructors as functions}
 
@@ -69,9 +69,9 @@ fn foo(x: String) -> Message {
 let x = foo("Hello, world".to_string());
 \end{rustc}
 
-% TODO make closures and iterators hyperrefs
-This is not immediately useful to us, but when we get to closures, we'll talk about passing functions as arguments to other functions. 
-For example, with iterators, we can do this to convert a vector of \String s into a vector of \code{Message::Writes}:
+This is not immediately useful to us, but when we get to closures (see \nameref{sec:syntax_closures}), we'll talk about passing 
+functions as arguments to other functions. For example, with iterators (see \nameref{sec:effective_iterators}), we can do this to 
+convert a vector of \String s into a vector of \code{Message::Writes}:
 
 \begin{rustc}
 let v = vec!["Hello".to_string(), "World".to_string()];
